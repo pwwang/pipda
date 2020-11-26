@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "dpipe"
+version = "0.0.0"
+description = "A framework for data piping in python"
+authors = ["pwwang <pwwang@pwwang.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+varname = "^0.5.4"
+executing = "^0.5.3"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.1.2"
+pytest-cov = "^2.10.1"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
