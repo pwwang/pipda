@@ -1,4 +1,4 @@
-# dpipe
+# pipedy
 
 A framework for data piping in python
 
@@ -8,12 +8,12 @@ Inspired by [siuba][1], [dfply][2], [plydata][3] and [dplython][4], but implemen
 
 ## Installation
 ```shell
-pip install -U dpipe
+pip install -U pipedy
 ```
 
 ## Usage
 ```python
-from dpipe import single_dispatch, Symbolic
+from pipedy import single_dispatch, Symbolic
 
 X = Symbolic()
 
