@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "dpipe"
+name = "pipedy"
 version = "0.0.0"
 description = "A framework for data piping in python"
 authors = ["pwwang <pwwang@pwwang.com>"]

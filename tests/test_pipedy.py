@@ -1,5 +1,5 @@
 import unittest
-from dpipe import *
+from pipedy import *
 
 class TestCase(unittest.TestCase):
 

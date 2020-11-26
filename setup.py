@@ -14,7 +14,7 @@ readme = ''
 
 setup(
     long_description=readme,
-    name='dpipe',
+    name='pipedy',
     version='0.0.0',
     description='A framework for data piping in python',
     python_requires='==3.*,>=3.7.0',

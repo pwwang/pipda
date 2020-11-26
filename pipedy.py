@@ -87,7 +87,7 @@ class Symbolic:
             )
         )
         ast.fix_missing_locations(lambd_node)
-        code = compile(lambd_node, filename='<dpipe-ast>', mode='eval')
+        code = compile(lambd_node, filename='<pipedy-ast>', mode='eval')
 
         return eval(code)
 
