@@ -1,4 +1,4 @@
-# pipedy
+# pipda
 
 A framework for data piping in python
 
@@ -8,12 +8,12 @@ Inspired by [siuba][1], [dfply][2], [plydata][3] and [dplython][4], but implemen
 
 ## Installation
 ```shell
-pip install -U pipedy
+pip install -U pipda
 ```
 
 ## Usage
 ```python
-from pipedy import single_dispatch, Symbolic
+from pipda import single_dispatch, Symbolic
 
 X = Symbolic()
 

@@ -22,10 +22,10 @@ repos:
     rev: v2.4.4
     hooks:
     -   id: pylint
-        files: ^pipedy.py$
+        files: ^pipda.py$
         pass_filenames: false
         types: [python]
-        args: [pipedy]
+        args: [pipda]
 -   repo: local
     hooks:
     -   id: poetry2setuppy
@@ -46,4 +46,4 @@ repos:
         language: system
         args: [tests/]
         pass_filenames: false
-        files: ^tests/.+$|^pipedy.py$
+        files: ^tests/.+$|^pipda.py$
