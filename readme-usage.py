@@ -1,18 +1,3 @@
-# pipda
-
-A framework for data piping in python
-
-This allows you to mimic the `R` package `dplyr` in python
-
-Inspired by [siuba][1], [dfply][2], [plydata][3] and [dplython][4], but implemented in only < 200 lines!
-
-## Installation
-```shell
-pip install -U pipda
-```
-
-## Usage
-```python
 import pandas as pd
 from pipda import single_dispatch, register_func, Symbolic
 
@@ -69,9 +54,3 @@ df >> mutate(z=if_else(X.x>1, 20, 10))
 # 1  1    one  10
 # 2  2    two  20
 # 3  3  three  20
-```
-
-[1]: https://github.com/machow/siuba
-[2]: https://github.com/kieferk/dfply
-[3]: https://github.com/has2k1/plydata
-[4]: https://github.com/dodger487/dplython
