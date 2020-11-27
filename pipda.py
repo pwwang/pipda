@@ -7,6 +7,8 @@ from functools import wraps
 from executing import Source
 from varname import varname
 
+__version__ = '0.0.1'
+
 # pylint: disable=unused-argument,eval-used
 class Transformer(ast.NodeTransformer):
     """Transform a call into the real call"""
