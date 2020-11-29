@@ -2,8 +2,25 @@
 from functools import wraps
 from .symbolic import Symbolic
 
+SIGN_MAPPING = {
+    '+': '__radd__',
+    '-': '__rsub__',
+    '*': '__rmul__',
+    '@': '__rmatmul__',
+    '/': '__rtruediv__',
+    '//': '__rfloordiv__',
+    '%': '__rmod__',
+    '**': '__rpow__',
+    '<<': '__rlshift__',
+    '>>': '__rrshift__',
+    '&': '__rand__',
+    '^': '__rxor__',
+    '|': '__ror__',
+}
+
 class Verb:
     """A wrapper for the verbs"""
+
     def __init__(self, types, compile_attrs, func, args, kwargs):
         self.types = types
         self.compile_attrs = compile_attrs
@@ -23,7 +40,7 @@ class Verb:
                       if isinstance(val, Symbolic) else val)
                 for key, val in self.kwargs.items()}
 
-    def __rrshift__(self, data):
+    def _sign(self, data):
         if not isinstance(data, self.types):
             raise TypeError(f"{type(data)} is not registered for data piping.")
         return self.func(data, *self.eval_args(data), **self.eval_kwargs(data))
@@ -41,3 +58,12 @@ def register_verb(types, compile_attrs=True, func=None):
 
     wrapper.pipda = func
     return wrapper
+
+def piping_sign(sign):
+    """Define the piping sign"""
+    if sign not in SIGN_MAPPING:
+        raise ValueError(f'Unsupported sign: {sign}, '
+                         f'expected {list(SIGN_MAPPING)}')
+    setattr(Verb, SIGN_MAPPING[sign], Verb._sign)
+
+piping_sign('>>')
