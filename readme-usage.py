@@ -1,7 +1,7 @@
 import pandas as pd
-from pipda import single_dispatch, register_func, Symbolic
+from pipda import register_verb, register_func, Symbolic
 
-@single_dispatch(pd.DataFrame)
+@register_verb(pd.DataFrame)
 def mutate(data, **kwargs):
     for key, val in kwargs.items():
         data[key] = val

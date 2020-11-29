@@ -1,6 +1,7 @@
 """A framework for data piping in python"""
 import sys
 import ast
+from types import FunctionType
 from copy import deepcopy
 from functools import wraps
 
@@ -27,12 +28,25 @@ class Transformer(ast.NodeTransformer):
 
         return ast.Str(node.attr)
 
+    def visit_BinOp(self, node):
+        """Visit the binary operator"""
+        if not isinstance(node.op, (ast.BitAnd, ast.BitOr)):
+            return self.generic_visit(node)
+        return self.visit(ast.Call(
+            func=ast.Name(
+                id=('__and__' if isinstance(node.op, ast.BitAnd) else '__or__'),
+                ctx=ast.Load()
+            ),
+            args=[node.left, node.right],
+            keywords=[]
+        ))
+
     def visit_Call(self, node):
         """Get the real calls"""
         node.args.insert(0, ast.Name(id=self.name, ctx=ast.Load()))
         return ast.Call(
             func=ast.Attribute(value=self.visit(node.func),
-                               attr='__pipda__',
+                               attr='pipda',
                                ctx=ast.Load()),
             args=[self.visit(arg) for arg in node.args],
             keywords=[self.visit(kwarg) for kwarg in node.keywords]
@@ -119,10 +133,10 @@ class Symbolic:
             return body
         return func
 
-class Piped:
+class Verb:
     """A wrapper for the verbs"""
-    def __init__(self, cls, compile_attrs, func, args, kwargs):
-        self.cls = cls
+    def __init__(self, types, compile_attrs, func, args, kwargs):
+        self.types = types
         self.compile_attrs = compile_attrs
         self.func = func
         self.args = args
@@ -141,31 +155,39 @@ class Piped:
                 for key, val in self.kwargs.items()}
 
     def __rrshift__(self, data):
-        if not isinstance(data, self.cls):
+        if not isinstance(data, self.types):
             raise TypeError(f"{type(data)} is not registered for data piping.")
         return self.func(data, *self.eval_args(data), **self.eval_kwargs(data))
 
-def register_func(func=None):
-    """Register a function used in Piped arguments"""
+def register_func(types=None, func=None):
+    """Register a function used in Verb arguments"""
+    if func is None and isinstance(types, FunctionType):
+        func, types = types, None
     if func is None:
-        return register_func
+        return lambda fun: register_func(types, fun)
 
     @wraps(func)
     def wrapper(*args, **kwargs):
         exet = Source.executing(sys._getframe(1))
         return Symbolic(None, exet)
-    wrapper.__pipda__ = func
+
+    @wraps(func)
+    def func_with_typecheck(*args, **kwargs):
+        if types and not isinstance(args[0], types):
+            raise TypeError(f'{func.__name__} is not registered for {types}.')
+        return func(*args, **kwargs)
+    wrapper.pipda = func_with_typecheck
     return wrapper
 
-def single_dispatch(cls, compile_attrs=True, func=None):
+def register_verb(types, compile_attrs=True, func=None):
     """Mimic the singledispatch function to implement a function for
     specific types"""
     if func is None:
-        return lambda fun: single_dispatch(cls, compile_attrs, fun)
+        return lambda fun: register_verb(types, compile_attrs, fun)
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        return Piped(cls, compile_attrs, func, args, kwargs)
+        return Verb(types, compile_attrs, func, args, kwargs)
 
-    wrapper.__pipda__ = func
+    wrapper.pipda = func
     return wrapper

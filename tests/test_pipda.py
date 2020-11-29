@@ -6,13 +6,13 @@ class TestCase(unittest.TestCase):
     def test_case(self):
         X = Symbolic()
 
-        @single_dispatch(list)
+        @register_verb(list)
         def split(data, num):
             """Split a list into two lists by one of the numbers in the list"""
             return [[dat for dat in data if dat < num],
                     [dat for dat in data if dat > num]]
 
-        @single_dispatch(list)
+        @register_verb(list)
         def add(data, num):
             if not isinstance(num, int):
                 num = list(num)
@@ -38,7 +38,7 @@ class TestCase(unittest.TestCase):
     def test_int(self):
         X = Symbolic()
 
-        @single_dispatch(int)
+        @register_verb(int)
         def add(data, num):
             """Split a list into two lists by one of the numbers in the list"""
             return data + num
@@ -51,11 +51,11 @@ class TestCase(unittest.TestCase):
         X = Symbolic()
         self.assertEqual(repr(X), '<Symbolic:X>')
 
-        @single_dispatch(dict)
+        @register_verb(dict)
         def filter(data, keys):
             return {key: val for key, val in data.items() if key in keys}
 
-        @single_dispatch(dict)
+        @register_verb(dict)
         def length(data):
             return data.__len__()
 
@@ -83,7 +83,7 @@ class TestCase(unittest.TestCase):
 
     def test_unary(self):
         X = Symbolic()
-        @single_dispatch(dict, False)
+        @register_verb(dict, False)
         def filter(data, keys):
             return {key: val for key, val in data.items() if key in keys}
 
@@ -106,12 +106,55 @@ class TestCase(unittest.TestCase):
         data.c = 3
 
         X = Symbolic()
-        @single_dispatch(types.FunctionType)
+        @register_verb(types.FunctionType)
         def filter_by_value(data, *values):
             return {key: getattr(data, key) for key in data.__dict__ if getattr(data, key) in values}
 
         d = data >> filter_by_value(X.a, X.b)
-        assert d == {'a': 1, 'b': 2}
+        self.assertEqual(d, {'a': 1, 'b': 2})
+
+    def test_binop(self):
+        import types
+        data = lambda: 0
+        data.a = 1
+        data.b = 2
+        data.c = 3
+
+        X = Symbolic()
+        @register_verb(types.FunctionType)
+        def add(data, *values):
+            return sum(values)
+
+        @register_func
+        def __and__(data, left, right):
+            return left + right
+
+        @register_func
+        def __or__(data, left, right):
+            return left - right
+
+        self.assertEqual(data >> add(X.a + X.b, X.c), 6)
+        self.assertEqual(data >> add(X.a & X.b, X.c), 6)
+        self.assertEqual(data >> add(X.a | X.b, X.c), 2)
+
+    def test_unsupported_type_for_func(self):
+        X = Symbolic()
+        @register_verb((int, float))
+        def add(data, other):
+            return data + other
+
+        @register_func(int)
+        def one(data):
+            return 1
+
+        x = 1 >> add(2)
+        self.assertEqual(x, 3)
+
+        x = 1 >> add(one())
+        self.assertEqual(x, 2)
+
+        with self.assertRaises(TypeError):
+            1.1 >> add(one())
 
 
 if __name__ == "__main__":
