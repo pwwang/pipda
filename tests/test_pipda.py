@@ -212,5 +212,9 @@ class TestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             1 >> add(X @ 1)
 
+    def test_error_changing_piping_sign(self):
+        with self.assertRaises(ValueError):
+            piping_sign('~')
+
 if __name__ == "__main__":
     unittest.main()
