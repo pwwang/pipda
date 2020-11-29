@@ -87,9 +87,10 @@ class TestCase(unittest.TestCase):
         def filter(data, keys):
             return {key: val for key, val in data.items() if key in keys}
 
-        @register_func
-        def __neg__(data, operand):
-            return [key for key in data if key != operand]
+        @register_operators
+        class MyOperators(Operators):
+            def neg(self):
+                return [key for key in self.data if key != self.operand]
 
         x = {'abc': 1, 'ded': 2, 'hic': 3} >> filter(-X.abc)
         self.assertEqual(x, {'ded': 2, 'hic': 3})
@@ -125,13 +126,13 @@ class TestCase(unittest.TestCase):
         def add(data, *values):
             return sum(values)
 
-        @register_func
-        def __and__(data, left, right):
-            return left + right
+        @register_operators
+        class MyOperators(Operators):
+            def and_default(self, other):
+                return self.operand + other
 
-        @register_func
-        def __or__(data, left, right):
-            return left - right
+            def or_default(self, other):
+                return self.operand - other
 
         self.assertEqual(data >> add(X.a + X.b, X.c), 6)
         self.assertEqual(data >> add(X.a & X.b, X.c), 6)
@@ -156,6 +157,60 @@ class TestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             1.1 >> add(one())
 
+    def test_operators(self):
+        X = Symbolic()
+        Symbolic.OPERATORS = Operators
+        @register_verb(int)
+        def add(data, arg):
+            return data + arg
+
+        x = 1 >> add(X + 1)
+        self.assertEqual(x, 3)
+        x = 1 >> add(X - 1)
+        self.assertEqual(x, 1)
+        x = 1 >> add(X * 1)
+        self.assertEqual(x, 2)
+        x = 1 >> add(X / 1)
+        self.assertEqual(x, 2)
+        x = 1 >> add(X // 1)
+        self.assertEqual(x, 2)
+        x = 1 >> add(X % 1)
+        self.assertEqual(x, 1)
+        x = 1 >> add(X << 1)
+        self.assertEqual(x, 3)
+        x = 1 >> add(X >> 1)
+        self.assertEqual(x, 1)
+        x = 1 >> add(X & 1)
+        self.assertEqual(x, 2)
+        x = 1 >> add(X | 1)
+        self.assertEqual(x, 2)
+        x = 1 >> add(X ^ 1)
+        self.assertEqual(x, 1)
+        x = 1 >> add(X ** 1)
+        self.assertEqual(x, 2)
+        x = 1 >> add(X < 1)
+        self.assertEqual(x, 1)
+        x = 1 >> add(X <= 1)
+        self.assertEqual(x, 2)
+        x = 1 >> add(X > 1)
+        self.assertEqual(x, 1)
+        x = 1 >> add(X >= 1)
+        self.assertEqual(x, 2)
+        x = 1 >> add(X == 1)
+        self.assertEqual(x, 2)
+        x = 1 >> add(X != 1)
+        self.assertEqual(x, 1)
+        x = 1 >> add(-X)
+        self.assertEqual(x, 0)
+        x = 1 >> add(+X)
+        self.assertEqual(x, 2)
+        x = 1 >> add(~X)
+        self.assertEqual(x, -1)
+
+
+
+        with self.assertRaises(TypeError):
+            1 >> add(X @ 1)
 
 if __name__ == "__main__":
     unittest.main()
