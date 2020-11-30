@@ -27,20 +27,20 @@ df = pd.DataFrame({
 })
 
 df
-# 	x	y
-# 0	0	zero
-# 1	1	one
-# 2	2	two
-# 3	3	three
+#      x    y
+# 0    0    zero
+# 1    1    one
+# 2    2    two
+# 3    3    three
 
 @register_verb(pd.DataFrame)
 def head(data, n=5):
     return data.head(n)
 
 df >> head(2)
-#   x	y
-# 0	0	zero
-# 1	1	one
+#      x    y
+# 0    0    zero
+# 1    1    one
 
 @register_verb(pd.DataFrame)
 def mutate(data, **kwargs):
@@ -68,12 +68,12 @@ def select(data, *columns):
     return data.loc[:, columns]
 
 # X.x won't be compiled as df.x but just 'x'
-df >> mutate(z=2*X.x) >> name(X.x, X.z)
-# 	x	z
-# 0	0	0
-# 1	1	2
-# 2	2	4
-# 3	3	6
+df >> mutate(z=2*X.x) >> select(X.x, X.z)
+#      x    z
+# 0    0    0
+# 1    1    2
+# 2    2    4
+# 3    3    6
 
 # Compile the args inside the verb
 @register_verb(pd.DataFrame, compile_proxy=None)
@@ -87,11 +87,11 @@ def mutate_existing(data, column, value):
 # First X.x compiled as column name, and second as Series data
 df2 = df >> mutate_existing(X.x, 10 * X.x)
 df2
-#   x	y	z
-# 0	0	zero	0
-# 1	10	one	2
-# 2	20	two	4
-# 3	30	three	6
+#      x    y     z
+# 0    0    zero  0
+# 1    10   one   2
+# 2    20   two   4
+# 3    30   three 6
 
 # Change the base data for arguments
 @register_verb(pd.DataFrame, compile_proxy=None)
@@ -102,11 +102,11 @@ def mutate_existing2(data, column, value):
     return data
 
 df >> mutate_existing2(X.x, 2 * X.x)
-# 	x	y
-# 0	0	zero
-# 1	20	one
-# 2	40	two
-# 3	60	three
+#      x    y
+# 0    0    zero
+# 1    20   one
+# 2    40   two
+# 3    60   three
 
 # register for multiple types
 @register_verb(int)
@@ -115,7 +115,7 @@ def add(data, other):
 
 # add is actually a singledispatch generic function
 @add.register(float):
-def add(data, other):
+def _(data, other):
     return data + other
 
 1 >> add(1)
@@ -168,11 +168,11 @@ class MyOperators(Operators):
         return self.operand ** other
 
 df >> mutate(z=X.x ^ 2)
-# x	y	z
-# 0	0	zero	0
-# 1	1	one	1
-# 2	2	two	4
-# 3	3	three	9
+#      x    y      z
+# 0    0    zero   0
+# 1    1    one    1
+# 2    2    two    4
+# 3    3    three  9
 ```
 
 ### Caveats
