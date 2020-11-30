@@ -63,7 +63,7 @@ df >> mutate(z=X.x)
 # 3  3  three  3
 
 # Verbs that don't compile X.a to data, but just the column name
-@register_verb(pd.DataFrame, compile_proxy='select')
+@register_verb(pd.DataFrame, compile_proxy='name')
 def select(data, *columns):
     return data.loc[:, columns]
 
