@@ -42,7 +42,8 @@ class Verb:
 
     def _sign(self, data):
         if not isinstance(data, self.types):
-            raise TypeError(f"{type(data)} is not registered for data piping.")
+            raise TypeError(f"{type(data)} is not registered for data piping "
+                            f"with function: {self.func.__name__}.")
         return self.func(data, *self.eval_args(data), **self.eval_kwargs(data))
 
 
