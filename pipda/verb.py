@@ -35,7 +35,7 @@ class ProxyCompilerData(ProxyCompiler):
     def __getattr__(self, name):
         return getattr(self.data, name)
 
-class ProxyCompilerSelect(ProxyCompiler):
+class ProxyCompilerName(ProxyCompiler):
     """Compile X.a to 'a'"""
     def __getattr__(self, name):
         return name
@@ -45,8 +45,8 @@ def proxy_compiler_factory(compile_proxy):
     if compile_proxy == 'data':
         return ProxyCompilerData
 
-    if compile_proxy == 'select':
-        return ProxyCompilerSelect
+    if compile_proxy == 'name':
+        return ProxyCompilerName
 
     if callable(compile_proxy):
         class ProxyCompilerCustom(ProxyCompiler):
@@ -57,7 +57,7 @@ def proxy_compiler_factory(compile_proxy):
         return ProxyCompilerCustom
 
     raise ValueError(f"Cannot compile proxy with {compile_proxy!r}, "
-                     "expected 'data', 'select' or callable.")
+                     "expected 'data', 'name' or callable.")
 
 class VerbArg:
     """A class to wrap the verb argument,

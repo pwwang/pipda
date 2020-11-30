@@ -85,7 +85,7 @@ class TestCase(unittest.TestCase):
 
     def test_unary(self):
         X = Symbolic()
-        @register_verb(dict, compile_proxy='select')
+        @register_verb(dict, compile_proxy='name')
         def filter(data, keys):
             return {key: val for key, val in data.items() if key in keys}
 

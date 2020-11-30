@@ -68,7 +68,7 @@ def select(data, *columns):
     return data.loc[:, columns]
 
 # X.x won't be compiled as df.x but just 'x'
-df >> mutate(z=2*X.x) >> select(X.x, X.z)
+df >> mutate(z=2*X.x) >> name(X.x, X.z)
 # 	x	z
 # 0	0	0
 # 1	1	2
@@ -78,7 +78,7 @@ df >> mutate(z=2*X.x) >> select(X.x, X.z)
 # Compile the args inside the verb
 @register_verb(pd.DataFrame, compile_proxy=None)
 def mutate_existing(data, column, value):
-    column = column.compile_to('select')
+    column = column.compile_to('name')
     value = value.compile_to('data')
     data = data.copy()
     data[column] = value
@@ -96,7 +96,7 @@ df2
 # Change the base data for arguments
 @register_verb(pd.DataFrame, compile_proxy=None)
 def mutate_existing2(data, column, value):
-    column = column.compile_to('select')
+    column = column.compile_to('name')
     value = value.set_data(df2).compile_to('data')
     data[column] = value
     return data
