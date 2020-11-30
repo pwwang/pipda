@@ -1,6 +1,8 @@
 """Provide Verb class and register_verb function"""
 from abc import ABC, abstractmethod
-from functools import wraps
+from functools import wraps, singledispatch
+from types import FunctionType
+
 from .symbolic import Symbolic
 
 SIGN_MAPPING = {
@@ -80,8 +82,7 @@ class VerbArg:
 class Verb:
     """A wrapper for the verbs"""
 
-    def __init__(self, types, compile_proxy, func, args, kwargs):
-        self.types = types
+    def __init__(self, func, args, kwargs, compile_proxy):
         self.compile_proxy = compile_proxy
         self.func = func
         self.args = args
@@ -107,22 +108,33 @@ class Verb:
                 for key, val in self.kwargs.items()}
 
     def _sign(self, data):
-        if not isinstance(data, self.types):
-            raise TypeError(f"{type(data)} is not registered for data piping "
-                            f"with function: {self.func.__name__}.")
         return self.func(data, *self.eval_args(data), **self.eval_kwargs(data))
 
-def register_verb(types, compile_proxy='data', func=None):
+def register_verb(cls=None, compile_proxy='data', func=None):
     """Mimic the singledispatch function to implement a function for
     specific types"""
+    if func is None and isinstance(cls, FunctionType):
+        func, cls = cls, None
     if func is None:
-        return lambda fun: register_verb(types, compile_proxy, fun)
+        return lambda fun: register_verb(cls, compile_proxy, fun)
+
+    @singledispatch
+    def generic(_data, *args, **kwargs):
+        if not cls:
+            return func(_data, *args, **kwargs)
+        raise NotImplementedError(f'Verb {func.__name__!r} not registered '
+                                  f'for type: {type(_data)}.')
+
+    if cls:
+        generic.register(cls, func)
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        return Verb(types, compile_proxy, func, args, kwargs)
+        return Verb(generic, args, kwargs, compile_proxy)
 
-    wrapper.pipda = func
+    wrapper.pipda = generic
+    wrapper.register = generic.register
+
     return wrapper
 
 def piping_sign(sign):

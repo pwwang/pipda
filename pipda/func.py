@@ -1,7 +1,7 @@
 """Provide register_func function"""
 import sys
 from types import FunctionType
-from functools import wraps
+from functools import wraps, singledispatch
 from executing import Source
 
 from .symbolic import Symbolic
@@ -11,23 +11,28 @@ class Func(Symbolic):
     def __init__(self, exet):
         super().__init__(Symbolic.NAME, exet)
 
-def register_func(types=None, func=None):
+def register_func(cls=None, func=None):
     """Register a function used in Verb arguments"""
-    if func is None and isinstance(types, FunctionType):
-        func, types = types, None
+    if func is None and isinstance(cls, FunctionType):
+        func, cls = cls, None
     if func is None:
-        return lambda fun: register_func(types, fun)
+        return lambda fun: register_func(cls, fun)
+
+    @singledispatch
+    def generic(_data, *args, **kwargs):
+        if not cls:
+            return func(_data, *args, **kwargs)
+        raise NotImplementedError(f'Function {func.__name__!r} not registered '
+                                  f'for type: {type(_data)}.')
+
+    if cls:
+        generic.register(cls, func)
 
     @wraps(func)
     def wrapper(*args, **kwargs): # pylint: disable=unused-argument
         exet = Source.executing(sys._getframe(1))
         return Func(exet)
 
-    @wraps(func)
-    def func_with_typecheck(*args, **kwargs):
-        if types and not isinstance(args[0], types):
-            raise TypeError(f'{func.__name__} is not registered '
-                            f'for {type(args[0]).__name__}.')
-        return func(*args, **kwargs)
-    wrapper.pipda = func_with_typecheck
+    wrapper.pipda = generic
+    wrapper.register = generic.register
     return wrapper

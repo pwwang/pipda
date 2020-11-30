@@ -21,6 +21,10 @@ class TestCase(unittest.TestCase):
                 num = [num] * len(data)
             return [dat + num[i] for i, dat in enumerate(data)]
 
+        @add.register(int)
+        def _(data, num):
+            return data + num
+
         x = [1,2,3,4,5] >> split(4)
         self.assertEqual(x, [[1,2,3], [5]])
         x = [1,2,3,4,5] >> split(X[2])
@@ -30,11 +34,8 @@ class TestCase(unittest.TestCase):
         self.assertEqual(x, [3,4,5])
         x = [1,2,3] >> add(X)
         self.assertEqual(x, [2,4,6])
-        # x = [1,2,3] >> add(X.__reversed__())
-        # self.assertEqual(x, [4,4,4])
-
-        with self.assertRaises(TypeError):
-            'abc' >> add('def')
+        x = 1 >> add(1)
+        self.assertEqual(x, 2)
 
     def test_int(self):
         X = Symbolic()
@@ -141,13 +142,21 @@ class TestCase(unittest.TestCase):
 
     def test_unsupported_type_for_func(self):
         X = Symbolic()
-        @register_verb((int, float))
+        @register_verb(int)
         def add(data, other):
             return data + other
+
+        @add.register(float)
+        def _(data, other):
+            return data * other
 
         @register_func(int)
         def one(data):
             return 1
+
+        @register_func
+        def two(data):
+            return 2
 
         x = 1 >> add(2)
         self.assertEqual(x, 3)
@@ -155,8 +164,14 @@ class TestCase(unittest.TestCase):
         x = 1 >> add(one())
         self.assertEqual(x, 2)
 
-        with self.assertRaises(TypeError):
+        x = 1.1 >> add(two())
+        self.assertEqual(x, 2.2)
+
+        with self.assertRaises(NotImplementedError):
             1.1 >> add(one())
+
+        with self.assertRaises(NotImplementedError):
+            'a' >> add(1)
 
     def test_operators(self):
         X = Symbolic()
@@ -262,6 +277,52 @@ class TestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             d1 >> add2(X.a)
 
+    def test_call_other_verbs_funcs(self):
+        X = Symbolic()
+        @register_verb(int)
+        def add(data, other):
+            return data + other
+
+        @register_verb(int)
+        def mul(data, other):
+            return data * add.pipda(data, other)
+
+        @register_func
+        def neg(data, num):
+            return -num
+
+        @register_func
+        def double_neg(data, num):
+            return neg.pipda(data, num) * 2
+
+        x = 2 >> add(1) >> mul(2) # 3 * (3 + 2)
+        self.assertEqual(x, 15)
+
+        x = 2 >> add(neg(1))
+        self.assertEqual(x, 1)
+
+        x = 2 >> add(double_neg(1))
+        self.assertEqual(x, 0)
+
+    def test_register_multiple(self):
+        X = Symbolic()
+        @register_verb
+        def add(data, other):
+            return 0
+
+        @add.register(int)
+        @add.register(float)
+        def _(data, other):
+            return data + other
+
+        x = 1 >> add(1)
+        self.assertEqual(x, 2)
+
+        x = 1.1 >> add(1.0)
+        self.assertEqual(x, 2.1)
+
+        x = 'a' >> add(1)
+        self.assertEqual(x, 0)
 
 
 if __name__ == "__main__":
