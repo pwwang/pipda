@@ -10,9 +10,8 @@ from varname import varname
 class Transformer(ast.NodeTransformer):
     """Transform a call into the real call"""
     # pylint: disable=invalid-name
-    def __init__(self, name, compile_attrs):
+    def __init__(self, name):
         self.name = name
-        self.compile_attrs = compile_attrs
 
     def _wrap_op_operand(self, left):
         return ast.Call(
@@ -22,15 +21,44 @@ class Transformer(ast.NodeTransformer):
             keywords=[]
         )
 
-    def visit_Attribute(self, node):
-        """If compile_attrs is False, just turn X.a into 'a'"""
-        try:
-            if self.compile_attrs or node.value.id != self.name:
-                return node
-        except AttributeError: # node.value is not ast.Name
-            return node
+    def _wrap_symbol(self):
+        """Wrap X to __pipda_symbol__(X)"""
+        return ast.Call(
+            func=ast.Name(id='__pipda_symbol__', ctx=ast.Load()),
+            args=[ast.Name(id=self.name, ctx=ast.Load())],
+            keywords=[]
+        )
 
-        return ast.Str(node.attr)
+    def _is_symbol(self, node):
+        if not isinstance(node, ast.Name):
+            return False
+        # it must be a Symbolic object for ast.Name, since other objects
+        # have already compiled by python itself
+        # if node.id != self.name or not isinstance(node.ctx, ast.Load):
+        #     return False
+        return True
+
+    def visit_Attribute(self, node):
+        """Turn X.a into sym_compile(X).a"""
+        if not self._is_symbol(node.value):
+            return self.generic_visit(node)
+
+        return ast.Attribute(
+            value=self._wrap_symbol(),
+            attr=node.attr,
+            ctx=ast.Load()
+        )
+
+    # def visit_Subscript(self, node):
+    #     """Turn X['a'] into sym_compile(X)['a']"""
+    #     if not self._is_symbol(node.value):
+    #         return self.generic_visit(node)
+
+    #     return ast.Subscript(
+    #         value=self._wrap_symbol(),
+    #         slice=self.visit(node.slice),
+    #         ctx=ast.Load()
+    #     )
 
     def visit_BinOp(self, node):
         """Visit the binary operator"""
@@ -106,11 +134,13 @@ class Symbolic:
 
     __neg__ = __pos__ = __invert__ = _no_args
 
-    def eval_(self, compile_attrs=True):
+    @property
+    def eval_(self):
         """Convert the symbolic representation into a callable"""
+
         lambody = ast.Expression(
             # see https://github.com/alexmojaki/executing/issues/17
-            Transformer(self.name, compile_attrs).visit(
+            Transformer(self.name).visit(
                 deepcopy(self.exet.node)
             )
             if self.exet
@@ -124,10 +154,12 @@ class Symbolic:
         else:
             globs = self.exet.frame.f_globals
             locs = self.exet.frame.f_locals
-        def func(data):
+        def func(data, proxy_compiler):
             return eval(code, globs, {
                 **locs,
                 self.name: data,
-                '__pipda_operators__': Symbolic.OPERATORS
+                '__pipda_operators__': Symbolic.OPERATORS,
+                '__pipda_symbol__': proxy_compiler
             })
+
         return func

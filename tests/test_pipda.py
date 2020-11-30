@@ -1,3 +1,4 @@
+from types import FunctionType
 import unittest
 from pipda import *
 
@@ -83,7 +84,7 @@ class TestCase(unittest.TestCase):
 
     def test_unary(self):
         X = Symbolic()
-        @register_verb(dict, False)
+        @register_verb(dict, compile_proxy='select')
         def filter(data, keys):
             return {key: val for key, val in data.items() if key in keys}
 
@@ -215,6 +216,53 @@ class TestCase(unittest.TestCase):
     def test_error_changing_piping_sign(self):
         with self.assertRaises(ValueError):
             piping_sign('~')
+
+    def test_proxy_compiler_set_data(self):
+        X = Symbolic()
+
+        @register_verb(FunctionType, compile_proxy=None)
+        def add1(data, arg):
+            arg = arg.compile_to('data')
+            return data.a + arg
+
+        @register_verb(FunctionType, compile_proxy=None)
+        def add2(data, arg):
+            arg = arg.set_data(d2).compile_to('data')
+            return data.a + arg
+
+        d1 = lambda: 0
+        d2 = lambda: 0
+        d1.a = 1
+        d2.a = 10
+
+        x = d1 >> add1(X.a)
+        self.assertEqual(x, 2)
+
+        x = d1 >> add2(X.a)
+        self.assertEqual(x, 11)
+
+    def test_proxy_compiler_custom(self):
+        X = Symbolic()
+
+        @register_verb(FunctionType, compile_proxy=None)
+        def add(data, arg):
+            arg = arg.compile_to(lambda d, x: getattr(d, x) * 10)
+            return data.a + arg
+
+        d1 = lambda: 0
+        d1.a = 1
+
+        x = d1 >> add(X.a)
+        self.assertEqual(x, 11)
+
+        @register_verb(FunctionType, compile_proxy=True)
+        def add2(data, arg):
+            arg.compile_to('data')
+
+        with self.assertRaises(ValueError):
+            d1 >> add2(X.a)
+
+
 
 if __name__ == "__main__":
     unittest.main()
