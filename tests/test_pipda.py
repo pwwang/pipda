@@ -97,6 +97,10 @@ class TestCase(unittest.TestCase):
         x = {'abc': 1, 'ded': 2, 'hic': 3} >> filter(-X.abc)
         self.assertEqual(x, {'ded': 2, 'hic': 3})
 
+        x = {'abc': 1, 'ded': 2, 'hic': 'a'} >> filter(X['hic'][0])
+        self.assertEqual(x, {})
+
+
 
         with self.assertRaises(AttributeError):
             {} >> filter(-X.abc.d)
@@ -109,7 +113,7 @@ class TestCase(unittest.TestCase):
         data.c = 3
 
         X = Symbolic()
-        @register_verb(types.FunctionType)
+        @register_verb(types.FunctionType, context=['data'])
         def filter_by_value(data, *values):
             return {key: getattr(data, key) for key in data.__dict__ if getattr(data, key) in values}
 
@@ -124,7 +128,7 @@ class TestCase(unittest.TestCase):
         data.c = 3
 
         X = Symbolic()
-        @register_verb(types.FunctionType)
+        @register_verb(types.FunctionType, context=['data', 'data'])
         def add(data, *values):
             return sum(values)
 
@@ -272,10 +276,22 @@ class TestCase(unittest.TestCase):
 
         @register_verb(FunctionType, context=True)
         def add2(data, arg):
-            arg.compile_to('data')
+            return 1
 
-        with self.assertRaises(ValueError):
+        @register_verb(FunctionType, context={'attr': 'a', 'item': 'name'})
+        def add3(data, arg):
+            return 1
+
+        @register_verb(FunctionType, context={'attr': 'name', 'item': 'b'})
+        def add4(data, arg):
+            return 1
+
+        with self.assertRaises(TypeError):
             d1 >> add2(X.a)
+        with self.assertRaises(ValueError):
+            d1 >> add3(X.a)
+        with self.assertRaises(ValueError):
+            d1 >> add4(X['a'])
 
     def test_call_other_verbs_funcs(self):
         X = Symbolic()

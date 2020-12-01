@@ -49,16 +49,16 @@ class Transformer(ast.NodeTransformer):
             ctx=ast.Load()
         )
 
-    # def visit_Subscript(self, node):
-    #     """Turn X['a'] into sym_compile(X)['a']"""
-    #     if not self._is_symbol(node.value):
-    #         return self.generic_visit(node)
+    def visit_Subscript(self, node):
+        """Turn X['a'] into sym_compile(X)['a']"""
+        if not self._is_symbol(node.value):
+            return self.generic_visit(node)
 
-    #     return ast.Subscript(
-    #         value=self._wrap_symbol(),
-    #         slice=self.visit(node.slice),
-    #         ctx=ast.Load()
-    #     )
+        return ast.Subscript(
+            value=self._wrap_symbol(),
+            slice=self.visit(node.slice),
+            ctx=ast.Load()
+        )
 
     def visit_BinOp(self, node):
         """Visit the binary operator"""

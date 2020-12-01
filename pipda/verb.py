@@ -21,43 +21,69 @@ SIGN_MAPPING = {
     '|': '__ror__',
 }
 
-class ContextResolver(ABC):
+class ContextResolverABC(ABC):
     """Defining how to compile a proxy (X.a)"""
     def __init__(self, data):
         self.data = data
+
+    def getname(self, name):
+        """Return the name"""
+        return name
+
+    def getattr_(self, name):
+        """Return the attribute value"""
+        return getattr(self.data, name)
+
+    def getitem(self, name):
+        """Return the item value"""
+        return self.data[name]
 
     @abstractmethod
     def __getattr__(self, name):
         ... # pragma: no cover
 
-class ContextResolverData(ContextResolver):
-    """Compile X.a to getattr(X, 'a')"""
-    def __getattr__(self, name):
-        return getattr(self.data, name)
-
-class ContextResolverName(ContextResolver):
-    """Compile X.a to 'a'"""
-    def __getattr__(self, name):
-        return name
+    @abstractmethod
+    def __getitem__(self, name):
+        ... # pragma: no cover
 
 def context_resolver_factory(context):
-    """Generate a ContextResolver class"""
+    """Generates a context resolver class"""
     if context == 'data':
-        return ContextResolverData
+        context = {'attr': 'data', 'item': 'data'}
+    elif context == 'name':
+        context = {'attr': 'name', 'item': 'name'}
+    elif callable(context):
+        context = {'attr': context, 'item': context}
+    elif isinstance(context, (list, tuple)):
+        if len(context) == 1:
+            context = {'attr': context[0], 'item': context[0]}
+        else:
+            context = {'attr': context[0], 'item': context[1]}
 
-    if context == 'name':
-        return ContextResolverName
+    if not isinstance(context, dict):
+        raise TypeError('Expected a dictionary for context specification, '
+                        f'got {type(context)}.')
+    attr = context.get('attr')
+    item = context.get('item')
+    if attr not in ('name', 'data') and not callable(attr):
+        raise ValueError(f"Cannot compile X.a with {attr!r}, "
+                         "expected 'data', 'name' or callable.")
+    if item not in ('name', 'data') and not callable(item):
+        raise ValueError(f"Cannot compile X['a'] with {item!r}, "
+                         "expected 'data', 'name' or callable.")
 
-    if callable(context):
-        class ContextResolverCustom(ContextResolver):
-            """Custom proxy compiler"""
-            def __getattr__(self, name):
-                return context(self.data, name)
 
-        return ContextResolverCustom
+    class ContextResolver(ContextResolverABC):
+        """Resolve the context/proxy"""
+        __getattr__ = (ContextResolverABC.getattr_ if attr == 'data'
+                       else ContextResolverABC.getname if attr == 'name'
+                       else lambda self, name: attr(self.data, name))
 
-    raise ValueError(f"Cannot compile proxy with {context!r}, "
-                     "expected 'data', 'name' or callable.")
+        __getitem__ = (ContextResolverABC.getitem if item == 'data'
+                       else ContextResolverABC.getname if item == 'name'
+                       else lambda self, name: item(self.data, name))
+
+    return ContextResolver
 
 class VerbArg:
     """A class to wrap the verb argument,
