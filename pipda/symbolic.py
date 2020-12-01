@@ -11,12 +11,12 @@ class Transformer(ast.NodeTransformer):
     """Transform a call into the real call"""
     # pylint: disable=invalid-name
     def __init__(self, name):
-        self.name = name
+        self._name__ = name
 
     def _wrap_op_operand(self, left):
         return ast.Call(
             func=ast.Name(id='__pipda_operators__', ctx=ast.Load()),
-            args=[ast.Name(id=self.name, ctx=ast.Load()),
+            args=[ast.Name(id=self._name__, ctx=ast.Load()),
                   self.visit(left)],
             keywords=[]
         )
@@ -25,7 +25,7 @@ class Transformer(ast.NodeTransformer):
         """Wrap X to __pipda_symbol__(X)"""
         return ast.Call(
             func=ast.Name(id='__pipda_symbol__', ctx=ast.Load()),
-            args=[ast.Name(id=self.name, ctx=ast.Load())],
+            args=[ast.Name(id=self._name__, ctx=ast.Load())],
             keywords=[]
         )
 
@@ -34,7 +34,7 @@ class Transformer(ast.NodeTransformer):
             return False
         # it must be a Symbolic object for ast.Name, since other objects
         # have already compiled by python itself
-        # if node.id != self.name or not isinstance(node.ctx, ast.Load):
+        # if node.id != self._name__ or not isinstance(node.ctx, ast.Load):
         #     return False
         return True
 
@@ -80,7 +80,7 @@ class Transformer(ast.NodeTransformer):
     def visit_Call(self, node):
         """Get the real calls"""
         node.args = [
-            ast.Name(id=self.name, ctx=ast.Load()),
+            ast.Name(id=self._name__, ctx=ast.Load()),
             ast.Name(id='__pipda_context__', ctx=ast.Load())
         ] + node.args
 
@@ -94,49 +94,51 @@ class Transformer(ast.NodeTransformer):
 
 class Symbolic:
     """A symbolic representation to make X.a and alike valid python syntaxes"""
-    NAME = None
-    OPERATORS = None
+    _NAME__ = None
+    _OPERATORS__ = None
 
     def __init__(self, name=None, exet=None):
-        self.name = name or varname(raise_exc=False) or self.__class__.NAME
-        if not self.__class__.NAME:
-            self.__class__.NAME = self.name
-        if self.__class__.NAME != self.name:
+        self._name__ = (name or
+                        varname(raise_exc=False) or
+                        self.__class__._NAME__)
+        if not self.__class__._NAME__:
+            self.__class__._NAME__ = self._name__
+        if self.__class__._NAME__ != self._name__:
             raise ValueError('Only one Symbolic name is allowed.')
-        self.exet = exet
+        self._exet__ = exet
 
     def __repr__(self) -> str:
-        if not self.exet:
-            return f'<{self.__class__.__name__}:{self.name}>'
-        return (f'<{self.__class__.__name__}:{self.name} ' # pragma: no cover
-                f'({ast.dump(self.exet.node)})>')
+        if not self._exet__:
+            return f'<{self.__class__.__name__}:{self._name__}>'
+        return (f'<{self.__class__.__name__}:{self._name__} ' # pragma: no cover
+                f'({ast.dump(self._exet__.node)})>')
 
     # def _any_args(self, *args, **kwargs):
-    #     return Symbolic(self.name, Source.executing(sys._getframe(1)))
+    #     return Symbolic(self._name__, Source.executing(sys._getframe(1)))
 
-    def _no_args(self):
-        return Symbolic(self.name, Source.executing(sys._getframe(1)))
+    def _no_args__(self):
+        return Symbolic(self._name__, Source.executing(sys._getframe(1)))
 
-    def _single_arg(self, arg):
-        return Symbolic(self.name, Source.executing(sys._getframe(1)))
+    def _single_arg__(self, arg):
+        return Symbolic(self._name__, Source.executing(sys._getframe(1)))
 
     # __call__ = _any_args
-    __getitem__ = __getattr__ = __contains__ = _single_arg
+    __getitem__ = __getattr__ = __contains__ = _single_arg__
 
-    __add__ = __sub__ = __mul__ = __matmul__ = __truediv__ = _single_arg
-    __floordiv__ = __mod__ = __lshift__ = _single_arg
-    __rshift__ = __and__ = __xor__ = __or__ = _single_arg
-    __pow__ = _single_arg
+    __add__ = __sub__ = __mul__ = __matmul__ = __truediv__ = _single_arg__
+    __floordiv__ = __mod__ = __lshift__ = _single_arg__
+    __rshift__ = __and__ = __xor__ = __or__ = _single_arg__
+    __pow__ = _single_arg__
 
-    __radd__ = __rsub__ = __rmul__ = __rmatmul__ = __rtruediv__ = _single_arg
-    __rfloordiv__ = __rmod__ = __rlshift__ = _single_arg
-    __rrshift__ = __rand__ = __rxor__ = __ror__ = _single_arg
-    __rpow__ = _single_arg
+    __radd__ = __rsub__ = __rmul__ = __rmatmul__ = __rtruediv__ = _single_arg__
+    __rfloordiv__ = __rmod__ = __rlshift__ = _single_arg__
+    __rrshift__ = __rand__ = __rxor__ = __ror__ = _single_arg__
+    __rpow__ = _single_arg__
 
-    __lt__ = __le__ = __eq__ = _single_arg
-    __ne__ = __gt__ = __ge__ = _single_arg
+    __lt__ = __le__ = __eq__ = _single_arg__
+    __ne__ = __gt__ = __ge__ = _single_arg__
 
-    __neg__ = __pos__ = __invert__ = _no_args
+    __neg__ = __pos__ = __invert__ = _no_args__
 
     @property
     def eval_(self):
@@ -144,25 +146,25 @@ class Symbolic:
 
         lambody = ast.Expression(
             # see https://github.com/alexmojaki/executing/issues/17
-            Transformer(self.name).visit(
-                deepcopy(self.exet.node)
+            Transformer(self._name__).visit(
+                deepcopy(self._exet__.node)
             )
-            if self.exet
-            else ast.Name(id=self.name, ctx=ast.Load())
+            if self._exet__
+            else ast.Name(id=self._name__, ctx=ast.Load())
         )
         ast.fix_missing_locations(lambody)
         # print(ast.dump(lambody))
         code = compile(lambody, filename='<pipda-ast>', mode='eval')
-        if not self.exet:
+        if not self._exet__:
             globs = locs = globals()
         else:
-            globs = self.exet.frame.f_globals
-            locs = self.exet.frame.f_locals
+            globs = self._exet__.frame.f_globals
+            locs = self._exet__.frame.f_locals
         def func(data, context, context_resolver):
             return eval(code, globs, {
                 **locs,
-                self.name: data,
-                '__pipda_operators__': Symbolic.OPERATORS,
+                self._name__: data,
+                '__pipda_operators__': Symbolic._OPERATORS__,
                 '__pipda_context__': context,
                 '__pipda_symbol__': context_resolver
             })

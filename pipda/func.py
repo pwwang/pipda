@@ -9,7 +9,7 @@ from .symbolic import Symbolic
 class Func(Symbolic):
     """Symbolic for functions"""
     def __init__(self, exet):
-        super().__init__(Symbolic.NAME, exet)
+        super().__init__(Symbolic._NAME__, exet)
 
 def register_func(cls=None, func=None):
     """Register a function used in Verb arguments"""

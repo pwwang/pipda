@@ -175,7 +175,7 @@ class TestCase(unittest.TestCase):
 
     def test_operators(self):
         X = Symbolic()
-        Symbolic.OPERATORS = Operators
+        Symbolic._OPERATORS__ = Operators
         @register_verb(int)
         def add(data, arg):
             return data + arg

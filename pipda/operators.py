@@ -172,6 +172,6 @@ class Operators: # pylint: disable=too-many-public-methods
 
 def register_operators(cls):
     """Register operators"""
-    Symbolic.OPERATORS = cls
+    Symbolic._OPERATORS__ = cls
 
 register_operators(Operators)
