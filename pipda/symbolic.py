@@ -79,7 +79,11 @@ class Transformer(ast.NodeTransformer):
 
     def visit_Call(self, node):
         """Get the real calls"""
-        node.args.insert(0, ast.Name(id=self.name, ctx=ast.Load()))
+        node.args = [
+            ast.Name(id=self.name, ctx=ast.Load()),
+            ast.Name(id='__pipda_context__', ctx=ast.Load())
+        ] + node.args
+
         return ast.Call(
             func=ast.Attribute(value=self.visit(node.func),
                                attr='pipda',
@@ -154,12 +158,13 @@ class Symbolic:
         else:
             globs = self.exet.frame.f_globals
             locs = self.exet.frame.f_locals
-        def func(data, proxy_compiler):
+        def func(data, context, context_resolver):
             return eval(code, globs, {
                 **locs,
                 self.name: data,
                 '__pipda_operators__': Symbolic.OPERATORS,
-                '__pipda_symbol__': proxy_compiler
+                '__pipda_context__': context,
+                '__pipda_symbol__': context_resolver
             })
 
         return func

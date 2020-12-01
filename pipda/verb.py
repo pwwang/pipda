@@ -21,7 +21,7 @@ SIGN_MAPPING = {
     '|': '__ror__',
 }
 
-class ProxyCompiler(ABC):
+class ContextResolver(ABC):
     """Defining how to compile a proxy (X.a)"""
     def __init__(self, data):
         self.data = data
@@ -30,38 +30,38 @@ class ProxyCompiler(ABC):
     def __getattr__(self, name):
         ... # pragma: no cover
 
-class ProxyCompilerData(ProxyCompiler):
+class ContextResolverData(ContextResolver):
     """Compile X.a to getattr(X, 'a')"""
     def __getattr__(self, name):
         return getattr(self.data, name)
 
-class ProxyCompilerName(ProxyCompiler):
+class ContextResolverName(ContextResolver):
     """Compile X.a to 'a'"""
     def __getattr__(self, name):
         return name
 
-def proxy_compiler_factory(compile_proxy):
-    """Generate a ProxyCompiler class"""
-    if compile_proxy == 'data':
-        return ProxyCompilerData
+def context_resolver_factory(context):
+    """Generate a ContextResolver class"""
+    if context == 'data':
+        return ContextResolverData
 
-    if compile_proxy == 'name':
-        return ProxyCompilerName
+    if context == 'name':
+        return ContextResolverName
 
-    if callable(compile_proxy):
-        class ProxyCompilerCustom(ProxyCompiler):
+    if callable(context):
+        class ContextResolverCustom(ContextResolver):
             """Custom proxy compiler"""
             def __getattr__(self, name):
-                return compile_proxy(self.data, name)
+                return context(self.data, name)
 
-        return ProxyCompilerCustom
+        return ContextResolverCustom
 
-    raise ValueError(f"Cannot compile proxy with {compile_proxy!r}, "
+    raise ValueError(f"Cannot compile proxy with {context!r}, "
                      "expected 'data', 'name' or callable.")
 
 class VerbArg:
     """A class to wrap the verb argument,
-    which the argument will be compiled to if compile_proxy is None"""
+    which the argument will be compiled to if context is None"""
 
     def __init__(self, data, compile_func):
         self.data = data
@@ -72,18 +72,19 @@ class VerbArg:
         self.data = data
         return self
 
-    def compile_to(self, compile_proxy):
+    def compile_to(self, context):
         """Compile the argument by given proxy compiling strategy"""
         return self.compile_func(
             self.data,
-            proxy_compiler_factory(compile_proxy)
+            context,
+            context_resolver_factory(context)
         )
 
 class Verb:
     """A wrapper for the verbs"""
 
-    def __init__(self, func, args, kwargs, compile_proxy):
-        self.compile_proxy = compile_proxy
+    def __init__(self, func, args, kwargs, context):
+        self.context = context
         self.func = func
         self.args = args
         self.kwargs = kwargs
@@ -93,8 +94,8 @@ class Verb:
             return arg
 
         verb_arg = VerbArg(data, arg.eval_)
-        if self.compile_proxy:
-            return verb_arg.compile_to(self.compile_proxy)
+        if self.context:
+            return verb_arg.compile_to(self.context)
         return verb_arg
 
     def eval_args(self, data):
@@ -110,13 +111,13 @@ class Verb:
     def _sign(self, data):
         return self.func(data, *self.eval_args(data), **self.eval_kwargs(data))
 
-def register_verb(cls=None, compile_proxy='data', func=None):
+def register_verb(cls=None, context='data', func=None):
     """Mimic the singledispatch function to implement a function for
     specific types"""
     if func is None and isinstance(cls, FunctionType):
         func, cls = cls, None
     if func is None:
-        return lambda fun: register_verb(cls, compile_proxy, fun)
+        return lambda fun: register_verb(cls, context, fun)
 
     @singledispatch
     def generic(_data, *args, **kwargs):
@@ -130,7 +131,7 @@ def register_verb(cls=None, compile_proxy='data', func=None):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        return Verb(generic, args, kwargs, compile_proxy)
+        return Verb(generic, args, kwargs, context)
 
     wrapper.pipda = generic
     wrapper.register = generic.register

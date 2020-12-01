@@ -63,7 +63,7 @@ df >> mutate(z=X.x)
 # 3  3  three  3
 
 # Verbs that don't compile X.a to data, but just the column name
-@register_verb(pd.DataFrame, compile_proxy='name')
+@register_verb(pd.DataFrame, context='name')
 def select(data, *columns):
     return data.loc[:, columns]
 
@@ -76,7 +76,7 @@ df >> mutate(z=2*X.x) >> select(X.x, X.z)
 # 3    3    6
 
 # Compile the args inside the verb
-@register_verb(pd.DataFrame, compile_proxy=None)
+@register_verb(pd.DataFrame, context=None)
 def mutate_existing(data, column, value):
     column = column.compile_to('name')
     value = value.compile_to('data')
@@ -94,7 +94,7 @@ df2
 # 3    30   three 6
 
 # Change the base data for arguments
-@register_verb(pd.DataFrame, compile_proxy=None)
+@register_verb(pd.DataFrame, context=None)
 def mutate_existing2(data, column, value):
     column = column.compile_to('name')
     value = value.set_data(df2).compile_to('data')
@@ -114,7 +114,7 @@ def add(data, other):
     return data + other
 
 # add is actually a singledispatch generic function
-@add.register(float):
+@add.register(float)
 def _(data, other):
     return data + other
 
@@ -143,7 +143,7 @@ def _(data, other):
 ### Functions used in verb arguments
 ```python
 @register_func
-def if_else(data, cond, true, false):
+def if_else(data, context, cond, true, false):
     cond.loc[cond.isin([True]), ] = true
     cond.loc[cond.isin([False]), ] = false
     return cond
@@ -185,6 +185,10 @@ df >> mutate(z=X.x ^ 2)
 - Default` v.s. non-default behavior of the operators:
 
     Default behavior (`xor_default`) will be first applied. If it fails, non-default (`xor`) behavior will be applied.
+
+- There are two required arguments to define a function:
+
+    `data` and `context` (You can use other names, but the first two arguments should be data and context). The context refers to the context of the verb how the proxy (X.a) should be resolved.
 
 - Non-default behaviors for `&` and `|` operators:
 

@@ -19,9 +19,9 @@ def register_func(cls=None, func=None):
         return lambda fun: register_func(cls, fun)
 
     @singledispatch
-    def generic(_data, *args, **kwargs):
+    def generic(_data, _context, *args, **kwargs):
         if not cls:
-            return func(_data, *args, **kwargs)
+            return func(_data, _context, *args, **kwargs)
         raise NotImplementedError(f'Function {func.__name__!r} not registered '
                                   f'for type: {type(_data)}.')
 

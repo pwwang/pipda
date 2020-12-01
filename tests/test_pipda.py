@@ -62,11 +62,11 @@ class TestCase(unittest.TestCase):
             return data.__len__()
 
         @register_func
-        def starts_with(data, prefix):
+        def starts_with(data, context, prefix):
             return [key for key in data if key.startswith(prefix)]
 
         @register_func()
-        def ends_with(data, suffix):
+        def ends_with(data, context, suffix):
             return [key for key in data if key.endswith(suffix)]
 
         x = {'abc': 1, 'def': 2, 'ahi': 3} >> filter(['abc', 'def'])
@@ -85,7 +85,7 @@ class TestCase(unittest.TestCase):
 
     def test_unary(self):
         X = Symbolic()
-        @register_verb(dict, compile_proxy='name')
+        @register_verb(dict, context='name')
         def filter(data, keys):
             return {key: val for key, val in data.items() if key in keys}
 
@@ -151,11 +151,11 @@ class TestCase(unittest.TestCase):
             return data * other
 
         @register_func(int)
-        def one(data):
+        def one(data, context):
             return 1
 
         @register_func
-        def two(data):
+        def two(data, context):
             return 2
 
         x = 1 >> add(2)
@@ -235,12 +235,12 @@ class TestCase(unittest.TestCase):
     def test_proxy_compiler_set_data(self):
         X = Symbolic()
 
-        @register_verb(FunctionType, compile_proxy=None)
+        @register_verb(FunctionType, context=None)
         def add1(data, arg):
             arg = arg.compile_to('data')
             return data.a + arg
 
-        @register_verb(FunctionType, compile_proxy=None)
+        @register_verb(FunctionType, context=None)
         def add2(data, arg):
             arg = arg.set_data(d2).compile_to('data')
             return data.a + arg
@@ -259,7 +259,7 @@ class TestCase(unittest.TestCase):
     def test_proxy_compiler_custom(self):
         X = Symbolic()
 
-        @register_verb(FunctionType, compile_proxy=None)
+        @register_verb(FunctionType, context=None)
         def add(data, arg):
             arg = arg.compile_to(lambda d, x: getattr(d, x) * 10)
             return data.a + arg
@@ -270,7 +270,7 @@ class TestCase(unittest.TestCase):
         x = d1 >> add(X.a)
         self.assertEqual(x, 11)
 
-        @register_verb(FunctionType, compile_proxy=True)
+        @register_verb(FunctionType, context=True)
         def add2(data, arg):
             arg.compile_to('data')
 
@@ -288,12 +288,12 @@ class TestCase(unittest.TestCase):
             return data * add.pipda(data, other)
 
         @register_func
-        def neg(data, num):
+        def neg(data, context, num):
             return -num
 
         @register_func
-        def double_neg(data, num):
-            return neg.pipda(data, num) * 2
+        def double_neg(data, context, num):
+            return neg.pipda(data, context, num) * 2
 
         x = 2 >> add(1) >> mul(2) # 3 * (3 + 2)
         self.assertEqual(x, 15)
