@@ -11,6 +11,8 @@ pip install -U pipda
 
 ## Usage
 
+Checkout [plyrda][6] for more detailed usages.
+
 ### Verbs
 
 Verbs are functions next to the piping sign (`>>`) receiving the data directly.
@@ -280,3 +282,4 @@ So, `Operators.__neg__` will be called. `pipda` has a default `Operators` class 
 [3]: https://github.com/has2k1/plydata
 [4]: https://github.com/dodger487/dplython
 [5]: https://github.com/alexmojaki/executing
+[6]: https://github.com/pwwang/plyrda
