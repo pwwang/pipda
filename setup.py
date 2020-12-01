@@ -15,7 +15,7 @@ readme = ''
 setup(
     long_description=readme,
     name='pipda',
-    version='0.0.4',
+    version='0.0.5',
     description='A framework for data piping in python',
     python_requires='==3.*,>=3.7.0',
     author='pwwang',
@@ -24,6 +24,6 @@ setup(
     packages=['pipda'],
     package_dir={"": "."},
     package_data={},
-    install_requires=['executing==0.*,>=0.5.3', 'varname==0.*,>=0.5.4'],
-    extras_require={"dev": ["pytest==6.*,>=6.1.2", "pytest-cov==2.*,>=2.10.1"]},
+    install_requires=['executing', 'varname'],
+    extras_require={"dev": ["pytest", "pytest-cov"]},
 )
