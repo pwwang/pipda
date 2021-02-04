@@ -376,7 +376,17 @@ class TestCase(unittest.TestCase):
         r = (d >> mutate(a=1, b=2, c=3) >> mutate(a=2*f.c) >> select(f.a, f.b))
         self.assertEqual(r.data, {'a': 6, 'b': 2})
 
+    def test_original_unaffected(self):
+        @register_function(int)
+        def func(data):
+            return data
+        @register_verb
+        def verb(data, x):
+            return x
 
+        self.assertEqual(1 >> verb(func()), 1)
+        self.assertEqual(func(2), 2)
+        self.assertEqual(func('2'), '2')
 
 if __name__ == "__main__":
     unittest.main()

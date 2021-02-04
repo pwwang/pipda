@@ -141,18 +141,11 @@ class Predicate(Expression, ABC):
         self.func = func
         self.args = self.kwargs = None
 
-    def _deferred(self, args: Tuple[Any], kwargs: Tuple[Any]):
+    def defer(self, args: Tuple[Any], kwargs: Tuple[Any]):
         """Defer the evaluation when the data is not piped in"""
         self.args = args
         self.kwargs = kwargs
         return self
-
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        """Execute the function according to the environment
-        (whether it is called in piping mode)"""
-        if self.is_piping():
-            return self._deferred(args, kwargs)
-        return self.func(*args, **kwargs)
 
     def evaluate(self, data: Any, context: Optional[Context] = None) -> Any:
         """Execute the function with the data and context"""
@@ -164,18 +157,12 @@ class Predicate(Expression, ABC):
         kwargs = evaluate_kwargs(self.kwargs, data, self.context)
         return self.func(data, *args, **kwargs)
 
-    @abstractmethod
-    def is_piping(self) -> bool:
-        """Check if calling is happening in piping environment"""
-
 def get_verb_node() -> Tuple[ast.Call, Optional[ast.Call]]:
     """Get the ast node that is ensured the piped verb call"""
-    # frame 1: Predicate.is_piping
-    # frame 2: Verb/Function.is_piping
-    # frame 3: Verb/Function.__call__
-    # frame 4: register_verb/register_function.wrapper
-    # frame 5: data >> verb(func())
-    frame = sys._getframe(4)
+    # frame 1: is_piping
+    # frame 2: register_verb/register_function.wrapper
+    # frame 3: data >> verb(func())
+    frame = sys._getframe(3)
 
     node = Source.executing(frame).node
     if not node:
@@ -199,6 +186,31 @@ def get_verb_node() -> Tuple[ast.Call, Optional[ast.Call]]:
         child = parent
         parent = getattr(parent, 'parent', None)
     return node, None
+
+def is_argument_node(sub_node: ast.Call,
+                     verb_node: Optional[ast.Call]) -> bool:
+    """Check if node func() is an argument of verb() (i.e. verb(func()))"""
+    if not verb_node:
+        return False
+    parent = sub_node
+    while parent:
+        if isinstance(parent, ast.Call) and (
+                parent is verb_node or
+                parent in verb_node.args or any(
+                    keyword.value is sub_node
+                    for keyword in verb_node.keywords
+                )
+        ):
+            return True
+        parent = getattr(parent, 'parent', None)
+    # when verb_node is ensured, we can anyway retrieve it as the parent of
+    # sub_node
+    return False # pragma: no cover
+
+def is_piping():
+    """Check if calling is happening in piping environment"""
+    my_node, verb_node = get_verb_node()
+    return is_argument_node(my_node, verb_node)
 
 def evaluate_expr(expr: Any, data: Any, context: Context) -> Any:
     """Evaluate a mixed expression"""
@@ -270,28 +282,11 @@ def register_factory(predicate_class: Type[Predicate]) -> Callable:
 
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            return predicate_class(generic, context)(*args, **kwargs)
+            if is_piping():
+                predicate = predicate_class(generic, context)
+                return predicate.defer(args, kwargs)
+            return func(*args, **kwargs)
 
         wrapper.register = generic.register
         return wrapper
     return register_wrapper
-
-def is_argument_node(sub_node: ast.Call,
-                     verb_node: Optional[ast.Call]) -> bool:
-    """Check if node func() is an argument of verb() (i.e. verb(func()))"""
-    if not verb_node:
-        return False
-    parent = sub_node
-    while parent:
-        if isinstance(parent, ast.Call) and (
-                parent is verb_node or
-                parent in verb_node.args or any(
-                    keyword.value is sub_node
-                    for keyword in verb_node.keywords
-                )
-        ):
-            return True
-        parent = getattr(parent, 'parent', None)
-    # when verb_node is ensured, we can anyway retrieve it as the parent of
-    # sub_node
-    return False # pragma: no cover

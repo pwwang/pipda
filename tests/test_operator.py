@@ -15,7 +15,6 @@ def test_operator():
 
     op = f['a'] + f['b']
     assert isinstance(op, Operator)
-    assert op.is_piping()
     x = op.evaluate(d, Context.UNSET) # not affected
     assert x == 3
 

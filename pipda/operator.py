@@ -29,12 +29,8 @@ class Operator(Predicate):
                        else Context.DATA)
         super().__init__(op_func, context)
 
-        self._deferred(args, kwargs)
+        self.defer(args, kwargs)
         self.data = None
-
-    def is_piping(self):
-        """Always run in piping mode"""
-        return True
 
     def evaluate(self, data: Any, context: Context = Context.UNSET) -> Any:
         """Evaluate the operator

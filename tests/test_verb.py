@@ -15,7 +15,7 @@ def test_verb():
 
 def test_evaluated():
     v = Verb(round, Context.DATA)
-    v._deferred((1, ), {})
+    v.defer((1, ), {})
     assert v.args == (1, )
     assert v.kwargs == {}
     assert v.evaluate(1.123) == 1.1
