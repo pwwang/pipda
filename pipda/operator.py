@@ -23,10 +23,8 @@ class Operator(Predicate):
         op_func = getattr(self, self.op)
 
         context = self.__class__.context
-        if context == Context.MIXED:
-            context = (Context.UNSET
-                       if self.op in ('neg', 'pos', 'invert')
-                       else Context.DATA)
+        if isinstance(context, dict):
+            context = context.get(self.op, Context.DATA)
         super().__init__(op_func, context)
 
         self.defer(args, kwargs)
@@ -61,11 +59,23 @@ class Operator(Predicate):
 
 def register_operator(
         op_class: Optional[Type[Operator]] = None,
-        context: Context = Context.MIXED
+        context: Union[Context, Mapping[str, Context]] = Context.MIXED
 ) -> Union[Type[Operator], Callable[[Type[Operator]], Type[Operator]]]:
-    """Register an Operator class"""
+    """Register an Operator class
+
+    The context count be a dict of operator name to context.
+    For those operators not listed, will use Context.DATA.
+    """
     if not op_class:
         return lambda opc: register_operator(opc, context=context)
+
+    if context == Context.MIXED:
+        context = {
+            'neg': Context.UNSET,
+            'pos': Context.UNSET,
+            'invert': Context.UNSET
+        }
+
     if not issubclass(op_class, Operator):
         raise ValueError(
             "The operator class to be registered must be "
