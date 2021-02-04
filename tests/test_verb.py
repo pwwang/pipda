@@ -68,6 +68,6 @@ def test_node_na():
     def verb(data, x):
         return data + x
 
-    with pytest.raises(RuntimeError):
+    with pytest.warns(UserWarning):
         # ast being modified
-        assert verb(1, 1)
+        assert verb(1, 1) == 2

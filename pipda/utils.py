@@ -1,6 +1,7 @@
 """Provide the utilities and abstract classes"""
 import sys
 import ast
+import warnings
 from functools import partialmethod, singledispatch, wraps
 from types import FunctionType
 from typing import Any, Callable, Mapping, Optional, Tuple, Type, Union
@@ -147,7 +148,7 @@ class Predicate(Expression, ABC):
         self.kwargs = kwargs
         return self
 
-    def evaluate(self, data: Any, context: Optional[Context] = None) -> Any:
+    def evaluate(self, data: Any, context: Context = Context.UNSET) -> Any:
         """Execute the function with the data and context"""
         if self.context == Context.UNSET:
             # leave args/kwargs for the verb/function/operator to evaluate
@@ -209,8 +210,16 @@ def is_argument_node(sub_node: ast.Call,
 
 def is_piping():
     """Check if calling is happening in piping environment"""
-    my_node, verb_node = get_verb_node()
-    return is_argument_node(my_node, verb_node)
+    try:
+        my_node, verb_node = get_verb_node()
+    except RuntimeError:
+        warnings.warn(
+            "Failed to fetch the node calling the function, "
+            "call it with the original function."
+        )
+        return False
+    else:
+        return is_argument_node(my_node, verb_node)
 
 def evaluate_expr(expr: Any, data: Any, context: Context) -> Any:
     """Evaluate a mixed expression"""
