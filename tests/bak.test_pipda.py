@@ -1,5 +1,4 @@
 from types import FunctionType
-from typing import Any
 import unittest
 from pipda import *
 
@@ -62,12 +61,12 @@ class TestCase(unittest.TestCase):
         def length(data):
             return data.__len__()
 
-        @register_function
-        def starts_with(data, prefix):
+        @register_func
+        def starts_with(data, context, prefix):
             return [key for key in data if key.startswith(prefix)]
 
-        @register_function()
-        def ends_with(data, suffix):
+        @register_func()
+        def ends_with(data, context, suffix):
             return [key for key in data if key.endswith(suffix)]
 
         x = {'abc': 1, 'def': 2, 'ahi': 3} >> filter(['abc', 'def'])
@@ -80,29 +79,31 @@ class TestCase(unittest.TestCase):
         x = {'abc': 1, 'def': 2, 'hic': 3} >> filter(ends_with('c'))
         self.assertEqual(x, {'abc': 1, 'hic': 3})
 
+    def test_only_one_symbolic(self):
+        with self.assertRaises(ValueError):
+            _ = Symbolic()
+
     def test_unary(self):
         X = Symbolic()
-        @register_verb(dict, context=Context.NAME)
+        @register_verb(dict, context='name')
         def filter(data, keys):
             return {key: val for key, val in data.items() if key in keys}
 
-        @register_operator
-        class MyOperators(Operator):
-            def neg(self, x):
-                return [key for key in self.data if key != x]
+        @register_operators
+        class MyOperators(Operators):
+            def neg(self):
+                return [key for key in self.data if key != self.operand]
 
-        x = {'abc': 1, 'ded': 2, 'hic': 3} >> filter(-X['abc'])
+        x = {'abc': 1, 'ded': 2, 'hic': 3} >> filter(-X.abc)
         self.assertEqual(x, {'ded': 2, 'hic': 3})
 
-        x = {'abc': 1, 'ded': 2, 'hic': 'a'} >> filter([X['hic'][0]])
+        x = {'abc': 1, 'ded': 2, 'hic': 'a'} >> filter(X['hic'][0])
         self.assertEqual(x, {})
 
 
 
-        with self.assertRaises(KeyError):
-            {} >> filter(1-X['abc'])
-
-        register_operator(Operator)
+        with self.assertRaises(AttributeError):
+            {} >> filter(-X.abc.d)
 
     def test_compile_attrs(self):
         import types
@@ -112,12 +113,9 @@ class TestCase(unittest.TestCase):
         data.c = 3
 
         X = Symbolic()
-        @register_verb(types.FunctionType, context=Context.DATA)
+        @register_verb(types.FunctionType, context=['data'])
         def filter_by_value(data, *values):
-            return {
-                key: getattr(data, key) for key in data.__dict__
-                if getattr(data, key) in values
-            }
+            return {key: getattr(data, key) for key in data.__dict__ if getattr(data, key) in values}
 
         d = data >> filter_by_value(X.a, X.b)
         self.assertEqual(d, {'a': 1, 'b': 2})
@@ -130,22 +128,21 @@ class TestCase(unittest.TestCase):
         data.c = 3
 
         X = Symbolic()
-        @register_verb(types.FunctionType, context=Context.DATA)
+        @register_verb(types.FunctionType, context=['data', 'data'])
         def add(data, *values):
             return sum(values)
 
-        @register_operator()
-        class MyOperators(Operator):
-            def add(self, me, other):
-                return me + other
+        @register_operators
+        class MyOperators(Operators):
+            def and_default(self, other):
+                return self.operand + other
 
-            def or_(self, me, other):
-                return me - other
+            def or_default(self, other):
+                return self.operand - other
 
         self.assertEqual(data >> add(X.a + X.b, X.c), 6)
-        self.assertEqual(data >> add(X.a & X.b, X.c), 3) # 1 & 2 = 0
-        self.assertEqual(data >> add(X.a | X.b, X.c), 2) # 1 - 2 + 3
-        register_operator(Operator)
+        self.assertEqual(data >> add(X.a & X.b, X.c), 6)
+        self.assertEqual(data >> add(X.a | X.b, X.c), 2)
 
     def test_unsupported_type_for_func(self):
         X = Symbolic()
@@ -157,12 +154,12 @@ class TestCase(unittest.TestCase):
         def _(data, other):
             return data * other
 
-        @register_function(int)
-        def one(data):
+        @register_func(int)
+        def one(data, context):
             return 1
 
-        @register_function
-        def two(data):
+        @register_func
+        def two(data, context):
             return 2
 
         x = 1 >> add(2)
@@ -182,7 +179,7 @@ class TestCase(unittest.TestCase):
 
     def test_operators(self):
         X = Symbolic()
-
+        Symbolic._OPERATORS__ = Operators
         @register_verb(int)
         def add(data, arg):
             return data + arg
@@ -230,24 +227,26 @@ class TestCase(unittest.TestCase):
         x = 1 >> add(~X)
         self.assertEqual(x, -1)
 
+
+
         with self.assertRaises(TypeError):
             1 >> add(X @ 1)
 
     def test_error_changing_piping_sign(self):
         with self.assertRaises(ValueError):
-            register_piping_sign('~')
+            piping_sign('~')
 
     def test_proxy_compiler_set_data(self):
         X = Symbolic()
 
         @register_verb(FunctionType, context=None)
         def add1(data, arg):
-            arg = evaluate_expr(arg, data, context=Context.DATA)
+            arg = arg.compile_to('data')
             return data.a + arg
 
         @register_verb(FunctionType, context=None)
         def add2(data, arg):
-            arg = evaluate_expr(arg, d2, Context.DATA)
+            arg = arg.set_data(d2).compile_to('data')
             return data.a + arg
 
         d1 = lambda: 0
@@ -266,7 +265,7 @@ class TestCase(unittest.TestCase):
 
         @register_verb(FunctionType, context=None)
         def add(data, arg):
-            arg = evaluate_expr(arg, data, Context.DATA) * 10
+            arg = arg.compile_to(lambda d, x: getattr(d, x) * 10)
             return data.a + arg
 
         d1 = lambda: 0
@@ -274,6 +273,25 @@ class TestCase(unittest.TestCase):
 
         x = d1 >> add(X.a)
         self.assertEqual(x, 11)
+
+        @register_verb(FunctionType, context=True)
+        def add2(data, arg):
+            return 1
+
+        @register_verb(FunctionType, context={'attr': 'a', 'item': 'name'})
+        def add3(data, arg):
+            return 1
+
+        @register_verb(FunctionType, context={'attr': 'name', 'item': 'b'})
+        def add4(data, arg):
+            return 1
+
+        with self.assertRaises(TypeError):
+            d1 >> add2(X.a)
+        with self.assertRaises(ValueError):
+            d1 >> add3(X.a)
+        with self.assertRaises(ValueError):
+            d1 >> add4(X['a'])
 
     def test_call_other_verbs_funcs(self):
         X = Symbolic()
@@ -283,15 +301,15 @@ class TestCase(unittest.TestCase):
 
         @register_verb(int)
         def mul(data, other):
-            return data * add(data, other)
+            return data * add.pipda(data, other)
 
-        @register_function
-        def neg(data, num):
+        @register_func
+        def neg(data, context, num):
             return -num
 
-        @register_function
-        def double_neg(data, num):
-            return neg(data, num) * 2
+        @register_func
+        def double_neg(data, context, num):
+            return neg.pipda(data, context, num) * 2
 
         x = 2 >> add(1) >> mul(2) # 3 * (3 + 2)
         self.assertEqual(x, 15)
@@ -321,61 +339,6 @@ class TestCase(unittest.TestCase):
 
         x = 'a' >> add(1)
         self.assertEqual(x, 0)
-
-    def test_complex(self):
-        class Data:
-            def __init__(self, **kwds):
-                self.__dict__['data'] = kwds
-
-            def __getattr__(self, name):
-                if name == 'data':
-                    return self.__dict__['data']
-                return self.data[name]
-
-            def __setattr__(self, name: str, value: Any) -> None:
-                self.data[name] = value
-
-            __getitem__ = __getattr__
-            __setitem__ = __setattr__
-
-        @register_verb(context=Context.NAME)
-        def select(data, *columns):
-            return Data(**{key: data[key] for key in columns})
-
-        @register_verb()
-        def mutate(data, **kwds):
-            data = data.data.copy()
-            data.update(kwds)
-            return Data(**data)
-
-        @register_function(context=Context.NAME)
-        def mean(data, *columns):
-            return Data(m=float(sum(data[col] for col in columns)) / float(len(columns)))
-
-        @register_function
-        def double(data, column):
-            return [column * 2]
-
-        f = Symbolic()
-        d = Data(a=1, b=2, c=3)
-        r = (d >> select(f.a, f.b) >>
-                  mutate(c=double(f.a + f.b)[0], d=mean(f.a, f.b).m) >>
-                  select(f.c, f.d))
-
-        self.assertEqual(r.data, {'c': 6, 'd': 1.5})
-
-        d = Data(a=Data(a=Data(a=Data(a=Data(a=1)))))
-        r = (d >> mutate(a=double(f['a']['a']['a']['a']['a'])[0]))
-        self.assertEqual(r.data, {'a': 2})
-        r = (d >> mutate(a=double(f.a.a.a.a.a)[0]))
-        self.assertEqual(r.data, {'a': 2})
-        r = (d >> mutate(a=double(f.a['a'].a['a'].a)[0]))
-        self.assertEqual(r.data, {'a': 2})
-        r = (d >> mutate(a=double(f['a'].a['a'].a['a'])[0]))
-        self.assertEqual(r.data, {'a': 2})
-        r = (d >> mutate(a=1, b=2, c=3) >> mutate(a=2*f.c) >> select(f.a, f.b))
-        self.assertEqual(r.data, {'a': 6, 'b': 2})
-
 
 
 if __name__ == "__main__":

@@ -19,9 +19,17 @@ Verbs are functions next to the piping sign (`>>`) receiving the data directly.
 
 ```python
 import pandas as pd
-from pipda import register_verb, register_func, register_operators, Operators, Symbolic
+from pipda import (
+    register_verb,
+    register_function,
+    register_operator,
+    evaluate_expr,
+    Operator,
+    Symbolic,
+    Context
+)
 
-X = Symbolic()
+f = Symbolic()
 
 df = pd.DataFrame({
     'x': [0, 1, 2, 3],
@@ -29,6 +37,7 @@ df = pd.DataFrame({
 })
 
 df
+
 #      x    y
 # 0    0    zero
 # 1    1    one
@@ -46,6 +55,7 @@ df >> head(2)
 
 @register_verb(pd.DataFrame)
 def mutate(data, **kwargs):
+    data = data.copy()
     for key, val in kwargs.items():
         data[key] = val
     return data
@@ -57,20 +67,20 @@ df >> mutate(z=1)
 # 2  2    two  1
 # 3  3  three  1
 
-df >> mutate(z=X.x)
+df >> mutate(z=f.x)
 #    x      y  z
 # 0  0   zero  0
 # 1  1    one  1
 # 2  2    two  2
 # 3  3  three  3
 
-# Verbs that don't compile X.a to data, but just the column name
-@register_verb(pd.DataFrame, context='name')
+# Verbs that don't compile f.a to data, but just the column name
+@register_verb(pd.DataFrame, context=Context.NAME)
 def select(data, *columns):
     return data.loc[:, columns]
 
-# X.x won't be compiled as df.x but just 'x'
-df >> mutate(z=2*X.x) >> select(X.x, X.z)
+# f.x won't be compiled as df.x but just 'x'
+df >> mutate(z=2*f.x) >> select(f.x, f.z)
 #      x    z
 # 0    0    0
 # 1    1    2
@@ -78,16 +88,16 @@ df >> mutate(z=2*X.x) >> select(X.x, X.z)
 # 3    3    6
 
 # Compile the args inside the verb
-@register_verb(pd.DataFrame, context=None)
+@register_verb(pd.DataFrame, context=Context.UNSET)
 def mutate_existing(data, column, value):
-    column = column.compile_to('name')
-    value = value.compile_to('data')
+    column = evaluate_expr(column, data, Context.NAME)
+    value = evaluate_expr(value, data, Context.DATA)
     data = data.copy()
     data[column] = value
     return data
 
-# First X.x compiled as column name, and second as Series data
-df2 = df >> mutate_existing(X.x, 10 * X.x)
+# First f.x compiled as column name, and second as Series data
+df2 = df >> mutate_existing(f.x, 10 * f.x)
 df2
 #      x    y     z
 # 0    0    zero  0
@@ -95,15 +105,16 @@ df2
 # 2    20   two   4
 # 3    30   three 6
 
-# Change the base data for arguments
-@register_verb(pd.DataFrame, context=None)
+# Evaluate the arguments by yourself
+@register_verb(pd.DataFrame, context=Context.UNSET)
 def mutate_existing2(data, column, value):
-    column = column.compile_to('name')
-    value = value.set_data(df2).compile_to('data')
+    column = evaluate_expr(column, data, Context.NAME)
+    value = evaluate_expr(value, df2, Context.DATA)
+    data = data.copy()
     data[column] = value
     return data
 
-df >> mutate_existing2(X.x, 2 * X.x)
+df >> mutate_existing2(f.x, 2 * f.x)
 #      x    y
 # 0    0    zero
 # 1    20   one
@@ -144,32 +155,32 @@ def _(data, other):
 
 ### Functions used in verb arguments
 ```python
-@register_func
-def if_else(data, context, cond, true, false):
+@register_function
+def if_else(data, cond, true, false):
     cond.loc[cond.isin([True]), ] = true
     cond.loc[cond.isin([False]), ] = false
     return cond
 
-df >> mutate(z=if_else(X.x>1, 20, 10))
+# The function is then also a singledispatch generic function
+
+df >> mutate(z=if_else(f.x>1, 20, 10))
 #    x      y   z
 # 0  0   zero  10
 # 1  1    one  10
 # 2  2    two  20
 # 3  3  three  20
-
-# The function is then also a singledispatch generic function
 ```
 
 ### Operators
 You may also redefine the behavior of the operators
 ```python
-@register_operators
-class MyOperators(Operators):
-    def xor_default(self, other):
+@register_operator
+class MyOperators(Operator):
+    def xor(self, a, b):
         """Inteprete X ^ Y as pow(X, Y)."""
-        return self.operand ** other
+        return a ** b
 
-df >> mutate(z=X.x ^ 2)
+df >> mutate(z=f.x ^ 2)
 #      x    y      z
 # 0    0    zero   0
 # 1    1    one    1
@@ -178,50 +189,38 @@ df >> mutate(z=X.x ^ 2)
 ```
 
 ### Caveats
-- Only one `Symbolic` name is allowed:
-    ```python
-    X = Symbolic()
-    _ = Symbolic() # error
-    ```
-
-- Default` v.s. non-default behavior of the operators:
-
-    Default behavior (`xor_default`) will be first applied. If it fails, non-default (`xor`) behavior will be applied.
-
-- There are two required arguments to define a function:
-
-    `data` and `context` (You can use other names, but the first two arguments should be data and context). The context refers to the context of the verb how the proxy (X.a) should be resolved.
 
 - Non-default behaviors for `&` and `|` operators:
 
     You have to use `and_` and `or_` for them, as `and` and `or` are python keywords.
-    Their default behaviors are still defined as `and_default` and `or_default`, respectively.
 
 - Limitations:
 
     Any limitations apply to `executing` to detect the AST node will apply to `pipda`. It may not work in some circumstances where other AST magics apply.
 
-- Use the original verb or function from `register_verb`/`register_func` directly:
+- Use the original verb or function from `register_verb`/`register_function` directly:
 
-    To use the the original function, you need to call it like this:
     ```python
-    df >> mutate(z=X.x ^ 2)
+    df >> mutate(z=f.x ^ 2)
     # use the select function directly
-    # No Symbolic object (X) allowed now
-    select.pipda(data, 'x', 'z')
+    select(data, 'x', 'z')
     ```
 
 - Use another piping sign
 
     ```python
-    from pipda.verb import piping_sign
-    piping_sign('^')
+    from pipda import register_piping_sign
+    register_piping_sign('^')
 
     # register verbs and functions
-    df ^ verb1(...) ^ verb2
+    df ^ verb1(...) ^ verb2(...)
     ```
 
     Allowed signs are: `+`, `-`, `*`, `@`, `/`, `//`, `%`, `**`, `<<`, `>>`, `&`, `^` and `|`.
+
+- The context
+
+    The context is only applied to the `DirectSubsetRef` objects or unary operators, like `-f.A`, `+f.A`, `~f.A`, `f.A`, `f['A']`, `[f.A, f.B]`, etc. Any other `Expression` wrapping those objects or other operators getting involved will turn the context to `Context.DATA`
 
 ## How it works
 ### The verbs
@@ -234,11 +233,7 @@ The counterpart R syntax we expect is:
 ```python
 data >> verb(arg1, ..., key1=kwarg1, ...)
 ```
-To implement that, we need to defer the execution of the `verb` by turning it into a `Verb` object, which holds all information of the function to be executed later. The `Verb` object won't be executed until the `data` is piped in. This means:
-```python
-verb(arg1, ..., key1=kwarg1)
-```
-will just return a `Verb` object and not execute anything. But `data >> verb(...)` will lead it to execute.
+To implement that, we need to defer the execution of the `verb` by turning it into a `Verb` object, which holds all information of the function to be executed later. The `Verb` object won't be executed until the `data` is piped in. It all thanks to the [`executing`][5] package to let us determine the ast nodes where the function is called. So that we are able to determine whether the function is called in a piping mode.
 
 If an argument is referring to a column of the data and the column will be involved in the later computation, the it also needs to be deferred. For example, with `dplyr` in `R`:
 ```R
@@ -248,11 +243,11 @@ is trying add a column named `z` with the data from column `a`.
 
 In python, we want to do the same with:
 ```python
-data >> mutate(z=X.a)
+data >> mutate(z=f.a)
 ```
-where `X.a` is a `Symbolic` object that carries the column information without fetching the data while python sees it immmediately.
+where `f.a` is a `SubsetRef` object that carries the column information without fetching the data while python sees it immmediately.
 
-Here the trick is `X`. Like other packages, we introduced the `Symbolic` object, which will connect the parts in the argument and make the whole argument a `Symbolic` object. This object is holding the AST node of the argument, which we could manipulate later. The AST node is fetched by package [`executing`][5]. Any limitations that apply to `executing` will also apply to `pipda`.
+Here the trick is `f`. Like other packages, we introduced the `Symbolic` object, which will connect the parts in the argument and make the whole argument an `Expression` object. This object is holding the execution information, which we could use later when the piping is detected.
 
 ### The functions
 Then what if we want to use some functions in the arguments of the `verb`?
@@ -262,19 +257,17 @@ data >> select(starts_with('a'))
 ```
 to select the columns with names start with `'a'`.
 
-No doubt that we need to defer the execution of the function, too. The trick is that we let the function return a `Symbolic` object as well, and attach the real function to `starts_with.pipda`. While executing the function, we modify the AST node to turn `starts_with` into `starts_with.pipda` to call the actual function.
+No doubt that we need to defer the execution of the function, too. The trick is that we let the function return a `function` object as well, and evaluate it as the argument of the verb.
 
 ### The operators
-`pipda` also opens oppotunities to change the behavior of the operators in verb arguments. This allows us to mimic something like this:
+`pipda` also opens oppotunities to change the behavior of the operators in verb/function arguments. This allows us to mimic something like this:
 ```python
-data >> select(-X.a) # select all columns but `a`
+data >> select(-f.a) # select all columns but `a`
 ```
 
-To do that, the `UnaryOp` is modified to find `Operators` class and wrap the operand so that the operator will be called on the `Operators` object. In the above example, `-X.a` is expanded to:
-```python
--Symbolic.operators(X.a) # X.a should be executed value at this step.
-```
-So, `Operators.__neg__` will be called. `pipda` has a default `Operators` class which defines the default behavior of the operators. You can also define you own by subclassing the `Operators` class, and then register it to replace the default one.
+To do that, we turn it into an `Operator` object. Just like a `Verb` or a `Function` object, the execution is deferred. By default, the operators we used are from the python standard library `operator`. `operator.neg` in the above example.
+
+You can also define you own by subclassing the `Operator` class, and then register it to replace the default one by decorating it with `register_operator`.
 
 
 [1]: https://github.com/machow/siuba
