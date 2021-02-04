@@ -60,4 +60,9 @@ def test_function_called_in_normal_way():
     def verb(data, x):
         return x
 
-    [1, 2] >> verb(func(0) + 1)
+    r = [1, 2] >> verb(func(0) + 1)
+    assert r == 2
+
+    r = func(1, _force_piping=True).evaluate([0, 1])
+    assert r == 1
+

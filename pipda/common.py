@@ -44,9 +44,12 @@ def register_common(
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        if is_piping():
+        force_piping = kwargs.pop('_force_piping', False)
+        if force_piping or is_piping():
             predicate = CommonFunction(func, context)
             return predicate.defer(args, kwargs)
         return func(*args, **kwargs)
+
+    wrapper.__pipda__ = CommonFunction.__name__
 
     return wrapper

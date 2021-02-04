@@ -291,11 +291,13 @@ def register_factory(predicate_class: Type[Predicate]) -> Callable:
 
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            if is_piping():
+            force_piping = kwargs.pop('_force_piping', False)
+            if force_piping or is_piping():
                 predicate = predicate_class(generic, context)
                 return predicate.defer(args, kwargs)
             return func(*args, **kwargs)
 
         wrapper.register = generic.register
+        wrapper.__pipda__ = predicate_class.__name__
         return wrapper
     return register_wrapper

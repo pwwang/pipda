@@ -43,8 +43,11 @@ def test_common_context_unset():
 
     m = mean([1, 2])
     assert m == 1.5
+    m = mean([1, 2], _force_piping=True).evaluate([1, 2])
+    assert m == 1.5
 
     d = {'a': 1, 'b': 2}
     f = Symbolic()
     r = d >> mutate(c=mean([f['a'], f['b']]))
     assert r == {'a': 1, 'b': 2, 'c': 1.5}
+
