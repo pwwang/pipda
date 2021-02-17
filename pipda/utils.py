@@ -119,7 +119,12 @@ class Expression(ABC):
     __invert__ = partialmethod(_op_handler, 'invert')
 
     @abstractmethod
-    def evaluate(self, data: Any, context: Context = Context.UNSET) -> Any:
+    def evaluate(
+            self,
+            data: Any,
+            context: Context = Context.UNSET,
+            callback: Optional[Callable[["Expression"], None]] = None
+    ) -> Any:
         """Evaluate the expression using given data"""
 
 class Predicate(Expression, ABC):
@@ -148,14 +153,22 @@ class Predicate(Expression, ABC):
         self.kwargs = kwargs
         return self
 
-    def evaluate(self, data: Any, context: Context = Context.UNSET) -> Any:
+    def evaluate(
+            self,
+            data: Any,
+            context: Context = Context.UNSET,
+            callback: Optional[Callable[["Expression"], None]] = None
+    ) -> Any:
         """Execute the function with the data and context"""
+        if callback:
+            callback(self)
+
         if self.context == Context.UNSET:
             # leave args/kwargs for the verb/function/operator to evaluate
             return self.func(data, *self.args, **self.kwargs)
 
-        args = evaluate_args(self.args, data, self.context)
-        kwargs = evaluate_kwargs(self.kwargs, data, self.context)
+        args = evaluate_args(self.args, data, self.context, callback)
+        kwargs = evaluate_kwargs(self.kwargs, data, self.context, callback)
         return self.func(data, *args, **kwargs)
 
 def get_verb_node() -> Tuple[ast.Call, Optional[ast.Call]]:
@@ -246,11 +259,9 @@ def evaluate_expr(
         }
     if isinstance(expr, Expression):
         # use its own context, unless it's SubsetRef
-        ret = (expr.evaluate(data, context)
+        ret = (expr.evaluate(data, context, callback)
                if expr.context is Context.UNSET
-               else expr.evaluate(data))
-        if callable(callback):
-            callback(expr)
+               else expr.evaluate(data, callback=callback))
         return ret
     return expr
 
@@ -279,7 +290,7 @@ def register_factory(predicate_class: Type[Predicate]) -> Callable:
     """The factory to generate verb/function register decorators"""
     def register_wrapper(
             cls: Optional[Union[FunctionType, Type]] = None,
-            context: Context = Context.DATA,
+            context: Context = Context.NAME,
             func: Optional[FunctionType] = None
     ) -> Callable:
         """Mimic the singledispatch function to implement a function for

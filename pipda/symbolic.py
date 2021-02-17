@@ -1,5 +1,5 @@
 """Provides Symbolic and SubsetRef class"""
-from typing import Optional, Any
+from typing import Callable, Optional, Any
 
 import varname.helpers
 
@@ -33,7 +33,12 @@ class SubsetRef(Expression):
         self.context = Context.DATA
         return SubsetRef(self, item, 'getitem', Context.DATA)
 
-    def evaluate(self, data: Any, context: Context = Context.UNSET) -> Any:
+    def evaluate(
+            self,
+            data: Any,
+            context: Context = Context.UNSET,
+            callback: Optional[Callable[["Expression"], None]] = None
+    ) -> Any:
         """Evaluate the reference according to the context
 
         When context is NAME, evaluate it as a string; when it is DATA,
@@ -41,6 +46,8 @@ class SubsetRef(Expression):
         data and context. Otherwise the self is returned, which will be pending
         evaluation
         """
+        if callback:
+            callback(self)
         # only DirectSubsetRef should use the coming in context
         if self.context == Context.NAME:
             if not isinstance(self.ref, str):
@@ -51,8 +58,8 @@ class SubsetRef(Expression):
 
         if self.context == Context.DATA:
             # anything happens inside the [] should be interpreted as DATA
-            parent = evaluate_expr(self.parent, data, Context.DATA)
-            ref = evaluate_expr(self.ref, data, Context.DATA)
+            parent = evaluate_expr(self.parent, data, Context.DATA, callback)
+            ref = evaluate_expr(self.ref, data, Context.DATA, callback)
             return (
                 parent[ref] if self.access == 'getitem'
                 else getattr(parent, ref)
@@ -66,12 +73,18 @@ class DirectSubsetRef(SubsetRef):
     This is the only type of Expression object
     """
 
-    def evaluate(self, data: Any, context: Context = Context.UNSET) -> Any:
+    def evaluate(
+            self,
+            data: Any,
+            context: Context = Context.UNSET,
+            callback: Optional[Callable[["Expression"], None]] = None
+    ) -> Any:
         """Evaluate the direct SubsetRef, totally depending on the coming in
         context"""
         if self.context == Context.UNSET:
             self.context = context
-        return super().evaluate(data, context)
+
+        return super().evaluate(data, context, callback)
 
 @varname.helpers.register
 class Symbolic(Expression):
@@ -88,5 +101,12 @@ class Symbolic(Expression):
     def __repr__(self) -> str:
         return f"<Symbolic:{self.__varname__}>"
 
-    def evaluate(self, data: Any, context: Optional[Context] = None) -> Any:
+    def evaluate(
+            self,
+            data: Any,
+            context: Optional[Context] = None,
+            callback: Optional[Callable[["Expression"], None]] = None
+    ) -> Any:
+        if callback:
+            callback(self)
         return data

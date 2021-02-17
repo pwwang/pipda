@@ -30,18 +30,26 @@ class Operator(Predicate):
         self.defer(args, kwargs)
         self.data = None
 
-    def evaluate(self, data: Any, context: Context = Context.UNSET) -> Any:
+    def evaluate(
+            self,
+            data: Any,
+            context: Context = Context.UNSET,
+            callback: Optional[Callable[["Expression"], None]] = None
+    ) -> Any:
         """Evaluate the operator
 
         No data passed to the operator function. It should be used to evaluate
         the arguments.
         """
         self.data = data
+        if callback:
+            callback(self)
+
         if self.context == Context.UNSET:
             self.context = context
 
-        args = evaluate_args(self.args, data, self.context)
-        kwargs = evaluate_kwargs(self.kwargs, data, self.context)
+        args = evaluate_args(self.args, data, self.context, callback)
+        kwargs = evaluate_kwargs(self.kwargs, data, self.context, callback)
         return self.func(*args, **kwargs)
 
     def __getattr__(self, name: str) -> Any:

@@ -20,13 +20,21 @@ class CommonFunction(Predicate):
         self.func = func
         self.args = self.kwargs = None
 
-    def evaluate(self, data: Any, context: Context = Context.UNSET) -> Any:
+    def evaluate(
+            self,
+            data: Any,
+            context: Context = Context.UNSET,
+            callback: Optional[Callable[["Expression"], None]] = None
+    ) -> Any:
         """Execute the function with the data and context
 
         Just ignore the data.
         """
-        args = evaluate_args(self.args, data, self.context)
-        kwargs = evaluate_kwargs(self.kwargs, data, self.context)
+        if callback:
+            callback(self)
+
+        args = evaluate_args(self.args, data, self.context, callback)
+        kwargs = evaluate_kwargs(self.kwargs, data, self.context, callback)
         return self.func(*args, **kwargs)
 
 def register_common(

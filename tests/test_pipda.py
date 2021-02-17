@@ -8,7 +8,7 @@ class TestCase(unittest.TestCase):
     def test_case(self):
         X = Symbolic()
 
-        @register_verb(list)
+        @register_verb(list, context=Context.DATA)
         def split(data, num):
             """Split a list into two lists by one of the numbers in the list"""
             return [[dat for dat in data if dat < num],
