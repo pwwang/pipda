@@ -1,3 +1,4 @@
+from pipda.symbolic import DirectSubsetRef
 import pytest
 from pipda import *
 from pipda.verb import *
@@ -52,16 +53,23 @@ def test_only_type():
     ret = '1' >> verb('2')
     assert ret == '120'
 
-def test_context_mixed():
+def test_context_unset():
+
     @register_verb(context=Context.UNSET)
     def verb(data, x):
-        x = evaluate_expr(x, data, context=Context.DATA)
-        return x
+        used = []
+        def callback(expr):
+            if isinstance(expr, DirectSubsetRef):
+                used.append(expr.ref)
+
+        x = evaluate_expr(x, data, context=Context.DATA, callback=callback)
+        return x, used
 
     f = Symbolic()
     d = {'a': 1, 'b': 2}
-    ret = d >> verb(f['a'])
+    ret, used_refs = d >> verb(f['a'])
     assert ret == 1
+    assert used_refs == ['a']
 
 def test_node_na():
     @register_verb

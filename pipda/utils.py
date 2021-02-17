@@ -221,7 +221,12 @@ def is_piping():
     else:
         return is_argument_node(my_node, verb_node)
 
-def evaluate_expr(expr: Any, data: Any, context: Context) -> Any:
+def evaluate_expr(
+        expr: Any,
+        data: Any,
+        context: Context,
+        callback: Optional[Callable[[Expression], None]] = None
+) -> Any:
     """Evaluate a mixed expression"""
     if isinstance(expr, list):
         return [evaluate_expr(elem, data, context) for elem in expr]
@@ -241,25 +246,32 @@ def evaluate_expr(expr: Any, data: Any, context: Context) -> Any:
         }
     if isinstance(expr, Expression):
         # use its own context, unless it's SubsetRef
-        return (expr.evaluate(data, context)
-                if expr.context is Context.UNSET
-                else expr.evaluate(data))
+        ret = (expr.evaluate(data, context)
+               if expr.context is Context.UNSET
+               else expr.evaluate(data))
+        if callable(callback):
+            callback(expr)
+        return ret
     return expr
 
-def evaluate_args(args: Tuple[Any],
-                  data: Any,
-                  context: Context) -> Tuple[Any]:
+def evaluate_args(
+        args: Tuple[Any],
+        data: Any,
+        context: Context,
+        callback: Optional[Callable[[Expression], None]] = None
+) -> Tuple[Any]:
     """Evaluate the non-keyword arguments"""
-    return tuple(evaluate_expr(arg, data, context) for arg in args)
+    return tuple(evaluate_expr(arg, data, context, callback) for arg in args)
 
 def evaluate_kwargs(
         kwargs: Mapping[str, Any],
         data: Any,
-        context: Context
+        context: Context,
+        callback: Optional[Callable[[Expression], None]] = None
 ) -> Mapping[str, Any]:
     """Evaluate the keyword arguments"""
     return {
-        key: evaluate_expr(val, data, context)
+        key: evaluate_expr(val, data, context, callback)
         for key, val in kwargs.items()
     }
 
