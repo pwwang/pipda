@@ -48,18 +48,20 @@ class SubsetRef(Expression):
         """
         if callback:
             callback(self)
+
+        # evaluate ref
+        ref = evaluate_expr(self.ref, data, self.context, callback)
         # only DirectSubsetRef should use the coming in context
         if self.context == Context.NAME:
-            if not isinstance(self.ref, str):
+            if not isinstance(ref, (slice, str)):
                 raise TypeError(
-                    f"Cannot evaluate {self.ref!r} with context {self.context}"
+                    f"Cannot evaluate {ref!r} with context {self.context}"
                 )
-            return self.ref
+            return ref
 
         if self.context == Context.DATA:
             # anything happens inside the [] should be interpreted as DATA
             parent = evaluate_expr(self.parent, data, Context.DATA, callback)
-            ref = evaluate_expr(self.ref, data, Context.DATA, callback)
             return (
                 parent[ref] if self.access == 'getitem'
                 else getattr(parent, ref)

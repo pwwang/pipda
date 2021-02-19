@@ -4,8 +4,10 @@ import ast
 import warnings
 from functools import partialmethod, singledispatch, wraps
 from types import FunctionType
-from typing import Any, Callable, Mapping, Optional, Tuple, Type, Union
-from collections import OrderedDict, namedtuple
+from typing import (
+    Any, Callable, Mapping, Optional, Tuple, Type, Union, Iterable
+)
+from collections import namedtuple
 from enum import Enum
 from abc import ABC, abstractmethod
 
@@ -247,11 +249,18 @@ def evaluate_expr(
         return tuple(evaluate_expr(elem, data, context) for elem in expr)
     if isinstance(expr, set):
         return set(evaluate_expr(elem, data, context) for elem in expr)
-    if isinstance(expr, OrderedDict):
-        return OrderedDict([
-            (key, evaluate_expr(val, data, context))
-            for key, val in expr.items()
-        ])
+    if isinstance(expr, slice):
+        return slice(
+            evaluate_expr(expr.start, data, context),
+            evaluate_expr(expr.stop, data, context),
+            evaluate_expr(expr.step, data, context)
+        )
+    # no need anymore for python3.7+
+    # if isinstance(expr, OrderedDict):
+    #     return OrderedDict([
+    #         (key, evaluate_expr(val, data, context))
+    #         for key, val in expr.items()
+    #     ])
     if isinstance(expr, dict):
         return {
             key: evaluate_expr(val, data, context)
@@ -289,7 +298,7 @@ def evaluate_kwargs(
 def register_factory(predicate_class: Type[Predicate]) -> Callable:
     """The factory to generate verb/function register decorators"""
     def register_wrapper(
-            cls: Optional[Union[FunctionType, Type]] = None,
+            cls: Optional[Union[FunctionType, Type, Iterable[Type]]] = None,
             context: Context = Context.NAME,
             func: Optional[FunctionType] = None
     ) -> Callable:
@@ -310,7 +319,10 @@ def register_factory(predicate_class: Type[Predicate]) -> Callable:
             )
 
         if cls:
-            generic.register(cls, func)
+            if not isinstance(cls, Iterable):
+                cls = (cls, )
+            for one_cls in cls:
+                generic.register(one_cls, func)
 
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
