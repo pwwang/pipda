@@ -1,4 +1,4 @@
-from pipda.symbolic import DirectSubsetRef
+from pipda.context import ContextEval
 import pytest
 from pipda import *
 from pipda.verb import *
@@ -15,8 +15,7 @@ def test_verb():
     assert ret == 2
 
 def test_evaluated():
-    v = Verb(round, Context.DATA)
-    v.defer((1, ), {})
+    v = Verb(round, ContextEval(), (1, ), {})
     assert v.args == (1, )
     assert v.kwargs == {}
     assert v.evaluate(1.123) == 1.1
@@ -55,15 +54,25 @@ def test_only_type():
 
 def test_context_unset():
 
+    class MyContext(ContextEval):
+
+        def __init__(self):
+            self.used = []
+
+        def getitem(self, data, ref):
+            self.used.append(ref)
+            return super().getitem(data, ref)
+
+        def getattr(self, data, ref):
+            self.used.append(ref)
+            return super().getattr(data, ref)
+
     @register_verb(context=Context.UNSET)
     def verb(data, x):
-        used = []
-        def callback(expr):
-            if isinstance(expr, DirectSubsetRef):
-                used.append(expr.ref)
+        mycontext = MyContext()
 
-        x = evaluate_expr(x, data, context=Context.DATA, callback=callback)
-        return x, used
+        x = evaluate_expr(x, data, context=mycontext)
+        return x, mycontext.used
 
     f = Symbolic()
     d = {'a': 1, 'b': 2}

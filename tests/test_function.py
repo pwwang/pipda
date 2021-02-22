@@ -6,7 +6,7 @@ from pipda.function import *
 
 def test_function():
 
-    @register_function
+    @register_func
     def func(data, x):
         return data[x]
 
@@ -22,7 +22,7 @@ def test_function():
 
 def test_function_deep():
 
-    @register_function(context=Context.NAME)
+    @register_func(context=Context.SELECT)
     def func(data, x):
         return {key: data[key] for key in x}
 
@@ -41,7 +41,7 @@ def test_function_deep():
     ret = d >> verb(func({f.a, f.b}))
     assert ret == {'a': 1, 'b': 2}
 
-    @register_function(context=Context.NAME)
+    @register_func(context=Context.SELECT)
     def func_dict(data, x):
         return {key: data[key] for key in x.values()}
 
@@ -52,7 +52,7 @@ def test_function_deep():
     assert ret == {'a': 1, 'b': 2}
 
 def test_function_called_in_normal_way():
-    @register_function
+    @register_func
     def func(data, x):
         return data[x]
 

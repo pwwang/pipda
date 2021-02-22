@@ -1,11 +1,11 @@
 import pytest
 
 from pipda.utils import evaluate_expr
-from pipda.common import *
+from pipda.function import *
 from pipda import register_verb, Symbolic
 
-def test_common_function():
-    @register_common()
+def test_plain_function():
+    @register_func(None)
     def mean(x):
         return float(sum(x)) / float(len(x))
 
@@ -25,15 +25,15 @@ def test_common_function():
     r = d >> mutate(c=mean([f['a'], f['b']]))
     assert r == {'a': 1, 'b': 2, 'c': 1.5}
 
-def test_common_context_unset():
+def test_plain_context_unset():
     def mean(x):
         return float(sum(x)) / float(len(x))
 
-    with pytest.raises(ValueError,
-                       match='Common functions cannot be registered'):
-        register_common(mean, context=Context.UNSET)
+    # with pytest.raises(ValueError,
+    #                    match='Common functions cannot be registered'):
+    #     register_func(None, func=mean, context=Context.UNSET)
 
-    mean = register_common(mean)
+    mean = register_func(None, func=mean)
 
     @register_verb
     def mutate(data, **kwds):

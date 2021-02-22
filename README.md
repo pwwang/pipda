@@ -21,7 +21,7 @@ Verbs are functions next to the piping sign (`>>`) receiving the data directly.
 import pandas as pd
 from pipda import (
     register_verb,
-    register_function,
+    register_func,
     register_operator,
     evaluate_expr,
     Operator,
@@ -75,7 +75,7 @@ df >> mutate(z=f.x)
 # 3  3  three  3
 
 # Verbs that don't compile f.a to data, but just the column name
-@register_verb(pd.DataFrame, context=Context.NAME)
+@register_verb(pd.DataFrame, context=Context.SELECT)
 def select(data, *columns):
     return data.loc[:, columns]
 
@@ -90,8 +90,8 @@ df >> mutate(z=2*f.x) >> select(f.x, f.z)
 # Compile the args inside the verb
 @register_verb(pd.DataFrame, context=Context.UNSET)
 def mutate_existing(data, column, value):
-    column = evaluate_expr(column, data, Context.NAME)
-    value = evaluate_expr(value, data, Context.DATA)
+    column = evaluate_expr(column, data, Context.SELECT)
+    value = evaluate_expr(value, data, Context.EVAL)
     data = data.copy()
     data[column] = value
     return data
@@ -108,8 +108,8 @@ df2
 # Evaluate the arguments by yourself
 @register_verb(pd.DataFrame, context=Context.UNSET)
 def mutate_existing2(data, column, value):
-    column = evaluate_expr(column, data, Context.NAME)
-    value = evaluate_expr(value, df2, Context.DATA)
+    column = evaluate_expr(column, data, Context.SELECT)
+    value = evaluate_expr(value, df2, Context.EVAL)
     data = data.copy()
     data[column] = value
     return data
@@ -155,7 +155,7 @@ def _(data, other):
 
 ### Functions used in verb arguments
 ```python
-@register_function
+@register_func
 def if_else(data, cond, true, false):
     cond.loc[cond.isin([True]), ] = true
     cond.loc[cond.isin([False]), ] = false
@@ -198,7 +198,7 @@ df >> mutate(z=f.x ^ 2)
 
     Any limitations apply to `executing` to detect the AST node will apply to `pipda`. It may not work in some circumstances where other AST magics apply.
 
-- Use the original verb or function from `register_verb`/`register_function` directly:
+- Use the original verb or function from `register_verb`/`register_func` directly:
 
     ```python
     df >> mutate(z=f.x ^ 2)
@@ -220,7 +220,7 @@ df >> mutate(z=f.x ^ 2)
 
 - The context
 
-    The context is only applied to the `DirectSubsetRef` objects or unary operators, like `-f.A`, `+f.A`, `~f.A`, `f.A`, `f['A']`, `[f.A, f.B]`, etc. Any other `Expression` wrapping those objects or other operators getting involved will turn the context to `Context.DATA`
+    The context is only applied to the `DirectSubsetRef` objects or unary operators, like `-f.A`, `+f.A`, `~f.A`, `f.A`, `f['A']`, `[f.A, f.B]`, etc. Any other `Expression` wrapping those objects or other operators getting involved will turn the context to `Context.EVAL`
 
 ## How it works
 ### The verbs

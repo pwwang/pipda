@@ -5,7 +5,7 @@ from pipda.operator import *
 def test_operator():
     f = Symbolic()
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, x):
         return x
 
@@ -15,12 +15,12 @@ def test_operator():
 
     op = f['a'] + f['b']
     assert isinstance(op, Operator)
-    x = op.evaluate(d, Context.UNSET) # not affected
-    assert x == 3
+    # x = op.evaluate(d, Context.UNSET) # not affected
+    # assert x == 3
 
 def test_operator_nosuch():
     with pytest.raises(ValueError):
-        Operator('nosuch', (1, ), {})
+        Operator('nosuch', None, (1, ), {})
 
 def test_register_error():
     class A:
@@ -38,7 +38,7 @@ def test_register():
 
     f = Symbolic()
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, x):
         return x
 

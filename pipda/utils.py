@@ -2,53 +2,11 @@
 import sys
 import ast
 import warnings
-from functools import partialmethod, singledispatch, wraps
-from types import FunctionType
-from typing import (
-    Any, Callable, Mapping, Optional, Tuple, Type, Union, Iterable
-)
-from collections import namedtuple
-from enum import Enum
+from functools import partialmethod
+from typing import Any, Mapping, Optional, Tuple, Union
 from abc import ABC, abstractmethod
 
 from executing import Source
-
-# The Sign tuple
-Sign = namedtuple('Sign', ['method', 'token'])
-
-# All supported signs
-#   method is used to be attached to verbs
-#   ast token class is used to check if the verb or function
-#       is running in piping mode
-PIPING_SIGNS = {
-    '+': Sign('__radd__', ast.Add),
-    '-': Sign('__rsub__', ast.Sub),
-    '*': Sign('__rmul__', ast.Mult),
-    '@': Sign('__rmatmul__', ast.MatMult),
-    '/': Sign('__rtruediv__', ast.Div),
-    '//': Sign('__rfloordiv__', ast.FloorDiv),
-    '%': Sign('__rmod__', ast.Mod),
-    '**': Sign('__rpow__', ast.Pow),
-    '<<': Sign('__rlshift__', ast.LShift),
-    '>>': Sign('__rrshift__', ast.RShift),
-    '&': Sign('__rand__', ast.BitAnd),
-    '^': Sign('__rxor__', ast.BitXor),
-    '|': Sign('__ror__', ast.BitOr)
-}
-
-class Context(Enum):
-    """The context how the direct SubsetRef objects should be evaluated
-
-    NAME: evaluate as a str
-    DATA: evaluate as a subscript (`data[ref]`)
-    MIXED: specially for operator. For unary operators (-1, +1, ~1), use UNSET,
-        otherwise use DATA
-    UNSET: users to evaluate by themselves
-    """
-    NAME = 1
-    DATA = 2
-    MIXED = 3
-    UNSET = 4
 
 class Expression(ABC):
     """The abstract Expression class
@@ -63,23 +21,15 @@ class Expression(ABC):
         func: The function
 
     """
-    def __init__(self, context: Optional[Context] = None) -> None:
+    def __init__(self, context: Optional["ContextBase"] = None) -> None:
         self.context = context
 
     def __hash__(self) -> int:
         return hash(id(self))
 
-    def __getattr__(self, name: str) -> Any:
-        from .symbolic import SubsetRef
-        return SubsetRef(self, name, 'getattr', Context.DATA)
-
-    def __getitem__(self, item: Any) -> Any:
-        from .symbolic import SubsetRef
-        return SubsetRef(self, item, 'getitem', Context.DATA)
-
     def _op_handler(self, op: str, *args: Any, **kwargs: Any) -> "Operator":
         from .operator import Operator
-        return Operator.REGISTERED(op, (self, *args), kwargs)
+        return Operator.REGISTERED(op, None, (self, *args), kwargs)
 
     # Make sure the operators connect all expressions into one
     __add__ = partialmethod(_op_handler, 'add')
@@ -124,60 +74,17 @@ class Expression(ABC):
     def evaluate(
             self,
             data: Any,
-            context: Context = Context.UNSET,
-            callback: Optional[Callable[["Expression"], None]] = None
+            context: Optional["ContextBase"] = None
     ) -> Any:
         """Evaluate the expression using given data"""
 
-class Predicate(Expression, ABC):
-    """The Predicate class, defining how the function should be executed
-    when needed
-
-    Args:
-        func: The function to execute
-        context: The context to evaluate the SubsetRef/Operator objects
-
-    Attributes:
-        func: The function
-        context: The context
-        args: The arguments of the function
-        kwargs: The keyword arguments of the function
-    """
-
-    def __init__(self, func: Callable, context: Context):
-        super().__init__(context)
-        self.func = func
-        self.args = self.kwargs = None
-
-    def defer(self, args: Tuple[Any], kwargs: Tuple[Any]):
-        """Defer the evaluation when the data is not piped in"""
-        self.args = args
-        self.kwargs = kwargs
-        return self
-
-    def evaluate(
-            self,
-            data: Any,
-            context: Context = Context.UNSET,
-            callback: Optional[Callable[["Expression"], None]] = None
-    ) -> Any:
-        """Execute the function with the data and context"""
-        if callback:
-            callback(self)
-
-        if self.context == Context.UNSET:
-            # leave args/kwargs for the verb/function/operator to evaluate
-            return self.func(data, *self.args, **self.kwargs)
-
-        args = evaluate_args(self.args, data, self.context, callback)
-        kwargs = evaluate_kwargs(self.kwargs, data, self.context, callback)
-        return self.func(data, *args, **kwargs)
 
 def get_verb_node() -> Tuple[ast.Call, Optional[ast.Call]]:
     """Get the ast node that is ensured the piped verb call"""
     # frame 1: is_piping
-    # frame 2: register_verb/register_function.wrapper
+    # frame 2: register_verb/register_func.wrapper
     # frame 3: data >> verb(func())
+    from .verb import PIPING_SIGNS
     frame = sys._getframe(3)
 
     node = Source.executing(frame).node
@@ -239,10 +146,12 @@ def is_piping():
 def evaluate_expr(
         expr: Any,
         data: Any,
-        context: Context,
-        callback: Optional[Callable[[Expression], None]] = None
+        context: Union["Context", "ContextBase"]
 ) -> Any:
     """Evaluate a mixed expression"""
+    from .context import Context
+    if isinstance(context, Context):
+        context = context.value
     if isinstance(expr, list):
         return [evaluate_expr(elem, data, context) for elem in expr]
     if isinstance(expr, tuple):
@@ -268,71 +177,27 @@ def evaluate_expr(
         }
     if isinstance(expr, Expression):
         # use its own context, unless it's SubsetRef
-        ret = (expr.evaluate(data, context, callback)
-               if expr.context is Context.UNSET
-               else expr.evaluate(data, callback=callback))
+        ret = (expr.evaluate(data, context)
+               if not expr.context
+               else expr.evaluate(data))
         return ret
     return expr
 
 def evaluate_args(
         args: Tuple[Any],
         data: Any,
-        context: Context,
-        callback: Optional[Callable[[Expression], None]] = None
+        context: Union["Context", "ContextBase"]
 ) -> Tuple[Any]:
     """Evaluate the non-keyword arguments"""
-    return tuple(evaluate_expr(arg, data, context, callback) for arg in args)
+    return tuple(evaluate_expr(arg, data, context) for arg in args)
 
 def evaluate_kwargs(
         kwargs: Mapping[str, Any],
         data: Any,
-        context: Context,
-        callback: Optional[Callable[[Expression], None]] = None
+        context: Union["Context", "ContextBase"]
 ) -> Mapping[str, Any]:
     """Evaluate the keyword arguments"""
     return {
-        key: evaluate_expr(val, data, context, callback)
+        key: evaluate_expr(val, data, context)
         for key, val in kwargs.items()
     }
-
-def register_factory(predicate_class: Type[Predicate]) -> Callable:
-    """The factory to generate verb/function register decorators"""
-    def register_wrapper(
-            cls: Optional[Union[FunctionType, Type, Iterable[Type]]] = None,
-            context: Context = Context.NAME,
-            func: Optional[FunctionType] = None
-    ) -> Callable:
-        """Mimic the singledispatch function to implement a function for
-        specific types"""
-        if func is None and isinstance(cls, FunctionType):
-            func, cls = cls, None
-        if func is None:
-            return lambda fun: register_wrapper(cls, context, fun)
-
-        @singledispatch
-        def generic(_data: Any, *args: Any, **kwargs: Any) -> Any:
-            if not cls:
-                return func(_data, *args, **kwargs)
-            raise NotImplementedError(
-                f'{func.__name__!r} not registered '
-                f'for type: {type(_data)}.'
-            )
-
-        if cls:
-            if not isinstance(cls, Iterable):
-                cls = (cls, )
-            for one_cls in cls:
-                generic.register(one_cls, func)
-
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            force_piping = kwargs.pop('_force_piping', False)
-            if force_piping or is_piping():
-                predicate = predicate_class(generic, context)
-                return predicate.defer(args, kwargs)
-            return func(*args, **kwargs)
-
-        wrapper.register = generic.register
-        wrapper.__pipda__ = predicate_class.__name__
-        return wrapper
-    return register_wrapper
