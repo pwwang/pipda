@@ -15,7 +15,7 @@ class Function(Expression):
 
     Args:
         func: The function to execute
-        context: The context to evaluate the SubsetRef/Operator objects
+        context: The context to evaluate the Reference/Operator objects
 
     Attributes:
         func: The function

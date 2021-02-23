@@ -12,7 +12,7 @@ class Expression(ABC):
     """The abstract Expression class
 
     Args:
-        context: The context of for us the evaluate the SubsetRef and Operator
+        context: The context of for us the evaluate the Reference and Operator
             objects inside this expression. For those two types of objects, it
             will be `None`
 
@@ -176,7 +176,7 @@ def evaluate_expr(
             for key, val in expr.items()
         }
     if isinstance(expr, Expression):
-        # use its own context, unless it's SubsetRef
+        # use its own context, unless it's Reference
         ret = (expr.evaluate(data, context)
                if not expr.context
                else expr.evaluate(data))

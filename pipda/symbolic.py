@@ -1,4 +1,4 @@
-"""Provides Symbolic and SubsetRef class"""
+"""Provides Symbolic and Reference class"""
 from abc import ABC, abstractmethod
 from typing import Callable, Optional, Any
 
@@ -7,8 +7,8 @@ import varname.helpers
 from .utils import Expression
 from .context import Context, ContextBase
 
-class SubsetRef(Expression, ABC):
-    """The SubsetRef class, used to define how it should be evaluated
+class Reference(Expression, ABC):
+    """The Reference class, used to define how it should be evaluated
     according to the context (i.e. `f.A`/`f['A']`).
 
     Args:
@@ -28,12 +28,12 @@ class SubsetRef(Expression, ABC):
 
     def __getattr__(self, name: str) -> Any:
         raise NotImplementedError(
-            'Get attribute on SubsetRef object is not implemented yet.'
+            'Get attribute on Reference object is not implemented yet.'
         )
 
     def __getitem__(self, item: Any) -> Any:
         raise NotImplementedError(
-            'Get item on SubsetRef object is not implemented yet.'
+            'Get item on Reference object is not implemented yet.'
         )
 
     @abstractmethod
@@ -50,14 +50,14 @@ class SubsetRef(Expression, ABC):
         evaluation
         """
 
-class SubsetRefAttr(SubsetRef):
+class ReferenceAttr(Reference):
 
     def evaluate(self, data: Any, context: Optional[ContextBase]) -> Any:
         if not context:
             return self
         return context.getattr(data, self.ref)
 
-class SubsetRefItem(SubsetRef):
+class ReferenceItem(Reference):
 
     def evaluate(self, data: Any, context: Optional[ContextBase]) -> Any:
         if not context:
@@ -68,13 +68,13 @@ class SubsetRefItem(SubsetRef):
 class Symbolic(Expression):
     """The symbolic class, works as a proxy to represent the data
 
-    In most cases it is used to construct the SubsetRef objects.
+    In most cases it is used to construct the Reference objects.
     """
     def __getattr__(self, name: str) -> Any:
-        return SubsetRefAttr(name)
+        return ReferenceAttr(name)
 
     def __getitem__(self, item: Any) -> Any:
-        return SubsetRefItem(item)
+        return ReferenceItem(item)
 
     def __repr__(self) -> str:
         return f"<Symbolic:{self.__varname__}>"

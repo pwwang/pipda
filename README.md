@@ -220,7 +220,7 @@ df >> mutate(z=f.x ^ 2)
 
 - The context
 
-    The context is only applied to the `DirectSubsetRef` objects or unary operators, like `-f.A`, `+f.A`, `~f.A`, `f.A`, `f['A']`, `[f.A, f.B]`, etc. Any other `Expression` wrapping those objects or other operators getting involved will turn the context to `Context.EVAL`
+    The context is only applied to the `DirectReference` objects or unary operators, like `-f.A`, `+f.A`, `~f.A`, `f.A`, `f['A']`, `[f.A, f.B]`, etc. Any other `Expression` wrapping those objects or other operators getting involved will turn the context to `Context.EVAL`
 
 ## How it works
 ### The verbs
@@ -245,7 +245,7 @@ In python, we want to do the same with:
 ```python
 data >> mutate(z=f.a)
 ```
-where `f.a` is a `SubsetRef` object that carries the column information without fetching the data while python sees it immmediately.
+where `f.a` is a `Reference` object that carries the column information without fetching the data while python sees it immmediately.
 
 Here the trick is `f`. Like other packages, we introduced the `Symbolic` object, which will connect the parts in the argument and make the whole argument an `Expression` object. This object is holding the execution information, which we could use later when the piping is detected.
 
