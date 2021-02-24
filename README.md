@@ -129,12 +129,12 @@ def add(data, other):
 # add is actually a singledispatch generic function
 @add.register(float)
 def _(data, other):
-    return data + other
+    return data * other
 
 1 >> add(1)
 # 2
 1.1 >> add(1.0)
-# 2.1
+# 1.1
 
 # As it's a singledispatch generic function, we can do it for multiple types
 # with the same logic
@@ -155,7 +155,7 @@ def _(data, other):
 
 ### Functions used in verb arguments
 ```python
-@register_func
+@register_func(context=Context.EVAL)
 def if_else(data, cond, true, false):
     cond.loc[cond.isin([True]), ] = true
     cond.loc[cond.isin([False]), ] = false
@@ -169,6 +169,39 @@ df >> mutate(z=if_else(f.x>1, 20, 10))
 # 1  1    one  10
 # 2  2    two  20
 # 3  3  three  20
+```
+
+```python
+# function without data argument
+@register_func(None, context=Context.EVAL)
+def length(strings):
+    return [len(s) for s in strings]
+
+df >> mutate(z=length(f.y))
+
+#    x     y    z
+# 0  0  zero    4
+# 1  1   one    3
+# 2  2   two    3
+# 3  3 three    5
+```
+
+```python
+# register existing functions
+from numpy import vectorize
+len = register_func(None, context=Context.EVAL, func=vectorize(len))
+
+# original function still works
+print(len('abc'))
+
+df >> mutate(z=len(f.y))
+
+# 3
+#   x     y z
+# 0 0  zero 4
+# 1 1   one 3
+# 2 2   two 3
+# 3 3 three 5
 ```
 
 ### Operators
@@ -188,11 +221,69 @@ df >> mutate(z=f.x ^ 2)
 # 3    3    three  9
 ```
 
+### Context
+
+The context defines how a reference (`f.A`, `f['A']`, `f.A.B` is evaluated)
+
+```python
+from pipda import ContextBase
+
+class MyContext(ContextBase):
+    def getattr(self, parent, ref):
+        # double it to distinguish getattr
+        return getattr(parent, ref)
+    def getitem(self, parent, ref):
+        return parent[ref] * 2
+    @property
+    def ref(self):
+        # how we evaluate the ref in f[ref]
+        return self
+
+@register_verb(context=MyContext())
+def mutate_mycontext(data, **kwargs):
+    for key, val in kwargs.items():
+        data[key] = val
+    return data
+
+df >> mutate_mycontext(z=f.x + f['x'])
+
+#   x     y z
+# 0 0  zero 0
+# 1 1   one 3
+# 2 2   two 6
+# 3 3 three 9
+```
+
+```python
+# when ref in f[ref] is also needed to be evaluated
+df = df >> mutate(zero=0, one=1, two=2, three=3)
+df
+
+#    x      y  z  zero  one  two  three
+# 0  0   zero  0     0    1    2      3
+# 1  1    one  3     0    1    2      3
+# 2  2    two  6     0    1    2      3
+# 3  3  three  9     0    1    2      3
+```
+
+```python
+df >> mutate_mycontext(m=f[f.y][:1].values[0])
+# f.y returns ['zero', 'one', 'two', 'three']
+# f[f.y] gets [[0, 2, 4, 6], [0, 2, 4, 6], [0, 2, 4, 6], [0, 2, 4, 6]]
+# f[f.y][:1].values gets [[0, 4, 8, 16]]
+# f[f.y][:1].values[0] returns [0, 8, 16, 32]
+# Notes that each subscription ([]) will double the values
+
+#    x      y  z  zero  one  two  three   m
+# 0  0   zero  0     0    1    2      3   0
+# 1  1    one  3     0    1    2      3   8
+# 2  2    two  6     0    1    2      3  16
+# 3  3  three  9     0    1    2      3  24
+```
+
 ### Caveats
 
-- Non-default behaviors for `&` and `|` operators:
-
-    You have to use `and_` and `or_` for them, as `and` and `or` are python keywords.
+- You have to use and_ and or_ for bitwise and/or (`&`/`|`) operators, as and and or are python keywords.
 
 - Limitations:
 
