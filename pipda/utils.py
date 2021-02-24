@@ -8,6 +8,8 @@ from abc import ABC, abstractmethod
 
 from executing import Source
 
+NULL = object()
+
 class Expression(ABC):
     """The abstract Expression class
 

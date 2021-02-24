@@ -5,7 +5,7 @@ from typing import (
     Any, Callable, Iterable, Mapping, Optional, Tuple, Type, Union
 )
 from .utils import (
-    Expression, evaluate_args, evaluate_kwargs, is_piping
+    Expression, NULL, evaluate_args, evaluate_kwargs, is_piping
 )
 from .context import Context, ContextBase, ContextEval, ContextMixed
 
@@ -67,7 +67,7 @@ class Function(Expression):
         return self.func(data, *args, **kwargs)
 
 def _register_function_no_datarg(
-        context: Optional[Union[ContextBase, int]],
+        context: Optional[ContextBase],
         func: Callable
 ) -> Callable:
     """Register functions without data as the first argument"""
@@ -83,7 +83,7 @@ def _register_function_no_datarg(
 
 def _register_function_datarg(
         cls: Iterable[Type],
-        context: Optional[Union[ContextBase, int]],
+        context: Optional[ContextBase],
         func: Callable
 ) -> Callable:
     """Register functions with data as the first argument"""
@@ -118,7 +118,7 @@ def _register_function_datarg(
 
 def register_func(
         cls: Union[FunctionType, Type, Iterable[Type]] = object,
-        context: Optional[Union[Context, ContextBase]] = None,
+        context: Optional[Union[Context, ContextBase]] = NULL,
         func: Optional[FunctionType] = None
 ) -> Callable:
     """Register a function to be used in verb
@@ -135,11 +135,13 @@ def register_func(
         context = context.value
 
     if cls is None:
-        context = context or ContextEval()
+        if context is NULL:
+            context = ContextEval()
         return _register_function_no_datarg(context, func)
 
     if not isinstance(cls, Iterable):
         cls = (cls, )
 
-    context = context or ContextMixed()
+    if context is NULL:
+        context = ContextMixed()
     return _register_function_datarg(cls, context, func)
