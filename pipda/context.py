@@ -11,54 +11,95 @@ By default,
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from pipda.utils import evaluate_expr
+from typing import Any
 
 class ContextBase(ABC): # pragma: no cover
+    """The context abstract class, defining how
+    the Reference objects are evaluated
+
+    - `getattr` defines how `f.A` is evaluated. Note that `f.A.B` will always
+        be evaluated as `getattr(f.A, 'B')`
+    - `getitem` defines how `f[item]` is evaluated. Note that the `item` here
+        is an evaluated value defined by `getref`.
+    - `ref` here defines how the reference/item in `f.item` is evaluated.
+        Since we could do `f[f.A]`.
+    """
 
     @abstractmethod
-    def getattr(self, data, ref):
-        ...
+    def getattr(self, parent: Any, ref: str) -> Any:
+        """Defines how `f.A` is evaluated"""
 
     @abstractmethod
-    def getitem(self, data, ref):
-        ...
+    def getitem(self, parent: Any, ref: Any) -> Any:
+        """Defines how `f[item]` is evaluated"""
+
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__} @ {hex(id(self))}>'
 
     @property
-    def args(self):
+    def ref(self) -> "ContextBase":
+        """Defines how `item` in `f[item]` is evaluated.
+
+        This function should return a `ContextBase` object."""
         return self
 
     @property
-    def kwargs(self):
+    def args(self) -> "ContextBase":
+        """The context to evaluate `*args` passed to a function"""
         return self
 
-    def __getitem__(self, name: str):
-        return getattr(self.__class__, name)
+    @property
+    def kwargs(self) -> "ContextBase":
+        """The context to evaluate `**kwargs` passed to a function"""
+        return self
 
 class ContextSelect(ContextBase):
+    """Context used in a select context
 
-    def getattr(self, data, ref):
+    In this kind of context,
+    - `f.A` works as a shortcut of `'A'`;
+    - `f[ref]` works as a shortcut of `ref`. However, `ref` is needed to be
+        evaluated by a context returned by `getref`
+    """
+
+    def getattr(self, parent: Any, ref: str) -> str:
+        """Get the `ref` directly, regardless of `data`"""
         return ref
 
-    def getitem(self, data, ref):
-        return evaluate_expr(ref, data, self)
+    def getitem(self, parent: Any, ref: Any) -> Any:
+        """Get the `ref` directly, which is already evaluated by `f[ref]`"""
+        return ref
 
 class ContextEval(ContextBase):
+    """Context used in a data-evaluation context
 
-    def getattr(self, data, ref):
-        return getattr(data, ref)
+    In this kind of context, the expression is evaluated as-is. That is,
+    `f.A` is evaluated as `f.A` and `f[item]` is evaluated as `f[item]`
+    """
 
-    def getitem(self, data, ref):
-        ref = evaluate_expr(ref, data, self)
-        return data[ref]
+    def getattr(self, parent: Any, ref: str) -> Any:
+        """How to evaluate `f.A`"""
+        return getattr(parent, ref)
+
+    def getitem(self, parent: Any, ref: Any) -> Any:
+        """How to evaluate `f[item]`"""
+        return parent[ref]
+
+    ref = ContextSelect()
 
 class ContextMixed(ContextBase):
+    """A mixed context, where the `*args` are evaluated with `ContextSelect`
+    and `**args` are evaluated with `ContextEval`."""
 
-    def getattr(self, data, ref):
-        raise NotImplementedError
+    def getattr(self, parent: Any, ref: str) -> None:
+        raise NotImplementedError(
+            "Mixed context should be used via `.args` or `.kwargs`"
+        )
 
-    @staticmethod
-    def getitem(self, data, ref):
-        raise NotImplementedError
+    def getitem(self, parent: Any, ref: Any) -> None:
+        raise NotImplementedError(
+            "Mixed context should be used via `.args` or `.kwargs`"
+        )
 
     @property
     def args(self):

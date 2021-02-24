@@ -1,4 +1,4 @@
-"""Provide the utilities and abstract classes"""
+"""Provide the utilities and Expression class"""
 import sys
 import ast
 import warnings
@@ -12,22 +12,29 @@ class Expression(ABC):
     """The abstract Expression class
 
     Args:
-        context: The context of for us the evaluate the Reference and Operator
-            objects inside this expression. For those two types of objects, it
-            will be `None`
-
-    Attributes:
-        context: The context
-        func: The function
-
+        context: The context for evaluation.
     """
     def __init__(self, context: Optional["ContextBase"] = None) -> None:
         self.context = context
 
     def __hash__(self) -> int:
+        """Make it hashable"""
         return hash(id(self))
 
+    def __getattr__(self, name: str) -> "ReferenceAttr":
+        """Whenever `expr.attr` is encountered,
+        return a ReferenceAttr object"""
+        from .symbolic import ReferenceAttr
+        return ReferenceAttr(self, name)
+
+    def __getitem__(self, item: Any) -> "ReferenceItem":
+        """Whenever `expr[item]` is encountered,
+        return a ReferenceAttr object"""
+        from .symbolic import ReferenceItem
+        return ReferenceItem(self, item)
+
     def _op_handler(self, op: str, *args: Any, **kwargs: Any) -> "Operator":
+        """Handle the operators"""
         from .operator import Operator
         return Operator.REGISTERED(op, None, (self, *args), kwargs)
 
@@ -152,6 +159,7 @@ def evaluate_expr(
     from .context import Context
     if isinstance(context, Context):
         context = context.value
+
     if isinstance(expr, list):
         return [evaluate_expr(elem, data, context) for elem in expr]
     if isinstance(expr, tuple):
@@ -176,7 +184,7 @@ def evaluate_expr(
             for key, val in expr.items()
         }
     if isinstance(expr, Expression):
-        # use its own context, unless it's Reference
+        # use its own context, unless it's a Reference or Operator object
         ret = (expr.evaluate(data, context)
                if not expr.context
                else expr.evaluate(data))

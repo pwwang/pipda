@@ -6,9 +6,13 @@ from pipda.function import *
 
 def test_function():
 
-    @register_func
+    @register_func()
     def func(data, x):
         return data[x]
+
+    assert repr(func([0], 1, _force_piping=True)) == (
+        "Function(func='test_function.<locals>.func')"
+    )
 
     ret = func([1], 0)
     assert ret == 1

@@ -4,6 +4,8 @@ from pipda import *
 from pipda.verb import *
 
 def test_verb():
+    f = Symbolic()
+
     @register_verb
     def verb(data, x):
         return data[x]
@@ -13,6 +15,9 @@ def test_verb():
 
     ret = [2] >> verb(0)
     assert ret == 2
+
+    ret = [1,2,3] >> verb(f[:2])
+    assert ret == [1,2]
 
 def test_evaluated():
     v = Verb(round, ContextEval(), (1, ), {})

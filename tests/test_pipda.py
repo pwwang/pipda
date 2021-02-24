@@ -355,7 +355,7 @@ class TestCase(unittest.TestCase):
         def select(data, *columns):
             return Data(**{key: data[key] for key in columns})
 
-        @register_verb()
+        @register_verb(context=Context.EVAL)
         def mutate(data, **kwds):
             data = data.data.copy()
             data.update(kwds)
@@ -363,31 +363,31 @@ class TestCase(unittest.TestCase):
 
         @register_func(context=Context.EVAL)
         def mean(data, *columns):
-            return float(sum(columns)) / float(len(columns))
+            return [float(sum(columns)) / float(len(columns))]
 
         @register_func(context=Context.EVAL)
         def double(data, column):
-            return column * 2
+            return [column * 2]
 
         f = Symbolic()
         d = Data(a=1, b=2, c=3)
         r = (d >> select(f.a, f.b) >>
-                  mutate(c=double(f.a + f.b), d=mean(f.a, f.b)) >>
+                  mutate(c=double(f.a + f.b)[0], d=mean(f.a, f.b)[0]) >>
                   select(f.c, f.d))
 
         self.assertEqual(r.data, {'c': 6, 'd': 1.5})
 
-        # d = Data(a=Data(a=Data(a=Data(a=Data(a=1)))))
-        # r = (d >> mutate(a=double(f['a']['a']['a']['a']['a'])[0]))
-        # self.assertEqual(r.data, {'a': 2})
-        # r = (d >> mutate(a=double(f.a.a.a.a.a)[0]))
-        # self.assertEqual(r.data, {'a': 2})
-        # r = (d >> mutate(a=double(f.a['a'].a['a'].a)[0]))
-        # self.assertEqual(r.data, {'a': 2})
-        # r = (d >> mutate(a=double(f['a'].a['a'].a['a'])[0]))
-        # self.assertEqual(r.data, {'a': 2})
-        # r = (d >> mutate(a=1, b=2, c=3) >> mutate(a=2*f.c) >> select(f.a, f.b))
-        # self.assertEqual(r.data, {'a': 6, 'b': 2})
+        d = Data(a=Data(a=Data(a=Data(a=Data(a=1)))))
+        r = (d >> mutate(a=double(f['a']['a']['a']['a']['a'])[0]))
+        self.assertEqual(r.data, {'a': 2})
+        r = (d >> mutate(a=double(f.a.a.a.a.a)[0]))
+        self.assertEqual(r.data, {'a': 2})
+        r = (d >> mutate(a=double(f.a['a'].a['a'].a)[0]))
+        self.assertEqual(r.data, {'a': 2})
+        r = (d >> mutate(a=double(f['a'].a['a'].a['a'])[0]))
+        self.assertEqual(r.data, {'a': 2})
+        r = (d >> mutate(a=1, b=2, c=3) >> mutate(a=2*f.c) >> select(f.a, f.b))
+        self.assertEqual(r.data, {'a': 6, 'b': 2})
 
     def test_original_unaffected(self):
         @register_func(int)

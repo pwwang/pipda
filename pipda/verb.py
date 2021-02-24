@@ -79,8 +79,9 @@ def register_verb(
             f'for type: {type(_data)}.'
         )
 
-    for one_cls in cls:
-        generic.register(one_cls, func)
+    for single_cls in cls:
+        if single_cls is not object:
+            generic.register(single_cls, func)
 
     @wraps(func)
     def wrapper(*args: Any,

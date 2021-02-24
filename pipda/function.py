@@ -22,6 +22,7 @@ class Function(Expression):
         context: The context
         args: The arguments of the function
         kwargs: The keyword arguments of the function
+        datarg: Whether the function has data as the first argument
     """
 
     def __init__(self,
@@ -31,19 +32,18 @@ class Function(Expression):
                  kwargs: Mapping[str, Any],
                  datarg: bool = True):
         super().__init__(context)
-        if not datarg:
-            @wraps(func)
-            def _with_data(_data: Any, *args: Any, **kwargs: Any) -> Any:
-                return func(*args, **kwargs)
 
-            self.func = _with_data
+        if not datarg:
+            self.func = wraps(func)(
+                lambda _data, *args, **kwargs: func(*args, **kwargs)
+            )
         else:
             self.func = func
         self.args = args
         self.kwargs = kwargs
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(func={self.func.__qualname__})'
+        return f'{self.__class__.__name__}(func={self.func.__qualname__!r})'
 
     def evaluate(
             self,
@@ -66,8 +66,11 @@ class Function(Expression):
         kwargs = evaluate_kwargs(self.kwargs, data, context.kwargs)
         return self.func(data, *args, **kwargs)
 
-def _register_function_no_datarg(context: Optional[Union[ContextBase, int]],
-                                 func: Callable) -> Callable:
+def _register_function_no_datarg(
+        context: Optional[Union[ContextBase, int]],
+        func: Callable
+) -> Callable:
+    """Register functions without data as the first argument"""
     @wraps(func)
     def wrapper(*args: Any, _force_piping: bool = False, **kwargs: Any) -> Any:
         if _force_piping or is_piping():
@@ -75,12 +78,15 @@ def _register_function_no_datarg(context: Optional[Union[ContextBase, int]],
 
         return func(*args, **kwargs)
 
-    wrapper.__pipda__ = 'FunctionNoDataArg'
+    wrapper.__pipda__ = 'PlainFunction'
     return wrapper
 
-def _register_function_datarg(cls: Iterable[Type],
-                              context: Optional[Union[ContextBase, int]],
-                              func: Callable) -> Callable:
+def _register_function_datarg(
+        cls: Iterable[Type],
+        context: Optional[Union[ContextBase, int]],
+        func: Callable
+) -> Callable:
+    """Register functions with data as the first argument"""
     @singledispatch
     @wraps(func)
     def generic(_data: Any, *args: Any, **kwargs: Any) -> Any:
@@ -92,7 +98,8 @@ def _register_function_datarg(cls: Iterable[Type],
         )
 
     for one_cls in cls:
-        generic.register(one_cls, func)
+        if one_cls is not object:
+            generic.register(one_cls, func)
 
     @wraps(func)
     def wrapper(*args: Any,

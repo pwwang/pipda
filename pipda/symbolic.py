@@ -1,68 +1,88 @@
-"""Provides Symbolic and Reference class"""
+"""Provides Symbolic and Reference classes"""
 from abc import ABC, abstractmethod
-from typing import Callable, Optional, Any
+from typing import Optional, Any
 
 import varname.helpers
 
-from .utils import Expression
-from .context import Context, ContextBase
+from .utils import Expression, evaluate_expr
+from .context import ContextBase
 
 class Reference(Expression, ABC):
     """The Reference class, used to define how it should be evaluated
-    according to the context (i.e. `f.A`/`f['A']`).
+    according to the context for references, for example, `f.A`, `f['A']` or
+    the references of them (i.e. `f.A.B`, `f.A['b']`, etc)
 
     Args:
-        ref: The reference to the subset
-        access: How the column is accessed (f.A or f['A'])
-        context: The context to evaluate. Should be `None`, and use the one
-            passed to `evaluate`
+        parent: The parent of this reference. For example: `f.A` for `f.A.B`
+        ref: The reference. For example: `B` for `f.A.B`
+        context: Defaults to `None`, which should not be specified while
+            instansiation. Because these types of expressions are independent.
+            A context should be passed to `evaluate` to evaluate the expression.
     """
     def __init__(self,
+                 parent: Any,
                  ref: Any,
                  context: Optional[ContextBase] = None) -> None:
         super().__init__(context)
+
+        assert context is None, (
+            "No context should be passed to initialize "
+            f"a {self.__class__.__name__} object."
+        )
+        self.parent = parent
         self.ref = ref
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(ref={self.ref!r})'
-
-    def __getattr__(self, name: str) -> Any:
-        raise NotImplementedError(
-            'Get attribute on Reference object is not implemented yet.'
-        )
-
-    def __getitem__(self, item: Any) -> Any:
-        raise NotImplementedError(
-            'Get item on Reference object is not implemented yet.'
+        return (
+            f'{self.__class__.__name__}('
+            f'parent={self.parent!r}, ref={self.ref!r})'
         )
 
     @abstractmethod
     def evaluate(
             self,
             data: Any,
-            context: ContextBase # required
+            context: Optional[ContextBase] = None
     ) -> Any:
-        """Evaluate the reference according to the context
-
-        When context is NAME, evaluate it as a string; when it is DATA,
-        evaluate it as a subscript. The index will be also evaluated using the
-        data and context. Otherwise the self is returned, which will be pending
-        evaluation
-        """
+        """Evaluate the reference according to the context"""
+        assert context is not None, (
+            f"Cannot evaluate a {self.__class__.__name__} "
+            "object without a context."
+        )
 
 class ReferenceAttr(Reference):
+    """Attribute references, for example: `f.A`, `f.A.B` etc."""
 
-    def evaluate(self, data: Any, context: Optional[ContextBase]) -> Any:
-        if not context:
-            return self
-        return context.getattr(data, self.ref)
+    def evaluate(
+            self,
+            data: Any,
+            context: Optional[ContextBase] = None
+    ) -> Any:
+        """Evaluate the attribute references"""
+        super().evaluate(data, context)
+        parent = evaluate_expr(self.parent, data, context)
+        return context.getattr(parent, self.ref)
 
 class ReferenceItem(Reference):
+    """Subscript references, for example: `f['A']`, `f.A['B']` etc"""
 
-    def evaluate(self, data: Any, context: Optional[ContextBase]) -> Any:
-        if not context:
-            return self
-        return context.getitem(data, self.ref)
+    def evaluate(
+            self,
+            data: Any,
+            context: Optional[ContextBase] = None
+    ) -> Any:
+        """Evaluate the subscript references"""
+        super().evaluate(data, context)
+        parent = evaluate_expr(self.parent, data, context)
+        ref = evaluate_expr(self.ref, data, context.ref)
+        return context.getitem(parent, ref)
+
+class DirectRefAttr(ReferenceAttr):
+    """The direct attribute reference, such as `f.A`"""
+
+
+class DirectRefItem(ReferenceItem):
+    """The direct attribute reference, such as `f['A']`"""
 
 @varname.helpers.register
 class Symbolic(Expression):
@@ -71,10 +91,12 @@ class Symbolic(Expression):
     In most cases it is used to construct the Reference objects.
     """
     def __getattr__(self, name: str) -> Any:
-        return ReferenceAttr(name)
+        """Create a DirectRefAttr object"""
+        return DirectRefAttr(self, name)
 
     def __getitem__(self, item: Any) -> Any:
-        return ReferenceItem(item)
+        """Create a DirectRefItem object"""
+        return ReferenceItem(self, item)
 
     def __repr__(self) -> str:
         return f"<Symbolic:{self.__varname__}>"
@@ -84,4 +106,5 @@ class Symbolic(Expression):
             data: Any,
             context: Optional[ContextBase] = None
     ) -> Any:
+        """When evaluated, this should just return the data directly"""
         return data
