@@ -21,6 +21,8 @@ def test_operator():
 def test_operator_nosuch():
     with pytest.raises(ValueError):
         Operator('nosuch', None, (1, ), {})
+    with pytest.raises(ValueError):
+        Operator('rnosuch', None, (1, ), {})
 
 def test_register_error():
     class A:

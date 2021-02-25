@@ -39,8 +39,26 @@ class Operator(Function):
         self.data = None
         # if the function is defined directly, use it.
         # otherwise, get one from `__getattr__`
-        op_func = getattr(self, self.op)
-        super().__init__(op_func, context, args, kwargs, datarg)
+        op_func = getattr(self, self.op, None)
+        if not op_func and self.op[0] == 'r':
+            left_op = (
+                self.op[1:] if self.op not in ('rand', 'ror')
+                else f'{self.op[1:]}_'
+            )
+            op_func = getattr(self, left_op, None)
+            if not op_func:
+                raise ValueError(
+                    f'No operator function defined for {self.op!r}'
+                )
+            @wraps(op_func)
+            def left_op_func(arg_a, arg_b, *args, **kwargs):
+                return op_func(arg_b, arg_a, *args, **kwargs)
+
+            super().__init__(left_op_func, context, args, kwargs, datarg)
+        elif op_func:
+            super().__init__(op_func, context, args, kwargs, datarg)
+        else:
+            raise ValueError(f'No operator function defined for {self.op!r}')
 
     def evaluate(
             self,
@@ -65,23 +83,7 @@ class Operator(Function):
     def __getattr__(self, name: str) -> Any:
         """Get the function to handle the operator"""
         # See if standard operator function exists
-        op_func = getattr(operator, name, None)
-        # If not, and it's right version (i.e. radd)
-        # use `add` and swap the arguments
-        if not op_func and name.startswith('r'):
-            op_func = getattr(operator, name[1:], None)
-            if op_func:
-                @wraps(op_func)
-                def op_func_swapped(left, right, *args, **kwargs):
-                    """Right version of op_func"""
-                    return op_func(right, left, *args, **kwargs)
-
-                return op_func_swapped
-
-        if op_func is None:
-            raise ValueError(f'Cannot find the operator {name!r}, '
-                             'have you define it in your operator class?')
-        return op_func
+        return getattr(operator, name)
 
 def register_operator(op_class: Type[Operator]) -> Type[Operator]:
     """Register an Operator class
