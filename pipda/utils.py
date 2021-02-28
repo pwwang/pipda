@@ -79,9 +79,9 @@ class Expression(ABC):
     __pos__ = partialmethod(_op_handler, 'pos')
     __invert__ = partialmethod(_op_handler, 'invert')
 
-    def __index__(self):
+    def __index__(self): # pylint: disable=invalid-index-returned
         """Allow Expression object to work as indexes"""
-        return None # pylint: disable=invalid-index-returned
+        return None
 
     @abstractmethod
     def evaluate(
