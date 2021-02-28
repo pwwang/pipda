@@ -81,7 +81,7 @@ class Expression(ABC):
 
     def __index__(self):
         """Allow Expression object to work as indexes"""
-        return None
+        return None # pylint: disable=invalid-index-returned
 
     @abstractmethod
     def evaluate(
