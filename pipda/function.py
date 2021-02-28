@@ -56,7 +56,7 @@ class Function(Expression):
         the context argument will not be used, since it will not override
         the context of the function
         """
-        context = self.context
+        context = self.context or context
 
         if not context:
             # leave args/kwargs for the verb/function/operator to evaluate
@@ -139,7 +139,7 @@ def register_func(
             context = ContextEval()
         return _register_function_no_datarg(context, func)
 
-    if not isinstance(cls, Iterable):
+    if not isinstance(cls, (tuple, list, set)):
         cls = (cls, )
 
     if context is NULL:

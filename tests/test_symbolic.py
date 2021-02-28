@@ -8,6 +8,7 @@ def test_symbolic():
     assert isinstance(f.a, Reference)
     assert isinstance(f['a'], Reference)
     assert f.evaluate(1) == 1
+    assert f.__index__() is None
 
 def test_reference():
     f = Symbolic()

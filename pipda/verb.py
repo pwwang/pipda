@@ -63,7 +63,7 @@ def register_verb(
     if func is None:
         return lambda fun: register_verb(cls, context, fun)
 
-    if not isinstance(cls, Iterable):
+    if not isinstance(cls, (tuple, set, list)):
         cls = (cls, )
 
     if isinstance(context, Context):
