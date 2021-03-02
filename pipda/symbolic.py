@@ -3,12 +3,9 @@ from abc import ABC, abstractmethod
 from typing import Optional, Any
 
 import varname.helpers
-from varname import config as varname_config
 
 from .utils import Expression, evaluate_expr
 from .context import ContextBase
-
-varname_config.ignore_stdlib = False
 
 class Reference(Expression, ABC):
     """The Reference class, used to define how it should be evaluated
