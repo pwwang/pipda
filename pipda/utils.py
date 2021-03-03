@@ -138,6 +138,9 @@ def is_argument_node(sub_node: ast.Call,
                 )
         ):
             return True
+        if isinstance(parent, ast.Lambda):
+            # function inside lambda is not in a piping environment
+            return False
         parent = getattr(parent, 'parent', None)
     # when verb_node is ensured, we can anyway retrieve it as the parent of
     # sub_node
