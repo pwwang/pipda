@@ -1,3 +1,5 @@
+import contextvars
+from pipda.utils import DATA_CONTEXTVAR_NAME, DataContext
 from pipda.context import ContextEval
 import pytest
 from pipda import *
@@ -93,3 +95,15 @@ def test_node_na():
     with pytest.warns(UserWarning):
         # ast being modified
         assert verb(1, 1) == 2
+
+def test_context():
+    @register_verb
+    def verb(data, x):
+        return data + x
+
+    data = DataContext(12)
+    y = verb(3)
+    assert y == 15
+
+    y = verb(3) >> verb(1)
+    assert y == 16

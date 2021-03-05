@@ -5,7 +5,7 @@ from functools import singledispatch, wraps
 from types import FunctionType
 from typing import Any, Callable, ClassVar, Iterable, Optional, Type, Union
 
-from .utils import is_piping
+from .utils import calling_type
 from .function import Function
 from .context import ContextBase, Context
 
@@ -85,12 +85,17 @@ def register_verb(
 
     @wraps(func)
     def wrapper(*args: Any,
-                _force_piping: bool = False,
+                _calling_type: Optional[str] = None,
                 **kwargs: Any) -> Any:
-        if _force_piping or is_piping():
+        _calling_type = _calling_type or calling_type()
+        if _calling_type is 'piping':
             return Verb(generic, context, args, kwargs)
 
-        return func(*args, **kwargs)
+        if _calling_type is None:
+            return func(*args, **kwargs)
+
+        # it's context data
+        return Verb(generic, context, args, kwargs).evaluate(_calling_type)
 
     wrapper.register = generic.register
     wrapper.registry = generic.registry

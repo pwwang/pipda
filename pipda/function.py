@@ -5,7 +5,8 @@ from typing import (
     Any, Callable, Iterable, Mapping, Optional, Tuple, Type, Union
 )
 from .utils import (
-    Expression, NULL, evaluate_args, evaluate_kwargs, is_piping
+    Expression, NULL,
+    evaluate_args, evaluate_kwargs, calling_type
 )
 from .context import Context, ContextBase, ContextEval, ContextMixed
 
@@ -72,11 +73,26 @@ def _register_function_no_datarg(
 ) -> Callable:
     """Register functions without data as the first argument"""
     @wraps(func)
-    def wrapper(*args: Any, _force_piping: bool = False, **kwargs: Any) -> Any:
-        if _force_piping or is_piping():
+    def wrapper(
+            *args: Any,
+            _calling_type: Optional[str] = None,
+            **kwargs: Any
+    ) -> Any:
+
+        _calling_type = _calling_type or calling_type()
+        if _calling_type is 'piping':
             return Function(func, context, args, kwargs, False)
 
-        return func(*args, **kwargs)
+        if _calling_type is None:
+            return func(*args, **kwargs)
+
+        return Function(
+            func,
+            context,
+            args,
+            kwargs,
+            False
+        ).evaluate(_calling_type)
 
     wrapper.__pipda__ = 'PlainFunction'
     return wrapper
@@ -103,11 +119,23 @@ def _register_function_datarg(
 
     @wraps(func)
     def wrapper(*args: Any,
-                _force_piping: bool = False,
+                _calling_type: Optional[str] = None,
                 **kwargs: Any) -> Any:
-        if _force_piping or is_piping():
+
+        _calling_type = _calling_type or calling_type()
+        if _calling_type is 'piping':
             return Function(generic, context, args, kwargs)
-        return func(*args, **kwargs)
+
+        if _calling_type is None:
+            return func(*args, **kwargs)
+
+        # context data
+        return Function(
+            generic,
+            context,
+            args,
+            kwargs
+        ).evaluate(_calling_type)
 
     wrapper.register = generic.register
     wrapper.registry = generic.registry
