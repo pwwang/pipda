@@ -88,7 +88,7 @@ def register_verb(
                 _calling_type: Optional[str] = None,
                 **kwargs: Any) -> Any:
         _calling_type = _calling_type or calling_type()
-        if _calling_type is 'piping':
+        if _calling_type is 'piping': # pylint: disable=literal-comparison
             return Verb(generic, context, args, kwargs)
 
         if _calling_type is None:
