@@ -137,3 +137,30 @@ def test_in_lambda():
 
     y = 10 >> verb(lambda d: func(d, 11))
     assert y == 110
+
+def test_register_contexts_for_diff_cls():
+    f = Symbolic()
+
+    @register_func(list, context=Context.EVAL)
+    def func(data, x):
+        return data * x
+
+    @func.register((tuple, dict), context=Context.SELECT)
+    def _(data, x):
+        return data[x]
+
+    @func.register(str)
+    def _(data, x):
+        return data + x
+
+    x = func(f[1], _calling_type='piping').evaluate([2, 3])
+    assert x == [2, 3] * 3
+
+    x = func(f['a'], _calling_type='piping').evaluate({'a': 1})
+    assert x == 1
+
+    x = func(f[1], _calling_type='piping').evaluate((1, 2, 3))
+    assert x == 2
+
+    x = func(f[1], _calling_type='piping').evaluate('abc')
+    assert x == 'abcb'

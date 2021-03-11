@@ -1,4 +1,5 @@
 import contextvars
+from pipda.symbolic import Reference
 from pipda.utils import DATA_CONTEXTVAR_NAME, DataContext
 from pipda.context import ContextEval
 import pytest
@@ -107,3 +108,41 @@ def test_context():
 
     y = verb(3) >> verb(1)
     assert y == 16
+
+def test_diff_contexts_for_diff_types():
+    f = Symbolic()
+    @register_verb(str, context=Context.EVAL)
+    def verb(data, x):
+        return data + x
+
+    @verb.register(dict, context=Context.SELECT)
+    def _(data, x):
+        ret = data.copy()
+        ret[x] = data[x] * 2
+        return ret
+
+    @verb.register((list, tuple)) # eval
+    def _(data, x):
+        return data + type(data)([x])
+
+    @verb.register(int, context=Context.UNSET)
+    def _(data, x):
+        return verb([data], x)
+
+    y = 'abc' >> verb(f[1])
+    assert y == 'abcb'
+
+    y = {'a': 1} >> verb(f['a'])
+    assert y == {'a': 2}
+
+    y = [1,2,3] >> verb(f[1])
+    assert y == [1,2,3,2]
+
+    y = [1,2,3] >> verb(f[1])
+    assert y == [1,2,3,2]
+
+    y = (1,2,3) >> verb(f[2])
+    assert y == (1,2,3,3)
+
+    y = 1 >> verb(f[0])
+    assert y == [1, 1]

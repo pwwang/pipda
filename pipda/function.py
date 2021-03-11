@@ -6,7 +6,7 @@ from typing import (
 )
 from .utils import (
     Expression, NULL,
-    evaluate_args, evaluate_kwargs, calling_type
+    evaluate_args, evaluate_kwargs, calling_type, singledispatch_register
 )
 from .context import Context, ContextBase, ContextEval, ContextMixed
 
@@ -57,10 +57,20 @@ class Function(Expression):
         the context argument will not be used, since it will not override
         the context of the function
         """
-        context = self.context or context
+        dispatch = getattr(self.func, 'dispatch', None)
+        func_context = NULL
+        if dispatch is not None:
+            func_context = getattr(dispatch(type(data)), 'context', NULL)
+
+        if func_context is NULL:
+            # use default context
+            context = self.context or context
+        else:
+            context = func_context
 
         if not context:
-            # leave args/kwargs for the verb/function/operator to evaluate
+            # leave args/kwargs for the child
+            # verb/function/operator to evaluate
             return self.func(data, *self.args, **self.kwargs)
 
         args = evaluate_args(self.args, data, context.args)
@@ -104,6 +114,8 @@ def _register_function_datarg(
         func: Callable
 ) -> Callable:
     """Register functions with data as the first argument"""
+    func.context = context
+
     @singledispatch
     @wraps(func)
     def generic(_data: Any, *args: Any, **kwargs: Any) -> Any:
@@ -122,7 +134,6 @@ def _register_function_datarg(
     def wrapper(*args: Any,
                 _calling_type: Optional[str] = None,
                 **kwargs: Any) -> Any:
-
         _calling_type = _calling_type or calling_type()
         if _calling_type is 'piping': # pylint: disable=literal-comparison
             return Function(generic, context, args, kwargs)
@@ -138,7 +149,7 @@ def _register_function_datarg(
             kwargs
         ).evaluate(_calling_type)
 
-    wrapper.register = generic.register
+    wrapper.register = singledispatch_register(generic.register)
     wrapper.registry = generic.registry
     wrapper.dispatch = generic.dispatch
     wrapper.__pipda__ = 'Function'

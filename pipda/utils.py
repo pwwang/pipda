@@ -4,10 +4,14 @@ import ast
 from types import FrameType
 import warnings
 from functools import partialmethod
-from typing import Any, Mapping, Optional, Tuple, Union
+from typing import (
+    Any, Callable, Iterable, Mapping, Optional, Tuple, Type, Union
+)
 from abc import ABC, abstractmethod
 
 from executing import Source
+
+from .context import Context, ContextBase
 
 NULL = object()
 DATA_CONTEXTVAR_NAME = '__pipda_data__'
@@ -18,7 +22,7 @@ class Expression(ABC):
     Args:
         context: The context for evaluation.
     """
-    def __init__(self, context: Optional["ContextBase"] = None) -> None:
+    def __init__(self, context: Optional[ContextBase] = None) -> None:
         self.context = context
 
     def __hash__(self) -> int:
@@ -90,7 +94,7 @@ class Expression(ABC):
     def evaluate(
             self,
             data: Any,
-            context: Optional["ContextBase"] = None
+            context: Optional[ContextBase] = None
     ) -> Any:
         """Evaluate the expression using given data"""
 
@@ -244,10 +248,9 @@ def calling_type() -> Any:
 def evaluate_expr(
         expr: Any,
         data: Any,
-        context: Union["Context", "ContextBase"]
+        context: Union[Context, ContextBase]
 ) -> Any:
     """Evaluate a mixed expression"""
-    from .context import Context
     if isinstance(context, Context):
         context = context.value
 
@@ -285,7 +288,7 @@ def evaluate_expr(
 def evaluate_args(
         args: Tuple[Any],
         data: Any,
-        context: Union["Context", "ContextBase"]
+        context: Union[Context, ContextBase]
 ) -> Tuple[Any]:
     """Evaluate the non-keyword arguments"""
     return tuple(evaluate_expr(arg, data, context) for arg in args)
@@ -293,10 +296,38 @@ def evaluate_args(
 def evaluate_kwargs(
         kwargs: Mapping[str, Any],
         data: Any,
-        context: Union["Context", "ContextBase"]
+        context: Union[Context, ContextBase]
 ) -> Mapping[str, Any]:
     """Evaluate the keyword arguments"""
     return {
         key: evaluate_expr(val, data, context)
         for key, val in kwargs.items()
     }
+
+def singledispatch_register(
+        register: Callable[[Type, Callable], Callable]
+) -> Callable[
+        [Union[Type, Iterable[Type]], Any, Optional[Callable]],
+        Callable
+]:
+    """Allow register of generic function to register types with context"""
+
+    def register_func(
+            cls: Union[Type, Iterable[Type]],
+            context: Any = NULL,
+            func: Optional[Callable] = None
+    ) -> Callable:
+        if not isinstance(cls, (tuple, set, list)):
+            cls = [cls]
+
+        if func is None:
+            return lambda fun: register_func(cls, context, fun)
+        if isinstance(context, Context):
+            context = context.value
+        func.context = context
+        ret = func
+        for klass in cls:
+            ret = register(klass, ret)
+        return ret
+
+    return register_func

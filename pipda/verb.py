@@ -5,7 +5,7 @@ from functools import singledispatch, wraps
 from types import FunctionType
 from typing import Any, Callable, ClassVar, Iterable, Optional, Type, Union
 
-from .utils import calling_type
+from .utils import calling_type, singledispatch_register
 from .function import Function
 from .context import ContextBase, Context
 
@@ -69,6 +69,8 @@ def register_verb(
     if isinstance(context, Context):
         context = context.value
 
+    # allow register to have different context
+    func.context = context
     @singledispatch
     @wraps(func)
     def generic(_data: Any, *args: Any, **kwargs: Any) -> Any:
@@ -97,7 +99,7 @@ def register_verb(
         # it's context data
         return Verb(generic, context, args, kwargs).evaluate(_calling_type)
 
-    wrapper.register = generic.register
+    wrapper.register = singledispatch_register(generic.register)
     wrapper.registry = generic.registry
     wrapper.dispatch = generic.dispatch
     wrapper.__pipda__ = 'Verb'
