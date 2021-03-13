@@ -7,4 +7,4 @@ from .utils import evaluate_args, evaluate_kwargs, evaluate_expr, DataContext
 from .context import Context, ContextBase
 from .operator import Operator, register_operator
 
-__version__ = '0.1.4'
+__version__ = '0.1.5'
