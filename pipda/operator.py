@@ -70,6 +70,7 @@ class Operator(Function):
         No data passed to the operator function. It should be used to evaluate
         the arguments.
         """
+        context = context or self.context
         assert context is not None, (
             "A context is needed to evaluate "
             f"a {self.__class__.__name__} object"
