@@ -144,6 +144,8 @@ def mul(data, other):
 
 @mul.register(int)
 @mul.register(float)
+# or you could do @mul.register((int, float))
+# context is also supported
 def _(data, other):
     return data * other
 

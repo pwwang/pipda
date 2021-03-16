@@ -1,6 +1,6 @@
 import contextvars
 from pipda.symbolic import Reference
-from pipda.utils import DATA_CONTEXTVAR_NAME, DataContext
+from pipda.utils import DATA_CONTEXTVAR_NAME, DataContext, functype, unregister
 from pipda.context import ContextEval
 import pytest
 from pipda import *
@@ -160,3 +160,12 @@ def test_verb_as_arg():
     y = [1,2] >> add([lenof(f)])
 
     assert y == [1, 2, 2]
+
+def test_unregister():
+    def orig(data):
+        ...
+
+    registered = register_verb(orig)
+
+    assert unregister(registered) is orig
+    assert functype(registered) == 'verb'

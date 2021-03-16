@@ -331,3 +331,42 @@ def singledispatch_register(
         return ret
 
     return register_func
+
+def functype(func: Callable) -> str:
+    """Check the type of the function
+
+    Args:
+        func: A function
+
+    Returns:
+        The type of the function
+        - verb: A verb that is registered by `register_verb`
+        - func: A function that is registered by `register_func`, with
+            data as the first argument
+        - plain-func: A function that is registered by `register_func`,
+            without data as the first argument
+        - plain: A plain python function
+    """
+    pipda_type = getattr(func, '__pipda__', None)
+    if pipda_type == 'Verb':
+        return 'verb'
+    if pipda_type == 'Function':
+        return 'func'
+    if pipda_type == 'PlainFunction':
+        return 'plain-func'
+    return 'plain'
+
+def unregister(func: Callable) -> Callable:
+    """Get the original function before register
+
+    Args:
+        func: The function that is either registered by
+            `register_verb` or `register_func`
+
+    Returns:
+        The original function that before register
+    """
+    origfunc = getattr(func, '__origfunc__', None)
+    if origfunc is None:
+        raise ValueError(f'Function is not registered with pipda: {func}')
+    return origfunc

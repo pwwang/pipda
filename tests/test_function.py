@@ -2,7 +2,7 @@ import pytest
 
 from collections import OrderedDict
 import contextvars
-from pipda.utils import DATA_CONTEXTVAR_NAME, DataContext
+from pipda.utils import DATA_CONTEXTVAR_NAME, DataContext, functype, unregister
 
 from pipda.verb import Verb
 from pipda import *
@@ -164,3 +164,21 @@ def test_register_contexts_for_diff_cls():
 
     x = func(f[1], _calling_type='piping').evaluate('abc')
     assert x == 'abcb'
+
+def test_unregister():
+    def orig(data):
+        ...
+
+    registered = register_func(orig)
+
+    assert unregister(registered) is orig
+    assert functype(registered) == 'func'
+    assert functype(orig) == 'plain'
+
+    registered2 = register_func(None)(orig)
+
+    assert unregister(registered2) is orig
+    assert functype(registered2) == 'plain-func'
+
+    with pytest.raises(ValueError):
+        unregister(orig)

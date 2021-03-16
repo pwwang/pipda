@@ -106,5 +106,6 @@ def register_verb(
     wrapper.registry = generic.registry
     wrapper.dispatch = generic.dispatch
     wrapper.__pipda__ = 'Verb'
+    wrapper.__origfunc__ = func
 
     return wrapper

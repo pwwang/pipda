@@ -107,6 +107,7 @@ def _register_function_no_datarg(
         ).evaluate(_calling_type)
 
     wrapper.__pipda__ = 'PlainFunction'
+    wrapper.__origfunc__ = func
     return wrapper
 
 def _register_function_datarg(
@@ -154,6 +155,7 @@ def _register_function_datarg(
     wrapper.registry = generic.registry
     wrapper.dispatch = generic.dispatch
     wrapper.__pipda__ = 'Function'
+    wrapper.__origfunc__ = func
 
     return wrapper
 
