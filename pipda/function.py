@@ -36,7 +36,8 @@ class Function(Expression):
 
         if not datarg:
             self.func = wraps(func)(
-                lambda _data, *args, **kwargs: func(*args, **kwargs)
+                lambda _data, *arguments, **keywords:
+                func(*arguments, **keywords)
             )
         else:
             self.func = func
@@ -91,7 +92,7 @@ def _register_function_no_datarg(
 
         _calling_type = _calling_type or calling_type()
         # Use is since _calling_type could be a dataframe or series
-        if _calling_type is 'piping': # pylint: disable=literal-comparison
+        if isinstance(_calling_type, str) and _calling_type is 'piping':
             return Function(func, context, args, kwargs, False)
 
         if _calling_type is None:
@@ -135,7 +136,7 @@ def _register_function_datarg(
                 _calling_type: Optional[str] = None,
                 **kwargs: Any) -> Any:
         _calling_type = _calling_type or calling_type()
-        if _calling_type is 'piping': # pylint: disable=literal-comparison
+        if isinstance(_calling_type, str) and _calling_type is 'piping':
             return Function(generic, context, args, kwargs)
 
         if _calling_type is None:

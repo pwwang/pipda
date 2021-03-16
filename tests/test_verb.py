@@ -146,3 +146,17 @@ def test_diff_contexts_for_diff_types():
 
     y = 1 >> verb(f[0])
     assert y == [1, 1]
+
+def test_verb_as_arg():
+    f = Symbolic()
+    @register_verb(list, context=Context.EVAL)
+    def add(data, x):
+        return data + x
+
+    @register_verb(list, context=Context.EVAL)
+    def lenof(data):
+        return len(data)
+
+    y = [1,2] >> add([lenof(f)])
+
+    assert y == [1, 2, 2]

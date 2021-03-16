@@ -226,10 +226,10 @@ def calling_type() -> Any:
         return None
 
     piping_verb_node = get_verb_node(my_node)
-    if (
-            piping_verb_node is my_node or
-            is_argument_node(my_node, piping_verb_node)
-    ):
+    if piping_verb_node is my_node:
+        return 'piping-verb'
+
+    if is_argument_node(my_node, piping_verb_node):
         return 'piping'
 
     # get the context data
