@@ -7,7 +7,7 @@ A framework for data piping in python
 Inspired by [siuba][1], [dfply][2], [plydata][3] and [dplython][4], but with simple yet powerful APIs to mimic the `dplyr` and `tidyr` packages in python
 
 
-[API][17] | [Change Log][18]
+[API][17] | [Change Log][18] | [Playground][19]
 
 ## Installation
 ```shell
@@ -386,3 +386,4 @@ You can also define you own by subclassing the `Operator` class, and then regist
 [16]: https://img.shields.io/codacy/grade/75d312da24c94bdda5923627fc311a99?style=flat-square
 [17]: https://pwwang.github.io/pipda/api/pipda/
 [18]: https://pwwang.github.io/pipda/changelog/
+[19]: https://mybinder.org/v2/gh/pwwang/pipda/master?filepath=README.ipynb
