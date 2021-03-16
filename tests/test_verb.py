@@ -158,8 +158,18 @@ def test_verb_as_arg():
         return len(data)
 
     y = [1,2] >> add([lenof(f)])
-
     assert y == [1, 2, 2]
+
+    y = [1,2] >> add([lenof([lenof(f)])])
+    assert y == [1, 2, 1]
+
+    @register_func
+    def func(data):
+        return len(data)
+
+    y = [1,2] >> add([lenof([func()])])
+    assert y == [1, 2, 1]
+
 
 def test_unregister():
     def orig(data):
