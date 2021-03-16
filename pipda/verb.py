@@ -93,7 +93,7 @@ def register_verb(
         if isinstance(_calling_type, str) and _calling_type == 'piping-verb':
             return Verb(generic, context, args, kwargs)
 
-        if isinstance(_calling_type, str) and _calling_type is 'piping':
+        if isinstance(_calling_type, str) and _calling_type == 'piping':
             return Function(generic, context, args, kwargs, False)
 
         if _calling_type is None:
