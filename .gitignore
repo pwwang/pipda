@@ -112,3 +112,5 @@ docs/api/
 
 # vscode's local history extension
 .history/
+
+docs/index.md

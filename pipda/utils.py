@@ -196,16 +196,22 @@ def calling_type() -> Any:
         1. It is a verb that is piped directed. ie. data >> verb(...)
         2. It is a function called as (part of) the argument of a piping verb.
             ie.:
+
             >>> data >> verb(func(...))
+
             Note: `func` here could also be a verb. When a function is called
             inside a lambda body, it should not be counted in this situation:
+
             >>> data >> verb(lambda: func(...))
+
             In this case, func should be called as normal function.
             This function should return `None`
     - the context data:
         It is a verb that is not piped but with a data context. ie.:
+
         >>> data = contextvars.ContextVar(DATA_CONTEXTVAR_NAME, default=data)
         >>> y = verb(arg)
+
         Note that in such a case, the function should not be called as (part of)
         any arguments of other function calls. If so, this function should
         return `piping`, leaving it for the parent funtion to evaluate it.

@@ -4,6 +4,10 @@ A framework for data piping in python
 
 Inspired by [siuba][1], [dfply][2], [plydata][3] and [dplython][4], but with simple yet powerful APIs to mimic the `dplyr` and `tidyr` packages in python
 
+[![Pypi][7]][8] [![Github][9]][10] [![PythonVers][11]][8] [![Codacy][16]][14] [![Codacy coverage][15]][14] ![Docs building][13] ![Building][12]
+
+[API][] | [Change Log][]
+
 ## Installation
 ```shell
 pip install -U pipda
@@ -11,7 +15,7 @@ pip install -U pipda
 
 ## Usage
 
-Checkout [plyrda][6] for more detailed usages.
+Checkout [datar][6] for more detailed usages.
 
 ### Verbs
 
@@ -368,4 +372,14 @@ You can also define you own by subclassing the `Operator` class, and then regist
 [3]: https://github.com/has2k1/plydata
 [4]: https://github.com/dodger487/dplython
 [5]: https://github.com/alexmojaki/executing
-[6]: https://github.com/pwwang/plyrda
+[6]: https://github.com/pwwang/datar
+[7]: https://img.shields.io/pypi/v/pipda?style=flat-square
+[8]: https://pypi.org/project/pipda/
+[9]: https://img.shields.io/github/v/tag/pwwang/pipda?style=flat-square
+[10]: https://github.com/pwwang/pipda
+[11]: https://img.shields.io/pypi/pyversions/pipda?style=flat-square
+[12]: https://img.shields.io/github/workflow/status/pwwang/pipda/Build%20and%20Deploy?style=flat-square
+[13]: https://img.shields.io/github/workflow/status/pwwang/pipda/Build%20Docs?style=flat-square
+[14]: https://app.codacy.com/gh/pwwang/pipda/dashboard
+[15]: https://img.shields.io/codacy/coverage/75d312da24c94bdda5923627fc311a99?style=flat-square
+[16]: https://img.shields.io/codacy/grade/75d312da24c94bdda5923627fc311a99?style=flat-square
