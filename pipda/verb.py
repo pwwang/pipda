@@ -5,7 +5,7 @@ from functools import singledispatch, wraps
 from types import FunctionType
 from typing import Any, Callable, ClassVar, Iterable, Optional, Type, Union
 
-from .utils import calling_type, singledispatch_register
+from .utils import NULL, calling_type, singledispatch_register
 from .function import Function
 from .context import ContextBase, Context
 
@@ -53,7 +53,7 @@ register_piping_sign('>>')
 
 def register_verb(
         cls: Union[FunctionType, Type, Iterable[Type]] = object,
-        context: Union[Context, ContextBase] = Context.SELECT,
+        context: Union[Context, ContextBase] = NULL,
         func: Optional[FunctionType] = None
 ) -> Callable:
     """Mimic the singledispatch function to implement a function for
@@ -65,6 +65,9 @@ def register_verb(
 
     if not isinstance(cls, (tuple, set, list)):
         cls = (cls, )
+
+    if context is NULL:
+        context = register_verb.default_context
 
     if isinstance(context, Context):
         context = context.value
@@ -86,15 +89,18 @@ def register_verb(
             generic.register(single_cls, func)
 
     @wraps(func)
-    def wrapper(*args: Any,
-                _calling_type: Optional[str] = None,
-                **kwargs: Any) -> Any:
+    def wrapper(
+            *args: Any,
+            _calling_type: Optional[str] = None,
+            **kwargs: Any
+    ) -> Any:
         _calling_type = _calling_type or calling_type()
         if isinstance(_calling_type, str) and _calling_type == 'piping-verb':
             return Verb(generic, context, args, kwargs)
 
         if isinstance(_calling_type, str) and _calling_type == 'piping':
-            return Function(generic, context, args, kwargs, False)
+            # Use the verb's context
+            return Function(generic, None, args, kwargs, False)
 
         if _calling_type is None:
             return func(*args, **kwargs)
@@ -109,3 +115,5 @@ def register_verb(
     wrapper.__origfunc__ = func
 
     return wrapper
+
+register_verb.default_context = Context.SELECT

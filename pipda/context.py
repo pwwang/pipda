@@ -9,9 +9,12 @@ By default,
 
 """
 
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from enum import Enum
-from typing import Any
+from typing import Any, ClassVar
+
+class ContextError(Exception):
+    """Any errors related to contexts"""
 
 class ContextBase(ABC): # pragma: no cover
     """The context abstract class, defining how
@@ -53,6 +56,10 @@ class ContextBase(ABC): # pragma: no cover
         """The context to evaluate `**kwargs` passed to a function"""
         return self
 
+    @abstractproperty
+    def name(self) -> str:
+        """The name of the context"""
+
 class ContextSelect(ContextBase):
     """Context used in a select context
 
@@ -61,6 +68,7 @@ class ContextSelect(ContextBase):
     - `f[ref]` works as a shortcut of `ref`. However, `ref` is needed to be
         evaluated by a context returned by `getref`
     """
+    name: ClassVar[str] = 'select'
 
     def getattr(self, parent: Any, ref: str) -> str:
         """Get the `ref` directly, regardless of `data`"""
@@ -76,6 +84,7 @@ class ContextEval(ContextBase):
     In this kind of context, the expression is evaluated as-is. That is,
     `f.A` is evaluated as `f.A` and `f[item]` is evaluated as `f[item]`
     """
+    name: ClassVar[str] = 'eval'
 
     def getattr(self, parent: Any, ref: str) -> Any:
         """How to evaluate `f.A`"""
@@ -87,9 +96,27 @@ class ContextEval(ContextBase):
 
     ref = ContextSelect()
 
+class ContextPending(ContextBase):
+    """Custom context"""
+    name: ClassVar[str] = 'pending'
+
+    def getattr(self, parent: Any, ref: str) -> str:
+        """Get the `ref` directly, regardless of `data`"""
+        raise NotImplementedError(
+            'Custom context cannot be used to evaluate.'
+        )
+
+    def getitem(self, parent: Any, ref: Any) -> Any:
+        """Get the `ref` directly, which is already evaluated by `f[ref]`"""
+        raise NotImplementedError(
+            'Custom context cannot be used to evaluate.'
+        )
+
+
 class ContextMixed(ContextBase):
     """A mixed context, where the `*args` are evaluated with `ContextSelect`
     and `**args` are evaluated with `ContextEval`."""
+    name: ClassVar[str] = 'mixed'
 
     def getattr(self, parent: Any, ref: str) -> None:
         raise NotImplementedError(
@@ -110,8 +137,19 @@ class ContextMixed(ContextBase):
         return ContextEval()
 
 class Context(Enum):
-    """Context to solve f.A and f['A']"""
+    """Context to solve f.A and f['A']
+
+    UNSET: The function's evaluation is dependent on it's parents
+    PENDING: Context to leave the arguments to be evaluated inside
+        the function
+    SELECT: It select-based context
+    EVAL: It evaluation-based context
+    MIXED: Mixed context.
+        For *args, used select-based;
+        for **kwargs, use evaluation-based.
+    """
     UNSET = None
+    PENDING = ContextPending()
     SELECT = ContextSelect()
     EVAL = ContextEval()
     MIXED = ContextMixed()

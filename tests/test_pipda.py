@@ -253,12 +253,12 @@ class TestCase(unittest.TestCase):
     def test_proxy_compiler_set_data(self):
         X = Symbolic()
 
-        @register_verb(FunctionType, context=None)
+        @register_verb(FunctionType, context=Context.PENDING)
         def add1(data, arg):
             arg = evaluate_expr(arg, data, context=Context.EVAL)
             return data.a + arg
 
-        @register_verb(FunctionType, context=None)
+        @register_verb(FunctionType, context=Context.PENDING)
         def add2(data, arg):
             arg = evaluate_expr(arg, d2, Context.EVAL)
             return data.a + arg
@@ -277,7 +277,7 @@ class TestCase(unittest.TestCase):
     def test_proxy_compiler_custom(self):
         X = Symbolic()
 
-        @register_verb(FunctionType, context=None)
+        @register_verb(FunctionType, context=Context.PENDING)
         def add(data, arg):
             arg = evaluate_expr(arg, data, Context.EVAL) * 10
             return data.a + arg
@@ -390,7 +390,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(r.data, {'a': 6, 'b': 2})
 
     def test_original_unaffected(self):
-        @register_func(int)
+        @register_func((int, str))
         def func(data):
             return data
         @register_verb

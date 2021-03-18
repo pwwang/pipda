@@ -93,7 +93,7 @@ df >> mutate(z=2*f.x) >> select(f.x, f.z)
 # 3    3    6
 
 # Compile the args inside the verb
-@register_verb(pd.DataFrame, context=Context.UNSET)
+@register_verb(pd.DataFrame, context=Context.PENDING)
 def mutate_existing(data, column, value):
     column = evaluate_expr(column, data, Context.SELECT)
     value = evaluate_expr(value, data, Context.EVAL)
@@ -111,7 +111,7 @@ df2
 # 3    30   three 6
 
 # Evaluate the arguments by yourself
-@register_verb(pd.DataFrame, context=Context.UNSET)
+@register_verb(pd.DataFrame, context=Context.PENDING)
 def mutate_existing2(data, column, value):
     column = evaluate_expr(column, data, Context.SELECT)
     value = evaluate_expr(value, df2, Context.EVAL)
@@ -236,6 +236,7 @@ The context defines how a reference (`f.A`, `f['A']`, `f.A.B` is evaluated)
 from pipda import ContextBase
 
 class MyContext(ContextBase):
+    name = 'my'
     def getattr(self, parent, ref):
         # double it to distinguish getattr
         return getattr(parent, ref)
@@ -245,6 +246,7 @@ class MyContext(ContextBase):
     def ref(self):
         # how we evaluate the ref in f[ref]
         return self
+
 
 @register_verb(context=MyContext())
 def mutate_mycontext(data, **kwargs):

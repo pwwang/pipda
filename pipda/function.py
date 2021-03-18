@@ -8,7 +8,9 @@ from .utils import (
     Expression, NULL,
     evaluate_args, evaluate_kwargs, calling_type, singledispatch_register
 )
-from .context import Context, ContextBase, ContextEval, ContextMixed
+from .context import (
+    Context, ContextBase, ContextError, ContextEval, ContextMixed
+)
 
 class Function(Expression):
     """The Function class, defining how the function should be executed
@@ -64,12 +66,20 @@ class Function(Expression):
             func_context = getattr(dispatch(type(data)), 'context', NULL)
 
         if func_context is NULL:
-            # use default context
+            # No context specified for a second type
+            # Use the primary one. If it is a pass-by context (None, UNSET)
+            # use the one passed in.
             context = self.context or context
         else:
-            context = func_context
+            # Otherwise use the type-specific context if possible
+            context = func_context or self.context or context
 
-        if not context:
+        if not context: # still unset
+            raise ContextError(
+                f'Cannot evaluate {self!r} with an unset context.'
+            )
+
+        if context.name == 'pending':
             # leave args/kwargs for the child
             # verb/function/operator to evaluate
             return self.func(data, *self.args, **self.kwargs)
@@ -141,7 +151,7 @@ def _register_function_datarg(
             return Function(generic, context, args, kwargs)
 
         if _calling_type is None:
-            return func(*args, **kwargs)
+            return generic(*args, **kwargs)
 
         # context data
         return Function(
@@ -174,17 +184,18 @@ def register_func(
     if func is None:
         return lambda fun: register_func(cls, context, fun)
 
+    if context is NULL:
+        context = register_func.default_context
+
     if isinstance(context, Context):
         context = context.value
 
     if cls is None:
-        if context is NULL:
-            context = ContextEval()
         return _register_function_no_datarg(context, func)
 
     if not isinstance(cls, (tuple, list, set)):
         cls = (cls, )
 
-    if context is NULL:
-        context = ContextMixed()
     return _register_function_datarg(cls, context, func)
+
+register_func.default_context = Context.EVAL

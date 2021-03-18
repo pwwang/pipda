@@ -182,3 +182,25 @@ def test_unregister():
 
     with pytest.raises(ValueError):
         unregister(orig)
+
+# def test_return_middleware():
+#     class MiddleWare(Expression):
+#         def evaluate(self, data: Any, context: Optional[ContextBase] = None) -> Any:
+#             return 'evaluated'
+
+#     @register_func(str)
+#     def midw(x, y=None):
+#         return MiddleWare()
+
+#     @register_verb(str, context=Context.PENDING)
+#     def add(x, y):
+#         return x + evaluate_expr(y, x, context=Context.SELECT)
+
+#     y = "it is " >> add(midw())
+#     assert isinstance(y, str) and y == 'it is evaluated'
+
+#     y = "it is " >> add(midw(midw()))
+#     assert isinstance(y, str) and y == 'it is evaluated'
+
+#     y = "it is " >> add(add("also ", midw()))
+#     assert isinstance(y, str) and y == 'it is also evaluated'

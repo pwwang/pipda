@@ -288,6 +288,10 @@ def evaluate_expr(
         ret = (expr.evaluate(data, context)
                if not expr.context
                else expr.evaluate(data))
+        # in case there is middlewares that return an Expression object
+        # evaluate it as well.
+
+        # return evaluate_expr(ret, data, context)
         return ret
     return expr
 

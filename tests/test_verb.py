@@ -75,7 +75,7 @@ def test_context_unset():
             self.used.append(ref)
             return super().getattr(data, ref)
 
-    @register_verb(context=Context.UNSET)
+    @register_verb(context=Context.PENDING)
     def verb(data, x):
         mycontext = MyContext()
 
@@ -125,7 +125,7 @@ def test_diff_contexts_for_diff_types():
     def _(data, x):
         return data + type(data)([x])
 
-    @verb.register(int, context=Context.UNSET)
+    @verb.register(int, context=Context.PENDING)
     def _(data, x):
         return verb([data], x)
 
