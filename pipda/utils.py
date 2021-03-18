@@ -380,3 +380,13 @@ def unregister(func: Callable) -> Callable:
     if origfunc is None:
         raise ValueError(f'Function is not registered with pipda: {func}')
     return origfunc
+
+def have_expr(args: Tuple[Any], kwargs: Mapping[str, Any]) -> bool:
+    """Check if arg and kwargs have Expression object"""
+    for arg in args:
+        if isinstance(arg, Expression):
+            return True
+    for arg in kwargs.values():
+        if isinstance(arg, Expression):
+            return True
+    return False

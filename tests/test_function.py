@@ -183,6 +183,21 @@ def test_unregister():
     with pytest.raises(ValueError):
         unregister(orig)
 
+def test_args_kwargs_have_expr():
+    f = Symbolic()
+    @register_func(None)
+    def func(x):
+        return x
+
+    out = func(f[0], _calling_type=[1])
+    assert out == 1
+
+    out = func(f[0])
+    assert isinstance(out, Expression)
+
+    out = func(x=f[0])
+    assert isinstance(out, Expression)
+
 # def test_return_middleware():
 #     class MiddleWare(Expression):
 #         def evaluate(self, data: Any, context: Optional[ContextBase] = None) -> Any:

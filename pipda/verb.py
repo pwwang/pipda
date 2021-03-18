@@ -5,7 +5,7 @@ from functools import singledispatch, wraps
 from types import FunctionType
 from typing import Any, Callable, ClassVar, Iterable, Optional, Type, Union
 
-from .utils import NULL, calling_type, singledispatch_register
+from .utils import NULL, calling_type, have_expr, singledispatch_register
 from .function import Function
 from .context import ContextBase, Context
 
@@ -98,7 +98,11 @@ def register_verb(
         if isinstance(_calling_type, str) and _calling_type == 'piping-verb':
             return Verb(generic, context, args, kwargs)
 
-        if isinstance(_calling_type, str) and _calling_type == 'piping':
+        if (
+                (isinstance(_calling_type, str) and
+                 _calling_type == 'piping') or
+                have_expr(args, kwargs)
+        ):
             # Use the verb's context
             return Function(generic, None, args, kwargs, False)
 
