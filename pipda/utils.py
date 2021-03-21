@@ -193,7 +193,7 @@ def is_argument_node_of(sub_node: ast.Call) -> Optional[ast.Call]:
         parent = getattr(parent, 'parent', None)
     return None
 
-def calling_env() -> Any:
+def calling_env(astnode_fail_warning: bool = True) -> Any:
     """Checking how the function is called:
     - piping:
         1. It is a verb that is piped directed. ie. data >> verb(...)
@@ -227,7 +227,7 @@ def calling_env() -> Any:
     # frame 2: func(...)
     frame = sys._getframe(2)
     my_node = Source.executing(frame).node
-    if not my_node:
+    if not my_node and astnode_fail_warning:
         warnings.warn(
             "Failed to fetch the node calling the function, "
             "call it with the original function."
@@ -235,7 +235,7 @@ def calling_env() -> Any:
         return None
 
     piping_verb_node = get_verb_node(my_node)
-    if piping_verb_node is my_node:
+    if piping_verb_node is my_node and piping_verb_node is not None:
         return 'piping-verb'
 
     if is_argument_node(my_node, piping_verb_node):

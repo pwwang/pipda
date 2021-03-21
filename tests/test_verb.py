@@ -179,3 +179,18 @@ def test_unregister():
 
     assert unregister(registered) is orig
     assert functype(registered) == 'verb'
+
+def test_astnode_fail_warning():
+    # default
+    @register_func(context=Context.SELECT)
+    def func(data, x):
+        return data[x]
+
+    with pytest.warns(UserWarning):
+        assert func([1,2], 1) == 2
+
+    register_func.astnode_fail_warning = False
+    with pytest.warns(None) as record:
+        assert func([1,2], 1) == 2
+    assert len(record) == 0
+    register_func.astnode_fail_warning = True

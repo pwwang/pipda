@@ -107,7 +107,7 @@ def _register_function_no_datarg(
             **kwargs: Any
     ) -> Any:
 
-        _env = _env or calling_env()
+        _env = _env or calling_env(register_func.astnode_fail_warning)
 
         # As argument of a verb
         if isinstance(_env, str) and _env == 'piping':
@@ -166,7 +166,7 @@ def _register_function_datarg(
             _env: Optional[str] = None,
             **kwargs: Any
     ) -> Any:
-        _env = _env or calling_env()
+        _env = _env or calling_env(register_func.astnode_fail_warning)
         # As argument of a verb
         if isinstance(_env, str) and _env == 'piping':
             return Function(generic, context, args, kwargs)
@@ -228,3 +228,4 @@ def register_func(
     return _register_function_datarg(cls, context, func)
 
 register_func.default_context = Context.EVAL
+register_func.astnode_fail_warning = True
