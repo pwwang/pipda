@@ -112,8 +112,9 @@ def _register_function_no_datarg(
             if _env is None:
                 raise ValueError(
                     "Function without data argument can't be called with "
-                    "Expression objects as arguments, unless it's called inside "
-                    "with statement of DataContext or data is passed to _env."
+                    "Expression objects as arguments, unless it's called "
+                    "inside with statement of DataContext or data is passed "
+                    "to _env."
                 )
 
         if _env is None:
