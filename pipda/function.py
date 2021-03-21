@@ -1,4 +1,5 @@
 """Provides register_func to register functions"""
+import inspect
 from functools import singledispatch, wraps
 from types import FunctionType
 from typing import (
@@ -63,8 +64,10 @@ class Function(Expression):
         """
         dispatch = getattr(self.func, 'dispatch', None)
         func_context = NULL
+        dispatcher = self.func
         if dispatch is not None:
-            func_context = getattr(dispatch(type(data)), 'context', NULL)
+            dispatcher = dispatch(type(data))
+            func_context = getattr(dispatcher, 'context', NULL)
 
         if func_context is NULL:
             # No context specified for a second type
@@ -79,6 +82,9 @@ class Function(Expression):
             raise ContextError(
                 f'Cannot evaluate {self!r} with an unset context.'
             )
+
+        if '_context' in inspect.signature(dispatcher).parameters:
+            self.kwargs['_context'] = context
 
         if context.name == 'pending':
             # leave args/kwargs for the child

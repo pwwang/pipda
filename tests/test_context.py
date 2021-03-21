@@ -49,3 +49,78 @@ def test_mixed():
     out_args, out_kwargs = [0,1,2] >> verb(f[1], f[3], x=f[1], y=f[2])
     assert out_args == (1, 3)
     assert out_kwargs == {'x': 1, 'y': 2}
+
+def test_verb_context_as_argument():
+    @register_verb(context=Context.EVAL)
+    def verb(data, x, _context=None):
+        return _context
+
+    context = 1 >> verb(1)
+    assert context.name == 'eval'
+
+    @register_verb(context=Context.SELECT)
+    def verb2(data, x, _context=None):
+        return _context
+
+    context = 1 >> verb2(1)
+    assert context.name == 'select'
+
+    # verb as arg
+    @register_verb
+    def passby(data, x):
+        return x
+
+    context = 1 >> passby(verb(1, 1))
+    assert context.name == 'eval'
+
+    context = 1 >> passby(verb2(1, 1))
+    assert context.name == 'select'
+
+def test_func_context_as_argument():
+    @register_verb(context=Context.SELECT)
+    def verb_select(data, x):
+        return x
+
+    @register_verb(context=Context.EVAL)
+    def verb_eval(data, x):
+        return x
+
+    @register_func(context=Context.EVAL)
+    def func_eval(data, x, _context):
+        return _context
+
+    @register_func(context=Context.SELECT)
+    def func_select(data, x, _context):
+        return _context
+
+    @register_func(context=Context.UNSET)
+    def func_unset(data, x, _context):
+        return _context
+
+    @register_func(None, context=Context.UNSET)
+    def func_unset_nodata(x, _context):
+        return _context
+
+    context = 1 >> verb_select(func_eval(1))
+    assert context.name == 'eval'
+
+    context = 1 >> verb_select(func_select(1))
+    assert context.name == 'select'
+
+    context = 1 >> verb_eval(func_eval(1))
+    assert context.name == 'eval'
+
+    context = 1 >> verb_eval(func_select(1))
+    assert context.name == 'select'
+
+    context = 1 >> verb_select(func_unset(1))
+    assert context.name == 'select'
+
+    context = 1 >> verb_eval(func_unset(1))
+    assert context.name == 'eval'
+
+    context = 1 >> verb_select(func_unset_nodata(1))
+    assert context.name == 'select'
+
+    context = 1 >> verb_eval(func_unset_nodata(1))
+    assert context.name == 'eval'
