@@ -14,7 +14,7 @@ def test_function():
     def func(data, x):
         return data[x]
 
-    assert repr(func([0], 1, _calling_type='piping')) == (
+    assert repr(func([0], 1, _env='piping')) == (
         "Function(func='test_function.<locals>.func')"
     )
 
@@ -71,7 +71,7 @@ def test_function_called_in_normal_way():
     r = [1, 2] >> verb(func(0) + 1)
     assert r == 2
 
-    r = func(1, _calling_type='piping').evaluate([0, 1])
+    r = func(1, _env='piping').evaluate([0, 1])
     assert r == 1
 
 def test_context():
@@ -153,16 +153,16 @@ def test_register_contexts_for_diff_cls():
     def _(data, x):
         return data + x
 
-    x = func(f[1], _calling_type='piping').evaluate([2, 3])
+    x = func(f[1], _env='piping').evaluate([2, 3])
     assert x == [2, 3] * 3
 
-    x = func(f['a'], _calling_type='piping').evaluate({'a': 1})
+    x = func(f['a'], _env='piping').evaluate({'a': 1})
     assert x == 1
 
-    x = func(f[1], _calling_type='piping').evaluate((1, 2, 3))
+    x = func(f[1], _env='piping').evaluate((1, 2, 3))
     assert x == 2
 
-    x = func(f[1], _calling_type='piping').evaluate('abc')
+    x = func(f[1], _env='piping').evaluate('abc')
     assert x == 'abcb'
 
 def test_unregister():
@@ -189,14 +189,62 @@ def test_args_kwargs_have_expr():
     def func(x):
         return x
 
-    out = func(f[0], _calling_type=[1])
+    out = func(f[0], _env=[1])
     assert out == 1
 
-    out = func(f[0])
-    assert isinstance(out, Expression)
+    with pytest.raises(ValueError):
+        func(f[0])
 
-    out = func(x=f[0])
-    assert isinstance(out, Expression)
+    with pytest.raises(ValueError):
+        func(x=f[0])
+
+    @register_func
+    def func2(data, x):
+        return x
+
+    out = func2([1], f[0])
+    assert out == 1
+
+def test_func_called_in_different_envs():
+    f = Symbolic()
+    @register_verb(context=Context.EVAL)
+    def verb(data, x):
+        return x + 1
+
+    @register_func
+    def func(data, x):
+        return x + 2
+
+    @register_func(None)
+    def func_no_data(x):
+        return x + 4
+
+    # called with original func
+    out = verb(1, 2)
+    assert out == 3
+
+    out = func(1, 2)
+    assert out == 4
+
+    out = func_no_data(2)
+    assert out == 6
+
+    # called with expression
+    out = verb([2], f[0])
+    assert out == 3
+
+    out = func([2], f[0])
+    assert out == 4
+
+    out = func_no_data(f[0], _env=[2])
+    assert out == 6
+
+    # func as verb arg
+    out = [2] >> verb(func(f[0]))
+    assert out == 5
+
+    out = [2] >> verb(func_no_data(f[0]))
+    assert out == 7
 
 # def test_return_middleware():
 #     class MiddleWare(Expression):

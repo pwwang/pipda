@@ -168,6 +168,9 @@ def is_argument_node(
                 is_argument_node_of(parent) is verb_node
         ):
             return True
+        if isinstance(parent, ast.Lambda):
+            # function inside lambda is not in a piping environment
+            return False
         parent = getattr(parent, 'parent', None)
     # when verb_node is ensured, we can anyway retrieve it as the parent of
     # sub_node
@@ -190,7 +193,7 @@ def is_argument_node_of(sub_node: ast.Call) -> Optional[ast.Call]:
         parent = getattr(parent, 'parent', None)
     return None
 
-def calling_type() -> Any:
+def calling_env() -> Any:
     """Checking how the function is called:
     - piping:
         1. It is a verb that is piped directed. ie. data >> verb(...)

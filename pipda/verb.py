@@ -5,7 +5,7 @@ from functools import singledispatch, wraps
 from types import FunctionType
 from typing import Any, Callable, ClassVar, Iterable, Optional, Type, Union
 
-from .utils import NULL, calling_type, have_expr, singledispatch_register
+from .utils import NULL, calling_env, have_expr, singledispatch_register
 from .function import Function
 from .context import ContextBase, Context
 
@@ -91,26 +91,34 @@ def register_verb(
     @wraps(func)
     def wrapper(
             *args: Any,
-            _calling_type: Optional[str] = None,
+            _env: Optional[str] = None,
             **kwargs: Any
     ) -> Any:
-        _calling_type = _calling_type or calling_type()
-        if isinstance(_calling_type, str) and _calling_type == 'piping-verb':
+        _env = _env or calling_env()
+        if isinstance(_env, str) and _env == 'piping-verb':
             return Verb(generic, context, args, kwargs)
 
-        if (
-                (isinstance(_calling_type, str) and
-                 _calling_type == 'piping') or
-                have_expr(args, kwargs)
-        ):
+        # I am an argument of a verb
+        if isinstance(_env, str) and _env == 'piping':
             # Use the verb's context
             return Function(generic, None, args, kwargs, False)
 
-        if _calling_type is None:
-            return func(*args, **kwargs)
+        # otherwise I am standalone
+        # If I have Expression objects as arguments, treat it as a Verb
+        # and execute it, with the first argument as data
+        if have_expr(args[1:], kwargs):
+            return Function(
+                generic,
+                context,
+                args[1:],
+                kwargs
+            ).evaluate(args[0])
+
+        if _env is None:
+            return generic(*args, **kwargs)
 
         # it's context data
-        return Verb(generic, context, args, kwargs).evaluate(_calling_type)
+        return Verb(generic, context, args, kwargs).evaluate(_env)
 
     wrapper.register = singledispatch_register(generic.register)
     wrapper.registry = generic.registry

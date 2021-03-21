@@ -43,7 +43,7 @@ def test_plain_context_unset():
 
     m = mean([1, 2])
     assert m == 1.5
-    m = mean([1, 2], _calling_type='piping').evaluate([1, 2])
+    m = mean([1, 2], _env='piping').evaluate([1, 2])
     assert m == 1.5
 
     d = {'a': 1, 'b': 2}

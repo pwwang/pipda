@@ -6,7 +6,7 @@ from typing import (
 )
 from .utils import (
     Expression, NULL,
-    evaluate_args, evaluate_kwargs, calling_type, have_expr,
+    evaluate_args, evaluate_kwargs, calling_env, have_expr,
     singledispatch_register
 )
 from .context import (
@@ -97,20 +97,26 @@ def _register_function_no_datarg(
     @wraps(func)
     def wrapper(
             *args: Any,
-            _calling_type: Optional[str] = None,
+            _env: Optional[str] = None,
             **kwargs: Any
     ) -> Any:
 
-        _calling_type = _calling_type or calling_type()
-        # Use is since _calling_type could be a dataframe or series
-        if (
-                (isinstance(_calling_type, str) and
-                 _calling_type == 'piping') or
-                have_expr(args, kwargs)
-        ):
+        _env = _env or calling_env()
+
+        # As argument of a verb
+        if isinstance(_env, str) and _env == 'piping':
             return Function(func, context, args, kwargs, False)
 
-        if _calling_type is None:
+        # Otherwise I am standalone
+        if have_expr(args, kwargs):
+            if _env is None:
+                raise ValueError(
+                    "Function without data argument can't be called with "
+                    "Expression objects as arguments, unless it's called inside "
+                    "with statement of DataContext or data is passed to _env."
+                )
+
+        if _env is None:
             return func(*args, **kwargs)
 
         return Function(
@@ -119,7 +125,7 @@ def _register_function_no_datarg(
             args,
             kwargs,
             False
-        ).evaluate(_calling_type)
+        ).evaluate(_env)
 
     wrapper.__pipda__ = 'PlainFunction'
     wrapper.__origfunc__ = func
@@ -148,18 +154,25 @@ def _register_function_datarg(
             generic.register(one_cls, func)
 
     @wraps(func)
-    def wrapper(*args: Any,
-                _calling_type: Optional[str] = None,
-                **kwargs: Any) -> Any:
-        _calling_type = _calling_type or calling_type()
-        if (
-                (isinstance(_calling_type, str) and
-                 _calling_type == 'piping') or
-                have_expr(args, kwargs)
-        ):
+    def wrapper(
+            *args: Any,
+            _env: Optional[str] = None,
+            **kwargs: Any
+    ) -> Any:
+        _env = _env or calling_env()
+        # As argument of a verb
+        if isinstance(_env, str) and _env == 'piping':
             return Function(generic, context, args, kwargs)
 
-        if _calling_type is None:
+        if have_expr(args[1:], kwargs):
+            return Function(
+                generic,
+                context,
+                args[1:],
+                kwargs
+            ).evaluate(args[0])
+
+        if _env is None:
             return generic(*args, **kwargs)
 
         # context data
@@ -168,7 +181,7 @@ def _register_function_datarg(
             context,
             args,
             kwargs
-        ).evaluate(_calling_type)
+        ).evaluate(_env)
 
     wrapper.register = singledispatch_register(generic.register)
     wrapper.registry = generic.registry

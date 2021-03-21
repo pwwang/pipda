@@ -16,7 +16,7 @@ def test_use_unset():
         ...
 
     with pytest.raises(ContextError):
-        add(1, _calling_type='piping').evaluate(1, context=None)
+        add(1, _env='piping').evaluate(1, context=None)
 
 def test_context_passby():
     f = Symbolic()
