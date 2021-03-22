@@ -98,7 +98,7 @@ class Expression(ABC):
     ) -> Any:
         """Evaluate the expression using given data"""
 
-class DataContext:
+class DataEnv:
     """A data context that can be accessed by the function registered by
     `pipda.register_*` so that the data argument doesn't need to
     be passed when called
@@ -147,7 +147,7 @@ def get_context_data(frame: FrameType) -> Any:
     """Check and return if there is a data set in the context where
     the verb or function is called"""
     for value in frame.f_locals.values():
-        if not isinstance(value, DataContext):
+        if not isinstance(value, DataEnv):
             continue
         if value.name != DATA_CONTEXTVAR_NAME:
             continue

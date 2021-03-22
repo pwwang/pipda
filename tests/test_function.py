@@ -2,7 +2,7 @@ import pytest
 
 from collections import OrderedDict
 import contextvars
-from pipda.utils import DATA_CONTEXTVAR_NAME, DataContext, functype, unregister
+from pipda.utils import DATA_CONTEXTVAR_NAME, DataEnv, functype, unregister
 
 from pipda.verb import Verb
 from pipda import *
@@ -87,8 +87,8 @@ def test_context():
     def verb(data, x):
         return data + x
 
-    ata = DataContext(100, 'other')
-    data = DataContext(2)
+    ata = DataEnv(100, 'other')
+    data = DataEnv(2)
 
     y = verb(2)
     assert y == 4

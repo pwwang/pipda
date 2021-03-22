@@ -1,6 +1,6 @@
 import contextvars
 from pipda.symbolic import Reference
-from pipda.utils import DATA_CONTEXTVAR_NAME, DataContext, functype, unregister
+from pipda.utils import DATA_CONTEXTVAR_NAME, DataEnv, functype, unregister
 from pipda.context import ContextEval
 import pytest
 from pipda import *
@@ -102,7 +102,7 @@ def test_context():
     def verb(data, x):
         return data + x
 
-    data = DataContext(12)
+    data = DataEnv(12)
     y = verb(3)
     assert y == 15
 
