@@ -246,24 +246,35 @@ def test_func_called_in_different_envs():
     out = [2] >> verb(func_no_data(f[0]))
     assert out == 7
 
-# def test_return_middleware():
-#     class MiddleWare(Expression):
-#         def evaluate(self, data: Any, context: Optional[ContextBase] = None) -> Any:
-#             return 'evaluated'
+def test_verb_arg_only():
+    f = Symbolic()
+    @register_verb(context=Context.EVAL)
+    def verb(data, x):
+        return x + 1
 
-#     @register_func(str)
-#     def midw(x, y=None):
-#         return MiddleWare()
+    @register_func
+    def func(data, x):
+        return x + 2
 
-#     @register_verb(str, context=Context.PENDING)
-#     def add(x, y):
-#         return x + evaluate_expr(y, x, context=Context.SELECT)
+    @register_func(verb_arg_only=True)
+    def func2(data, x):
+        return x + 4
 
-#     y = "it is " >> add(midw())
-#     assert isinstance(y, str) and y == 'it is evaluated'
+    @register_func(None, verb_arg_only=True)
+    def func3(x):
+        return x + 8
 
-#     y = "it is " >> add(midw(midw()))
-#     assert isinstance(y, str) and y == 'it is evaluated'
+    ret = func(1, 2)
+    assert ret == 4
 
-#     y = "it is " >> add(add("also ", midw()))
-#     assert isinstance(y, str) and y == 'it is also evaluated'
+    with pytest.raises(ValueError, match="only"):
+        func2(1, 2)
+    with pytest.raises(ValueError, match="only"):
+        func3(2)
+
+    ret = 1 >> verb(func(2))
+    assert ret == 5
+    ret = 1 >> verb(func2(2))
+    assert ret == 7
+    ret = 1 >> verb(func3(2))
+    assert ret == 11

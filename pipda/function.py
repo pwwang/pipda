@@ -97,7 +97,8 @@ class Function(Expression):
 
 def _register_function_no_datarg(
         context: Optional[ContextBase],
-        func: Callable
+        func: Callable,
+        verb_arg_only: bool
 ) -> Callable:
     """Register functions without data as the first argument"""
     @wraps(func)
@@ -113,6 +114,12 @@ def _register_function_no_datarg(
         if isinstance(_env, str) and _env == 'piping':
             return Function(func, context, args, kwargs, False)
 
+        if verb_arg_only and _env is None:
+            raise ValueError(
+                f"Function {func.__qualname__!r} can only be called as "
+                "an argument of a verb."
+            )
+
         # Otherwise I am standalone
         if have_expr(args, kwargs):
             if _env is None:
@@ -126,13 +133,7 @@ def _register_function_no_datarg(
         if _env is None:
             return func(*args, **kwargs)
 
-        return Function(
-            func,
-            context,
-            args,
-            kwargs,
-            False
-        ).evaluate(_env)
+        return Function(func, context, args, kwargs, False).evaluate(_env)
 
     wrapper.__pipda__ = 'PlainFunction'
     wrapper.__origfunc__ = func
@@ -141,7 +142,8 @@ def _register_function_no_datarg(
 def _register_function_datarg(
         cls: Iterable[Type],
         context: Optional[ContextBase],
-        func: Callable
+        func: Callable,
+        verb_arg_only: bool
 ) -> Callable:
     """Register functions with data as the first argument"""
     func.context = context
@@ -170,6 +172,12 @@ def _register_function_datarg(
         # As argument of a verb
         if isinstance(_env, str) and _env == 'piping':
             return Function(generic, context, args, kwargs)
+
+        if verb_arg_only and _env is None:
+            raise ValueError(
+                f"Function {func.__qualname__!r} can only be called as "
+                "an argument of a verb."
+            )
 
         if have_expr(args[1:], kwargs):
             return Function(
@@ -201,7 +209,8 @@ def _register_function_datarg(
 def register_func(
         cls: Union[FunctionType, Type, Iterable[Type]] = object,
         context: Optional[Union[Context, ContextBase]] = NULL,
-        func: Optional[FunctionType] = None
+        func: Optional[FunctionType] = None,
+        verb_arg_only: bool = False
 ) -> Callable:
     """Register a function to be used in verb
 
@@ -211,7 +220,7 @@ def register_func(
     if func is None and isinstance(cls, FunctionType):
         func, cls = cls, object
     if func is None:
-        return lambda fun: register_func(cls, context, fun)
+        return lambda fun: register_func(cls, context, fun, verb_arg_only)
 
     if context is NULL:
         context = register_func.default_context
@@ -220,12 +229,12 @@ def register_func(
         context = context.value
 
     if cls is None:
-        return _register_function_no_datarg(context, func)
+        return _register_function_no_datarg(context, func, verb_arg_only)
 
     if not isinstance(cls, (tuple, list, set)):
         cls = (cls, )
 
-    return _register_function_datarg(cls, context, func)
+    return _register_function_datarg(cls, context, func, verb_arg_only)
 
 register_func.default_context = Context.EVAL
 register_func.astnode_fail_warning = True
