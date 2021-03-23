@@ -7,11 +7,11 @@ from typing import (
 )
 from .utils import (
     Expression, NULL,
-    evaluate_args, evaluate_kwargs, calling_env, have_expr,
+    evaluate_args, evaluate_expr, evaluate_kwargs, calling_env, have_expr,
     singledispatch_register
 )
 from .context import (
-    Context, ContextBase, ContextError
+    Context, ContextAnnoType, ContextBase, ContextError
 )
 
 class Function(Expression):
@@ -38,13 +38,8 @@ class Function(Expression):
                  datarg: bool = True):
         super().__init__(context)
 
-        if not datarg:
-            self.func = wraps(func)(
-                lambda _data, *arguments, **keywords:
-                func(*arguments, **keywords)
-            )
-        else:
-            self.func = func
+        self.func = func
+        self.datarg = datarg
         self.args = args
         self.kwargs = kwargs
 
@@ -64,10 +59,12 @@ class Function(Expression):
         """
         dispatch = getattr(self.func, 'dispatch', None)
         func_context = NULL
+        func_extra_contexts = None
         dispatcher = self.func
         if dispatch is not None:
             dispatcher = dispatch(type(data))
             func_context = getattr(dispatcher, 'context', NULL)
+        func_extra_contexts = getattr(dispatcher, 'extra_contexts', None)
 
         if func_context is NULL:
             # No context specified for a second type
@@ -78,22 +75,40 @@ class Function(Expression):
             # Otherwise use the type-specific context if possible
             context = func_context or self.context or context
 
+        # The main context has to be set
         if not context: # still unset
             raise ContextError(
                 f'Cannot evaluate {self!r} with an unset context.'
             )
 
-        if '_context' in inspect.signature(dispatcher).parameters:
-            self.kwargs['_context'] = context
+        args = (data, *self.args) if self.datarg else self.args
+        kwargs = self.kwargs.copy()
+        signature = inspect.signature(dispatcher)
+        if '_context' in signature.parameters:
+            kwargs['_context'] = None
+
+        bondargs = signature.bind(*args, **kwargs)
+        # bondargs.apply_defaults()
+        if func_extra_contexts:
+            # evaluate some specfic args
+            for key, ctx in func_extra_contexts.items():
+                if key not in bondargs.arguments:
+                    raise KeyError(f'No such argument: {key!r}')
+                bondargs.arguments[key] = evaluate_expr(
+                    bondargs.arguments[key], data, ctx
+                )
+
+        if '_context' in bondargs.arguments:
+            bondargs.arguments['_context'] = context
 
         if context.name == 'pending':
             # leave args/kwargs for the child
             # verb/function/operator to evaluate
-            return self.func(data, *self.args, **self.kwargs)
+            return self.func(*bondargs.args, **bondargs.kwargs)
 
-        args = evaluate_args(self.args, data, context.args)
-        kwargs = evaluate_kwargs(self.kwargs, data, context.kwargs)
-        return self.func(data, *args, **kwargs)
+        args = evaluate_args(bondargs.args, data, context.args)
+        kwargs = evaluate_kwargs(bondargs.kwargs, data, context.kwargs)
+        return self.func(*args, **kwargs)
 
 def _register_function_no_datarg(
         context: Optional[ContextBase],
@@ -132,7 +147,6 @@ def _register_function_no_datarg(
 
         if _env is None:
             return func(*args, **kwargs)
-
         return Function(func, context, args, kwargs, False).evaluate(_env)
 
     wrapper.__pipda__ = 'PlainFunction'
@@ -208,9 +222,10 @@ def _register_function_datarg(
 
 def register_func(
         cls: Union[FunctionType, Type, Iterable[Type]] = object,
-        context: Optional[Union[Context, ContextBase]] = NULL,
+        context: Optional[ContextAnnoType] = NULL,
         func: Optional[FunctionType] = None,
-        verb_arg_only: bool = False
+        verb_arg_only: bool = False,
+        extra_contexts: Optional[Mapping[str, ContextAnnoType]] = None
 ) -> Callable:
     """Register a function to be used in verb
 
@@ -220,7 +235,13 @@ def register_func(
     if func is None and isinstance(cls, FunctionType):
         func, cls = cls, object
     if func is None:
-        return lambda fun: register_func(cls, context, fun, verb_arg_only)
+        return lambda fun: register_func(
+            cls,
+            context,
+            fun,
+            verb_arg_only,
+            extra_contexts
+        )
 
     if context is NULL:
         context = register_func.default_context
@@ -228,13 +249,28 @@ def register_func(
     if isinstance(context, Context):
         context = context.value
 
+    extra_contexts = extra_contexts or {}
+    func.extra_contexts = {
+        key: ctx.value if isinstance(ctx, Context) else ctx
+        for key, ctx in extra_contexts.items()
+    }
+
     if cls is None:
-        return _register_function_no_datarg(context, func, verb_arg_only)
+        return _register_function_no_datarg(
+            context,
+            func,
+            verb_arg_only
+        )
 
     if not isinstance(cls, (tuple, list, set)):
         cls = (cls, )
 
-    return _register_function_datarg(cls, context, func, verb_arg_only)
+    return _register_function_datarg(
+        cls,
+        context,
+        func,
+        verb_arg_only
+    )
 
 register_func.default_context = Context.EVAL
 register_func.astnode_fail_warning = True

@@ -7,7 +7,7 @@ from typing import Any, Callable, ClassVar, Iterable, Optional, Type, Union
 
 from .utils import NULL, calling_env, have_expr, singledispatch_register
 from .function import Function
-from .context import ContextBase, Context
+from .context import ContextAnnoType, ContextBase, Context
 
 # The Sign tuple
 Sign = namedtuple('Sign', ['method', 'token'])
@@ -53,7 +53,7 @@ register_piping_sign('>>')
 
 def register_verb(
         cls: Union[FunctionType, Type, Iterable[Type]] = object,
-        context: Union[Context, ContextBase] = NULL,
+        context: ContextAnnoType = NULL,
         func: Optional[FunctionType] = None
 ) -> Callable:
     """Mimic the singledispatch function to implement a function for

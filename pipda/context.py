@@ -11,7 +11,7 @@ By default,
 
 from abc import ABC, abstractmethod, abstractproperty
 from enum import Enum
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Union
 
 class ContextError(Exception):
     """Any errors related to contexts"""
@@ -153,3 +153,5 @@ class Context(Enum):
     SELECT = ContextSelect()
     EVAL = ContextEval()
     MIXED = ContextMixed()
+
+ContextAnnoType = Union[Context, ContextBase]

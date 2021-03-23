@@ -278,3 +278,42 @@ def test_verb_arg_only():
     assert ret == 7
     ret = 1 >> verb(func3(2))
     assert ret == 11
+
+def test_extra_contexts():
+    f = Symbolic()
+    @register_func(dict,
+                   context=Context.EVAL,
+                   extra_contexts={'cols': Context.SELECT})
+    def func(data, cols, **values):
+        """Remove cols from data and insert values"""
+        ret = {key: val for key, val in data.items() if key not in cols}
+        ret.update(values)
+        return ret
+
+    x = {'a': 1, 'b': 2}
+    y = func(x, ['a'], c=f['a'], d=f['b'])
+    assert y == {'b':2, 'c':1, 'd': 2}
+
+    y = func(x, ['a'], c=f['a'], d=f['b']*2)
+    assert y == {'b':2, 'c':1, 'd': 4}
+
+def test_extra_contexts_error():
+    f = Symbolic()
+    @register_func(extra_contexts={'nosucharg': Context.SELECT})
+    def func(data, x): ...
+
+    with pytest.raises(KeyError, match='No such argument'):
+        func(1, f.a)
+
+def test_extra_contexts_nodata():
+    f = Symbolic()
+    @register_func(None,
+                   context=Context.EVAL,
+                   extra_contexts={'cols': Context.SELECT})
+    def func(*cols, **values):
+        """Remove cols from data and insert values"""
+        return cols, values
+
+    x = func(f['a'], f['b'], a=f['a'], b=f['b'], _env={'a':1, 'b':2})
+    assert x[0] == ('a', 'b')
+    assert x[1] == {'a':1, 'b':2}

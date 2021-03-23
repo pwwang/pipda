@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 
 from executing import Source
 
-from .context import Context, ContextBase
+from .context import Context, ContextAnnoType, ContextBase
 
 NULL = object()
 DATA_CONTEXTVAR_NAME = '__pipda_data__'
@@ -257,7 +257,7 @@ def calling_env(astnode_fail_warning: bool = True) -> Any:
 def evaluate_expr(
         expr: Any,
         data: Any,
-        context: Union[Context, ContextBase]
+        context: ContextAnnoType
 ) -> Any:
     """Evaluate a mixed expression"""
     if isinstance(context, Context):
@@ -301,7 +301,7 @@ def evaluate_expr(
 def evaluate_args(
         args: Tuple[Any],
         data: Any,
-        context: Union[Context, ContextBase]
+        context: ContextAnnoType
 ) -> Tuple[Any]:
     """Evaluate the non-keyword arguments"""
     return tuple(evaluate_expr(arg, data, context) for arg in args)
@@ -309,7 +309,7 @@ def evaluate_args(
 def evaluate_kwargs(
         kwargs: Mapping[str, Any],
         data: Any,
-        context: Union[Context, ContextBase]
+        context: ContextAnnoType
 ) -> Mapping[str, Any]:
     """Evaluate the keyword arguments"""
     return {
