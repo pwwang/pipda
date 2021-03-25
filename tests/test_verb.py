@@ -9,7 +9,7 @@ from pipda.verb import *
 def test_verb():
     f = Symbolic()
 
-    @register_verb
+    @register_verb(context=Context.SELECT)
     def verb(data, x):
         return data[x]
 

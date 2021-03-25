@@ -128,5 +128,5 @@ def register_verb(
 
     return wrapper
 
-register_verb.default_context = Context.SELECT
+register_verb.default_context = Context.EVAL
 register_verb.astnode_fail_warning = True
