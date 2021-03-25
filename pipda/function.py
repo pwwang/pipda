@@ -88,7 +88,7 @@ class Function(Expression):
             kwargs['_context'] = None
 
         bondargs = signature.bind(*args, **kwargs)
-        # bondargs.apply_defaults()
+        bondargs.apply_defaults()
         if func_extra_contexts:
             # evaluate some specfic args
             for key, ctx in func_extra_contexts.items():
@@ -131,18 +131,16 @@ def _register_function_no_datarg(
 
         if verb_arg_only and _env is None:
             raise ValueError(
-                f"Function {func.__qualname__!r} can only be called as "
-                "an argument of a verb."
+                f"`{func.__qualname__}` must only be used inside verbs"
             )
 
         # Otherwise I am standalone
         if have_expr(args, kwargs):
             if _env is None:
                 raise ValueError(
-                    "Function without data argument can't be called with "
-                    "Expression objects as arguments, unless it's called "
-                    "inside with statement of DataEnv or data is passed "
-                    "to _env."
+                    f"`{func.__qualname__}` has to be used in piping "
+                    "environment, inside with statement of DataEnv or "
+                    "data is passed to _env."
                 )
 
         if _env is None:
@@ -189,8 +187,7 @@ def _register_function_datarg(
 
         if verb_arg_only and _env is None:
             raise ValueError(
-                f"Function {func.__qualname__!r} can only be called as "
-                "an argument of a verb."
+                f"`{func.__qualname__}` must only be used inside verbs"
             )
 
         if have_expr(args[1:], kwargs):
