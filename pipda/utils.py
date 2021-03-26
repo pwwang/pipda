@@ -17,13 +17,7 @@ NULL = object()
 DATA_CONTEXTVAR_NAME = '__pipda_data__'
 
 class Expression(ABC):
-    """The abstract Expression class
-
-    Args:
-        context: The context for evaluation.
-    """
-    def __init__(self, context: Optional[ContextBase] = None) -> None:
-        self.context = context
+    """The abstract Expression class"""
 
     def __hash__(self) -> int:
         """Make it hashable"""
@@ -44,7 +38,7 @@ class Expression(ABC):
     def _op_handler(self, op: str, *args: Any, **kwargs: Any) -> "Operator":
         """Handle the operators"""
         from .operator import Operator
-        return Operator.REGISTERED(op, None, (self, *args), kwargs)
+        return Operator.REGISTERED(op, (self, *args), kwargs)
 
     # Make sure the operators connect all expressions into one
     __add__ = partialmethod(_op_handler, 'add')
@@ -91,7 +85,7 @@ class Expression(ABC):
         return None
 
     @abstractmethod
-    def evaluate(
+    def __call__(
             self,
             data: Any,
             context: Optional[ContextBase] = None
@@ -121,7 +115,7 @@ class DataEnv:
 
     def delete(self) -> None:
         """Delete the attached data"""
-        self.set(NULL)
+        self.set(None)
 
 def get_verb_node(
         calling_node: ast.Call
@@ -143,7 +137,7 @@ def get_verb_node(
         parent = getattr(parent, 'parent', None)
     return None
 
-def get_context_data(frame: FrameType) -> Any:
+def get_env_data(frame: FrameType) -> Any:
     """Check and return if there is a data set in the context where
     the verb or function is called"""
     for value in frame.f_locals.values():
@@ -152,7 +146,7 @@ def get_context_data(frame: FrameType) -> Any:
         if value.name != DATA_CONTEXTVAR_NAME:
             continue
         return value.get()
-    return NULL
+    return None
 
 def is_argument_node(
         sub_node: ast.Call,
@@ -242,8 +236,8 @@ def calling_env(astnode_fail_warning: bool = True) -> Any:
         return 'piping'
 
     # get the context data
-    contextdata = get_context_data(frame)
-    if contextdata is NULL:
+    contextdata = get_env_data(frame)
+    if contextdata is None:
         return None
 
     if is_argument_node_of(my_node) is not None:
@@ -287,15 +281,7 @@ def evaluate_expr(
             for key, val in expr.items()
         }
     if isinstance(expr, Expression):
-        # use its own context, unless it's a Reference or Operator object
-        ret = (expr.evaluate(data, context)
-               if not expr.context
-               else expr.evaluate(data))
-        # in case there is middlewares that return an Expression object
-        # evaluate it as well.
-
-        # return evaluate_expr(ret, data, context)
-        return ret
+        return expr(data, context)
     return expr
 
 def evaluate_args(
@@ -327,7 +313,7 @@ def singledispatch_register(
 
     def register_func(
             cls: Union[Type, Iterable[Type]],
-            context: Any = NULL,
+            context: Any = None,
             func: Optional[Callable] = None
     ) -> Callable:
         if not isinstance(cls, (tuple, set, list)):

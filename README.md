@@ -143,7 +143,7 @@ def _(data, other):
 
 # As it's a singledispatch generic function, we can do it for multiple types
 # with the same logic
-@register_verb
+@register_verb(context=Context.EVAL)
 def mul(data, other):
     raise NotImplementedError # not invalid until types registered
 

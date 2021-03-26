@@ -6,9 +6,9 @@ from pipda.context import *
 def test_use_pending():
     f = Symbolic()
     with pytest.raises(NotImplementedError):
-        f.a.evaluate(None, context=Context.PENDING.value)
+        f.a(None, context=Context.PENDING.value)
     with pytest.raises(NotImplementedError):
-        f['a'].evaluate(None, context=Context.PENDING.value)
+        f['a'](None, context=Context.PENDING.value)
 
 def test_use_unset():
     @register_func(context=None)
@@ -16,7 +16,7 @@ def test_use_unset():
         ...
 
     with pytest.raises(ContextError):
-        add(1, _env='piping').evaluate(1, context=None)
+        add(1, _env='piping')(1, context=None)
 
 def test_context_passby():
     f = Symbolic()
@@ -66,7 +66,7 @@ def test_verb_context_as_argument():
     assert context.name == 'select'
 
     # verb as arg
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def passby(data, x):
         return x
 

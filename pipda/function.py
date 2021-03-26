@@ -32,11 +32,9 @@ class Function(Expression):
 
     def __init__(self,
                  func: Callable,
-                 context: ContextBase,
                  args: Tuple[Any],
                  kwargs: Mapping[str, Any],
                  datarg: bool = True):
-        super().__init__(context)
 
         self.func = func
         self.datarg = datarg
@@ -46,7 +44,7 @@ class Function(Expression):
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(func={self.func.__qualname__!r})'
 
-    def evaluate(
+    def __call__(
             self,
             data: Any,
             context: Optional[ContextBase] = None
@@ -58,22 +56,15 @@ class Function(Expression):
         the context of the function
         """
         dispatch = getattr(self.func, 'dispatch', None)
-        func_context = NULL
+        func_context = None
         func_extra_contexts = None
         dispatcher = self.func
         if dispatch is not None:
             dispatcher = dispatch(type(data))
-            func_context = getattr(dispatcher, 'context', NULL)
+        func_context = getattr(dispatcher, 'context', None)
         func_extra_contexts = getattr(dispatcher, 'extra_contexts', None)
 
-        if func_context is NULL:
-            # No context specified for a second type
-            # Use the primary one. If it is a pass-by context (None, UNSET)
-            # use the one passed in.
-            context = self.context or context
-        else:
-            # Otherwise use the type-specific context if possible
-            context = func_context or self.context or context
+        context = func_context or context
 
         # The main context has to be set
         if not context: # still unset
@@ -111,7 +102,6 @@ class Function(Expression):
         return self.func(*args, **kwargs)
 
 def _register_function_no_datarg(
-        context: Optional[ContextBase],
         func: Callable,
         verb_arg_only: bool
 ) -> Callable:
@@ -122,12 +112,11 @@ def _register_function_no_datarg(
             _env: Optional[str] = None,
             **kwargs: Any
     ) -> Any:
-
         _env = _env or calling_env(register_func.astnode_fail_warning)
 
         # As argument of a verb
         if isinstance(_env, str) and _env == 'piping':
-            return Function(func, context, args, kwargs, False)
+            return Function(func, args, kwargs, False)
 
         if verb_arg_only and _env is None:
             raise ValueError(
@@ -145,7 +134,7 @@ def _register_function_no_datarg(
 
         if _env is None:
             return func(*args, **kwargs)
-        return Function(func, context, args, kwargs, False).evaluate(_env)
+        return Function(func, args, kwargs, False)(_env)
 
     wrapper.__pipda__ = 'PlainFunction'
     wrapper.__origfunc__ = func
@@ -153,12 +142,10 @@ def _register_function_no_datarg(
 
 def _register_function_datarg(
         cls: Iterable[Type],
-        context: Optional[ContextBase],
         func: Callable,
         verb_arg_only: bool
 ) -> Callable:
     """Register functions with data as the first argument"""
-    func.context = context
 
     @singledispatch
     @wraps(func)
@@ -183,7 +170,7 @@ def _register_function_datarg(
         _env = _env or calling_env(register_func.astnode_fail_warning)
         # As argument of a verb
         if isinstance(_env, str) and _env == 'piping':
-            return Function(generic, context, args, kwargs)
+            return Function(generic, args, kwargs)
 
         if verb_arg_only and _env is None:
             raise ValueError(
@@ -191,23 +178,13 @@ def _register_function_datarg(
             )
 
         if have_expr(args[1:], kwargs):
-            return Function(
-                generic,
-                context,
-                args[1:],
-                kwargs
-            ).evaluate(args[0])
+            return Function(generic, args[1:], kwargs)(args[0])
 
         if _env is None:
             return generic(*args, **kwargs)
 
         # context data
-        return Function(
-            generic,
-            context,
-            args,
-            kwargs
-        ).evaluate(_env)
+        return Function(generic, args, kwargs)(_env)
 
     wrapper.register = singledispatch_register(generic.register)
     wrapper.registry = generic.registry
@@ -219,7 +196,7 @@ def _register_function_datarg(
 
 def register_func(
         cls: Union[FunctionType, Type, Iterable[Type]] = object,
-        context: Optional[ContextAnnoType] = NULL,
+        context: Optional[ContextAnnoType] = None,
         func: Optional[FunctionType] = None,
         verb_arg_only: bool = False,
         extra_contexts: Optional[Mapping[str, ContextAnnoType]] = None
@@ -240,11 +217,10 @@ def register_func(
             extra_contexts
         )
 
-    if context is NULL:
-        context = register_func.default_context
-
     if isinstance(context, Context):
         context = context.value
+
+    func.context = context
 
     extra_contexts = extra_contexts or {}
     func.extra_contexts = {
@@ -254,7 +230,6 @@ def register_func(
 
     if cls is None:
         return _register_function_no_datarg(
-            context,
             func,
             verb_arg_only
         )
@@ -264,10 +239,8 @@ def register_func(
 
     return _register_function_datarg(
         cls,
-        context,
         func,
         verb_arg_only
     )
 
-register_func.default_context = Context.EVAL
 register_func.astnode_fail_warning = True

@@ -5,11 +5,11 @@ from pipda.function import *
 from pipda import register_verb, Symbolic
 
 def test_plain_function():
-    @register_func(None)
+    @register_func(None, context=Context.EVAL)
     def mean(x):
         return float(sum(x)) / float(len(x))
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def mutate(data, **kwds):
         for k, v in kwds.items():
             data[k] = v
@@ -33,9 +33,9 @@ def test_plain_context_unset():
     #                    match='Common functions cannot be registered'):
     #     register_func(None, func=mean, context=Context.UNSET)
 
-    mean = register_func(None, func=mean)
+    mean = register_func(None, context=Context.EVAL, func=mean)
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def mutate(data, **kwds):
         for k, v in kwds.items():
             data[k] = v
@@ -43,7 +43,7 @@ def test_plain_context_unset():
 
     m = mean([1, 2])
     assert m == 1.5
-    m = mean([1, 2], _env='piping').evaluate([1, 2])
+    m = mean([1, 2], _env='piping')([1, 2])
     assert m == 1.5
 
     d = {'a': 1, 'b': 2}

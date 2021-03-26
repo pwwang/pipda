@@ -21,7 +21,7 @@ def test_function():
     ret = func([1], 0)
     assert ret == 1
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, x):
         return x
 
@@ -34,7 +34,7 @@ def test_function_deep():
     def func(data, x):
         return {key: data[key] for key in x}
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, keys):
         return keys
 
@@ -60,35 +60,35 @@ def test_function_deep():
     assert ret == {'a': 1, 'b': 2}
 
 def test_function_called_in_normal_way():
-    @register_func
+    @register_func(context=Context.EVAL)
     def func(data, x):
         return data[x]
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, x):
         return x
 
     r = [1, 2] >> verb(func(0) + 1)
     assert r == 2
 
-    r = func(1, _env='piping').evaluate([0, 1])
+    r = func(1, _env='piping')([0, 1])
     assert r == 1
 
 def test_context():
-    @register_func
+    @register_func(context=Context.EVAL)
     def func(data, x):
         return data * x
 
-    @register_func(None)
+    @register_func(None, context=Context.EVAL)
     def func2(x):
         return x * 10
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, x):
         return data + x
 
-    ata = DataEnv(100, 'other')
     data = DataEnv(2)
+    data2 = DataEnv(100, 'other')
 
     y = verb(2)
     assert y == 4
@@ -127,11 +127,11 @@ def test_context():
         y = verb(2)
 
 def test_in_lambda():
-    @register_func
+    @register_func(context=Context.EVAL)
     def func(data, x):
         return data * x
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, func):
         return func(data)
 
@@ -149,20 +149,20 @@ def test_register_contexts_for_diff_cls():
     def _(data, x):
         return data[x]
 
-    @func.register(str)
+    @func.register(str, context=Context.EVAL)
     def _(data, x):
         return data + x
 
-    x = func(f[1], _env='piping').evaluate([2, 3])
+    x = func(f[1], _env='piping')([2, 3])
     assert x == [2, 3] * 3
 
-    x = func(f['a'], _env='piping').evaluate({'a': 1})
+    x = func(f['a'], _env='piping')({'a': 1})
     assert x == 1
 
-    x = func(f[1], _env='piping').evaluate((1, 2, 3))
+    x = func(f[1], _env='piping')((1, 2, 3))
     assert x == 2
 
-    x = func(f[1], _env='piping').evaluate('abc')
+    x = func(f[1], _env='piping')('abc')
     assert x == 'abcb'
 
 def test_unregister():
@@ -185,7 +185,7 @@ def test_unregister():
 
 def test_args_kwargs_have_expr():
     f = Symbolic()
-    @register_func(None)
+    @register_func(None, context=Context.EVAL)
     def func(x):
         return x
 
@@ -198,7 +198,7 @@ def test_args_kwargs_have_expr():
     with pytest.raises(ValueError):
         func(x=f[0])
 
-    @register_func
+    @register_func(context=Context.EVAL)
     def func2(data, x):
         return x
 
@@ -211,11 +211,11 @@ def test_func_called_in_different_envs():
     def verb(data, x):
         return x + 1
 
-    @register_func
+    @register_func(context=Context.EVAL)
     def func(data, x):
         return x + 2
 
-    @register_func(None)
+    @register_func(None, context=Context.EVAL)
     def func_no_data(x):
         return x + 4
 
@@ -252,15 +252,15 @@ def test_verb_arg_only():
     def verb(data, x):
         return x + 1
 
-    @register_func
+    @register_func(context=Context.EVAL)
     def func(data, x):
         return x + 2
 
-    @register_func(verb_arg_only=True)
+    @register_func(context=Context.EVAL, verb_arg_only=True)
     def func2(data, x):
         return x + 4
 
-    @register_func(None, verb_arg_only=True)
+    @register_func(None, context=Context.EVAL, verb_arg_only=True)
     def func3(x):
         return x + 8
 
@@ -299,7 +299,7 @@ def test_extra_contexts():
 
 def test_extra_contexts_error():
     f = Symbolic()
-    @register_func(extra_contexts={'nosucharg': Context.SELECT})
+    @register_func(context=Context.EVAL, extra_contexts={'nosucharg': Context.SELECT})
     def func(data, x): ...
 
     with pytest.raises(KeyError, match='No such argument'):

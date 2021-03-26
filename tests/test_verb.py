@@ -23,10 +23,10 @@ def test_verb():
     assert ret == [1,2]
 
 def test_evaluated():
-    v = Verb(round, ContextEval(), (1, ), {})
+    v = Verb(round, (1, ), {})
     assert v.args == (1, )
     assert v.kwargs == {}
-    assert v.evaluate(1.123) == 1.1
+    assert v(1.123, Context.EVAL.value) == 1.1
 
 def test_register_piping_sign():
     assert Verb.CURRENT_SIGN == '>>'
@@ -43,7 +43,7 @@ def test_register_piping_sign_inexisting_method():
 
 
 def test_only_type():
-    @register_verb(int)
+    @register_verb(int, context=Context.EVAL)
     def verb(data, x):
         return data + x
 
@@ -53,7 +53,7 @@ def test_only_type():
     with pytest.raises(NotImplementedError):
         '1' >> verb('2')
 
-    @verb.register(str)
+    @verb.register(str, context=Context.EVAL)
     def _(data, x):
         return data + x + '0'
 
@@ -89,7 +89,7 @@ def test_context_unset():
     assert used_refs == ['a']
 
 def test_node_na():
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, x):
         return data + x
 
@@ -98,10 +98,11 @@ def test_node_na():
         assert verb(1, 1) == 2
 
 def test_context():
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, x):
         return data + x
 
+    data0 = DataEnv(100, 'whatever')
     data = DataEnv(12)
     y = verb(3)
     assert y == 15
@@ -121,7 +122,7 @@ def test_diff_contexts_for_diff_types():
         ret[x] = data[x] * 2
         return ret
 
-    @verb.register((list, tuple)) # eval
+    @verb.register((list, tuple), context=Context.EVAL) # eval
     def _(data, x):
         return data + type(data)([x])
 
@@ -163,7 +164,7 @@ def test_verb_as_arg():
     y = [1,2] >> add([lenof([lenof(f)])])
     assert y == [1, 2, 1]
 
-    @register_func
+    @register_func(context=Context.EVAL)
     def func(data):
         return len(data)
 

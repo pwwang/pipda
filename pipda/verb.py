@@ -3,11 +3,13 @@ import ast
 from collections import namedtuple
 from functools import singledispatch, wraps
 from types import FunctionType
-from typing import Any, Callable, ClassVar, Iterable, Optional, Type, Union
+from typing import (
+    Any, Callable, ClassVar, Iterable, Mapping, Optional, Type, Union
+)
 
-from .utils import NULL, calling_env, have_expr, singledispatch_register
+from .utils import calling_env, have_expr, singledispatch_register
 from .function import Function
-from .context import ContextAnnoType, ContextBase, Context
+from .context import ContextAnnoType, Context
 
 # The Sign tuple
 Sign = namedtuple('Sign', ['method', 'token'])
@@ -47,33 +49,38 @@ def register_piping_sign(sign: str):
 
     Verb.CURRENT_SIGN = sign
     new_sign = PIPING_SIGNS[sign]
-    setattr(Verb, new_sign.method, Verb.evaluate)
+    setattr(Verb, new_sign.method, Verb.__call__)
 
 register_piping_sign('>>')
 
 def register_verb(
         cls: Union[FunctionType, Type, Iterable[Type]] = object,
-        context: ContextAnnoType = NULL,
-        func: Optional[FunctionType] = None
+        context: ContextAnnoType = None,
+        func: Optional[FunctionType] = None,
+        extra_contexts: Optional[Mapping[str, ContextAnnoType]] = None
 ) -> Callable:
     """Mimic the singledispatch function to implement a function for
     specific types"""
     if func is None and isinstance(cls, FunctionType):
         func, cls = cls, object
     if func is None:
-        return lambda fun: register_verb(cls, context, fun)
+        return lambda fun: register_verb(cls, context, fun, extra_contexts)
 
     if not isinstance(cls, (tuple, set, list)):
         cls = (cls, )
-
-    if context is NULL:
-        context = register_verb.default_context
 
     if isinstance(context, Context):
         context = context.value
 
     # allow register to have different context
     func.context = context
+
+    extra_contexts = extra_contexts or {}
+    func.extra_contexts = {
+        key: ctx.value if isinstance(ctx, Context) else ctx
+        for key, ctx in extra_contexts.items()
+    }
+
     @singledispatch
     @wraps(func)
     def generic(_data: Any, *args: Any, **kwargs: Any) -> Any:
@@ -96,29 +103,23 @@ def register_verb(
     ) -> Any:
         _env = _env or calling_env(register_verb.astnode_fail_warning)
         if isinstance(_env, str) and _env == 'piping-verb':
-            return Verb(generic, context, args, kwargs)
+            return Verb(generic, args, kwargs)
 
         # I am an argument of a verb
         if isinstance(_env, str) and _env == 'piping':
-            # Use the verb's context
-            return Function(generic, None, args, kwargs, False)
+            return Function(generic, args, kwargs, False)
 
         # otherwise I am standalone
         # If I have Expression objects as arguments, treat it as a Verb
         # and execute it, with the first argument as data
         if have_expr(args[1:], kwargs):
-            return Function(
-                generic,
-                context,
-                args[1:],
-                kwargs
-            ).evaluate(args[0])
+            return Function(generic, args[1:], kwargs )(args[0])
 
         if _env is None:
             return generic(*args, **kwargs)
 
         # it's context data
-        return Verb(generic, context, args, kwargs).evaluate(_env)
+        return Verb(generic, args, kwargs)(_env)
 
     wrapper.register = singledispatch_register(generic.register)
     wrapper.registry = generic.registry
@@ -128,5 +129,4 @@ def register_verb(
 
     return wrapper
 
-register_verb.default_context = Context.EVAL
 register_verb.astnode_fail_warning = True
