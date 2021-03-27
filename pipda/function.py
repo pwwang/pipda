@@ -1,4 +1,5 @@
 """Provides register_func to register functions"""
+from enum import Enum
 import inspect
 from functools import singledispatch, wraps
 from types import FunctionType
@@ -11,7 +12,7 @@ from .utils import (
     singledispatch_register, logger
 )
 from .context import (
-    Context, ContextAnnoType, ContextBase, ContextError
+    ContextAnnoType, ContextBase, ContextError
 )
 
 class Function(Expression):
@@ -231,14 +232,14 @@ def register_func(
             extra_contexts
         )
 
-    if isinstance(context, Context):
+    if isinstance(context, Enum):
         context = context.value
 
     func.context = context
 
     extra_contexts = extra_contexts or {}
     func.extra_contexts = {
-        key: ctx.value if isinstance(ctx, Context) else ctx
+        key: ctx.value if isinstance(ctx, Enum) else ctx
         for key, ctx in extra_contexts.items()
     }
 

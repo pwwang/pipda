@@ -1,10 +1,11 @@
 """Provide the Operator class"""
+from enum import Enum
 from functools import wraps
 import operator
 from typing import Any, Callable, Mapping, Optional, Tuple, Type
 
 from .function import Function
-from .context import Context, ContextAnnoType, ContextBase
+from .context import ContextAnnoType, ContextBase
 
 class Operator(Function):
     """Operator class, defining how the operators in verb/function arguments
@@ -64,11 +65,11 @@ class Operator(Function):
 
         def wrapper(func):
             func.context = (
-                context.value if isinstance(context, Context) else context
+                context.value if isinstance(context, Enum) else context
             )
             extra_contexts2 = extra_contexts or {}
             func.extra_contexts = {
-                key: ctx.value if isinstance(ctx, Context) else ctx
+                key: ctx.value if isinstance(ctx, Enum) else ctx
                 for key, ctx in extra_contexts2.items()
             }
             return func

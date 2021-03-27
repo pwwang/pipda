@@ -1,4 +1,5 @@
 """Provide the utilities and Expression class"""
+from enum import Enum
 import sys
 import ast
 import logging
@@ -12,7 +13,7 @@ from abc import ABC, abstractmethod
 
 from executing import Source
 
-from .context import Context, ContextAnnoType, ContextBase
+from .context import ContextAnnoType, ContextBase
 
 NULL = object()
 DATA_CONTEXTVAR_NAME = '__pipda_data__'
@@ -268,7 +269,7 @@ def evaluate_expr(
         level: int = 0
 ) -> Any:
     """Evaluate a mixed expression"""
-    if isinstance(context, Context):
+    if isinstance(context, Enum):
         context = context.value
 
     if isinstance(expr, list):
@@ -337,7 +338,7 @@ def singledispatch_register(
 
         if func is None:
             return lambda fun: register_func(cls, context, fun)
-        if isinstance(context, Context):
+        if isinstance(context, Enum):
             context = context.value
         func.context = context
         ret = func

@@ -2,7 +2,7 @@ import pytest
 
 from pipda.utils import evaluate_expr
 from pipda.function import *
-from pipda import register_verb, Symbolic
+from pipda import register_verb, Symbolic, Context
 
 def test_plain_function():
     @register_func(None, context=Context.EVAL)

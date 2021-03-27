@@ -1,6 +1,7 @@
 """Provide register_verb to register verbs"""
 import ast
 from collections import namedtuple
+from enum import Enum
 from functools import singledispatch, wraps
 from types import FunctionType
 from typing import (
@@ -9,7 +10,7 @@ from typing import (
 
 from .utils import calling_env, have_expr, singledispatch_register
 from .function import Function
-from .context import ContextAnnoType, Context
+from .context import ContextAnnoType
 
 # The Sign tuple
 Sign = namedtuple('Sign', ['method', 'token'])
@@ -69,7 +70,7 @@ def register_verb(
     if not isinstance(cls, (tuple, set, list)):
         cls = (cls, )
 
-    if isinstance(context, Context):
+    if isinstance(context, Enum):
         context = context.value
 
     # allow register to have different context
@@ -77,7 +78,7 @@ def register_verb(
 
     extra_contexts = extra_contexts or {}
     func.extra_contexts = {
-        key: ctx.value if isinstance(ctx, Context) else ctx
+        key: ctx.value if isinstance(ctx, Enum) else ctx
         for key, ctx in extra_contexts.items()
     }
 
