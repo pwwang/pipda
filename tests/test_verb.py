@@ -181,6 +181,31 @@ def test_unregister():
     assert unregister(registered) is orig
     assert functype(registered) == 'verb'
 
+def test_keyword_attr():
+    @register_verb(context=Context.EVAL)
+    def prod(data, *args):
+        ret = 1
+        for arg in args:
+            ret *= arg
+        return ret
+
+    data = lambda: 0
+    data.func = 2
+    data.datarg = 3
+    data.args = 4
+    data.kwargs = 5
+    data.parent = 6
+    data.ref = 7
+    data.data = 8
+    data.op = 9
+
+    f = Symbolic()
+    ret = data >> prod(
+        f.func, f.datarg, f.args, f.kwargs,
+        f.parent, f.ref, f.data, f.op
+    )
+    assert ret == 362880
+
 def test_astnode_fail_warning():
     # default
     @register_func(context=Context.SELECT)
