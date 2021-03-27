@@ -100,7 +100,8 @@ class Expression(ABC):
     def __call__(
             self,
             data: Any,
-            context: Optional[ContextBase] = None
+            context: Optional[ContextBase] = None,
+            level: int = 0
     ) -> Any:
         """Evaluate the expression using given data"""
 
@@ -263,23 +264,24 @@ def calling_env(astnode_fail_warning: bool = True) -> Any:
 def evaluate_expr(
         expr: Any,
         data: Any,
-        context: ContextAnnoType
+        context: ContextAnnoType,
+        level: int = 0
 ) -> Any:
     """Evaluate a mixed expression"""
     if isinstance(context, Context):
         context = context.value
 
     if isinstance(expr, list):
-        return [evaluate_expr(elem, data, context) for elem in expr]
+        return [evaluate_expr(elem, data, context, level) for elem in expr]
     if isinstance(expr, tuple):
-        return tuple(evaluate_expr(elem, data, context) for elem in expr)
+        return tuple(evaluate_expr(elem, data, context, level) for elem in expr)
     if isinstance(expr, set):
-        return set(evaluate_expr(elem, data, context) for elem in expr)
+        return set(evaluate_expr(elem, data, context, level) for elem in expr)
     if isinstance(expr, slice):
         return slice(
-            evaluate_expr(expr.start, data, context),
-            evaluate_expr(expr.stop, data, context),
-            evaluate_expr(expr.step, data, context)
+            evaluate_expr(expr.start, data, context, level),
+            evaluate_expr(expr.stop, data, context, level),
+            evaluate_expr(expr.step, data, context, level)
         )
     # no need anymore for python3.7+
     # if isinstance(expr, OrderedDict):
@@ -289,29 +291,31 @@ def evaluate_expr(
     #     ])
     if isinstance(expr, dict):
         return {
-            key: evaluate_expr(val, data, context)
+            key: evaluate_expr(val, data, context, level)
             for key, val in expr.items()
         }
     if isinstance(expr, Expression):
-        return expr(data, context)
+        return expr(data, context, level+1)
     return expr
 
 def evaluate_args(
         args: Tuple[Any],
         data: Any,
-        context: ContextAnnoType
+        context: ContextAnnoType,
+        level: int = 0
 ) -> Tuple[Any]:
     """Evaluate the non-keyword arguments"""
-    return tuple(evaluate_expr(arg, data, context) for arg in args)
+    return tuple(evaluate_expr(arg, data, context, level) for arg in args)
 
 def evaluate_kwargs(
         kwargs: Mapping[str, Any],
         data: Any,
-        context: ContextAnnoType
+        context: ContextAnnoType,
+        level: int = 0
 ) -> Mapping[str, Any]:
     """Evaluate the keyword arguments"""
     return {
-        key: evaluate_expr(val, data, context)
+        key: evaluate_expr(val, data, context, level)
         for key, val in kwargs.items()
     }
 

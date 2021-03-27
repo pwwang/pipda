@@ -101,7 +101,10 @@ def register_verb(
             _env: Optional[str] = None,
             **kwargs: Any
     ) -> Any:
-        _env = _env or calling_env(register_verb.astnode_fail_warning)
+        _env = (
+            calling_env(register_verb.astnode_fail_warning)
+            if _env is None else _env
+        )
         if isinstance(_env, str) and _env == 'piping-verb':
             return Verb(generic, args, kwargs)
 

@@ -78,7 +78,8 @@ class Operator(Function):
     def __call__(
             self,
             data: Any,
-            context: Optional[ContextBase] = None
+            context: Optional[ContextBase] = None,
+            level: int = 0
     ) -> Any:
         """Evaluate the operator
 
@@ -88,7 +89,7 @@ class Operator(Function):
         # set the context and data in case they need to be used
         # inside the function.
         self.data = data
-        return super().__call__(data, context)
+        return super().__call__(data, context, level)
 
     def __getattr__(self, name: str) -> Any:
         """Get the function to handle the operator"""

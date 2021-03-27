@@ -47,7 +47,8 @@ class Function(Expression):
     def __call__(
             self,
             data: Any,
-            context: Optional[ContextBase] = None
+            context: Optional[ContextBase] = None,
+            level: int = 0
     ) -> Any:
         """Execute the function with the data
 
@@ -81,7 +82,11 @@ class Function(Expression):
         bondargs = signature.bind(*args, **kwargs)
         bondargs.apply_defaults()
 
-        logger.debug('Evaluating %r with context %r.', self, context)
+        if self.__class__.__name__ == 'Verb':
+            level = 0
+
+        prefix = '- ' if level == 0 else f'  ' * level
+        logger.debug('%sEvaluating %r with context %r.', prefix, self, context)
         if func_extra_contexts:
             # evaluate some specfic args
             for key, ctx in func_extra_contexts.items():
@@ -99,8 +104,8 @@ class Function(Expression):
             # verb/function/operator to evaluate
             return self.func(*bondargs.args, **bondargs.kwargs)
 
-        args = evaluate_args(bondargs.args, data, context.args)
-        kwargs = evaluate_kwargs(bondargs.kwargs, data, context.kwargs)
+        args = evaluate_args(bondargs.args, data, context.args, level)
+        kwargs = evaluate_kwargs(bondargs.kwargs, data, context.kwargs, level)
         return self.func(*args, **kwargs)
 
 def _register_function_no_datarg(
@@ -114,7 +119,10 @@ def _register_function_no_datarg(
             _env: Optional[str] = None,
             **kwargs: Any
     ) -> Any:
-        _env = _env or calling_env(register_func.astnode_fail_warning)
+        _env = (
+            calling_env(register_func.astnode_fail_warning)
+            if _env is None else _env
+        )
 
         # As argument of a verb
         if isinstance(_env, str) and _env == 'piping':
@@ -169,7 +177,11 @@ def _register_function_datarg(
             _env: Optional[str] = None,
             **kwargs: Any
     ) -> Any:
-        _env = _env or calling_env(register_func.astnode_fail_warning)
+        _env = (
+            calling_env(register_func.astnode_fail_warning)
+            if _env is None else _env
+        )
+
         # As argument of a verb
         if isinstance(_env, str) and _env == 'piping':
             return Function(generic, args, kwargs)
