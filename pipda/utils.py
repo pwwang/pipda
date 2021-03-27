@@ -1,6 +1,7 @@
 """Provide the utilities and Expression class"""
 import sys
 import ast
+import logging
 from types import FrameType
 import warnings
 from functools import partialmethod
@@ -15,6 +16,17 @@ from .context import Context, ContextAnnoType, ContextBase
 
 NULL = object()
 DATA_CONTEXTVAR_NAME = '__pipda_data__'
+
+
+# logger
+logger = logging.getLogger('pipda') # pylint: disable=invalid-name
+logger.setLevel(logging.INFO)
+stream_handler = logging.StreamHandler() # pylint: disable=invalid-name
+stream_handler.setFormatter(logging.Formatter(
+    '[%(asctime)s][%(name)s][%(levelname)7s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+))
+logger.addHandler(stream_handler)
 
 class Expression(ABC):
     """The abstract Expression class"""

@@ -6,9 +6,9 @@ from typing import (
     Any, Callable, Iterable, Mapping, Optional, Tuple, Type, Union
 )
 from .utils import (
-    Expression, NULL,
+    Expression,
     evaluate_args, evaluate_expr, evaluate_kwargs, calling_env, have_expr,
-    singledispatch_register
+    singledispatch_register, logger
 )
 from .context import (
     Context, ContextAnnoType, ContextBase, ContextError
@@ -80,6 +80,8 @@ class Function(Expression):
 
         bondargs = signature.bind(*args, **kwargs)
         bondargs.apply_defaults()
+
+        logger.debug('Evaluating %r with context %r.', self, context)
         if func_extra_contexts:
             # evaluate some specfic args
             for key, ctx in func_extra_contexts.items():

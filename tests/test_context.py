@@ -1,3 +1,4 @@
+import logging
 import pytest
 
 from pipda import *
@@ -124,3 +125,28 @@ def test_func_context_as_argument():
 
     context = 1 >> verb_eval(func_unset_nodata(1))
     assert context.name == 'eval'
+
+def test_debug(caplog):
+    logger.setLevel(logging.DEBUG)
+    @register_verb(context=Context.EVAL)
+    def verb(data, x, y):
+        return x, y
+
+    @register_func(context=None)
+    def func1(data, x):
+        return x
+
+    @register_func(context=Context.SELECT)
+    def func2(data, x):
+        return x
+
+    f = Symbolic()
+
+    ret = [1,2,3] >> verb(func1(f[2]), func2(func1(f[4])))
+    assert ret == (3, 4)
+
+    logs = caplog.text.splitlines()
+    assert "Evaluating Verb(func='test_debug.<locals>.verb') with context <ContextEval" in logs[0]
+    assert "Evaluating Function(func='test_debug.<locals>.func1') with context <ContextEval" in logs[1]
+    assert "Evaluating Function(func='test_debug.<locals>.func2') with context <ContextSelect" in logs[2]
+    assert "Evaluating Function(func='test_debug.<locals>.func1') with context <ContextSelect" in logs[3]

@@ -113,7 +113,7 @@ def register_verb(
         # If I have Expression objects as arguments, treat it as a Verb
         # and execute it, with the first argument as data
         if have_expr(args[1:], kwargs):
-            return Function(generic, args[1:], kwargs )(args[0])
+            return Function(generic, args[1:], kwargs)(args[0])
 
         if _env is None:
             return generic(*args, **kwargs)
