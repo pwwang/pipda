@@ -220,3 +220,15 @@ def test_astnode_fail_warning():
         assert func([1,2], 1) == 2
     assert len(record) == 0
     register_func.astnode_fail_warning = True
+
+def test_inplace_pipe():
+
+    @register_verb(context=Context.SELECT)
+    def verb(data, x, y):
+        copied = data[:]
+        copied[x] = y
+        return copied
+
+    x = [1,2,3]
+    x >>= verb(1,4)
+    assert x == [1,4,3]

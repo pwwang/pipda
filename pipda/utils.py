@@ -141,12 +141,14 @@ def get_verb_node(
     parent = getattr(child, 'parent', None)
     while parent:
         if (
-                isinstance(parent, ast.BinOp) and
-                isinstance(parent.op,
-                           PIPING_SIGNS[Verb.CURRENT_SIGN].token) and
-                parent.right is child
+                (
+                    isinstance(parent, ast.BinOp) and parent.right is child or
+                    isinstance(parent, ast.AugAssign) and parent.value is child
+                ) and
+                isinstance(parent.op, PIPING_SIGNS[Verb.CURRENT_SIGN].token)
         ):
             return child
+
         child = parent
         parent = getattr(parent, 'parent', None)
     return None
