@@ -1,6 +1,8 @@
 """Provide the utilities and Expression class"""
+from enum import Enum
 import sys
 import ast
+import logging
 from types import FrameType
 import warnings
 from functools import partialmethod
@@ -11,19 +13,24 @@ from abc import ABC, abstractmethod
 
 from executing import Source
 
-from .context import Context, ContextBase
+from .context import ContextAnnoType, ContextBase
 
 NULL = object()
 DATA_CONTEXTVAR_NAME = '__pipda_data__'
 
-class Expression(ABC):
-    """The abstract Expression class
 
-    Args:
-        context: The context for evaluation.
-    """
-    def __init__(self, context: Optional[ContextBase] = None) -> None:
-        self.context = context
+# logger
+logger = logging.getLogger('pipda') # pylint: disable=invalid-name
+logger.setLevel(logging.INFO)
+stream_handler = logging.StreamHandler() # pylint: disable=invalid-name
+stream_handler.setFormatter(logging.Formatter(
+    '[%(asctime)s][%(name)s][%(levelname)7s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+))
+logger.addHandler(stream_handler)
+
+class Expression(ABC):
+    """The abstract Expression class"""
 
     def __hash__(self) -> int:
         """Make it hashable"""
@@ -44,7 +51,7 @@ class Expression(ABC):
     def _op_handler(self, op: str, *args: Any, **kwargs: Any) -> "Operator":
         """Handle the operators"""
         from .operator import Operator
-        return Operator.REGISTERED(op, None, (self, *args), kwargs)
+        return Operator.REGISTERED(op, (self, *args), kwargs)
 
     # Make sure the operators connect all expressions into one
     __add__ = partialmethod(_op_handler, 'add')
@@ -91,14 +98,15 @@ class Expression(ABC):
         return None
 
     @abstractmethod
-    def evaluate(
+    def __call__(
             self,
             data: Any,
-            context: Optional[ContextBase] = None
+            context: Optional[ContextBase] = None,
+            level: int = 0
     ) -> Any:
         """Evaluate the expression using given data"""
 
-class DataContext:
+class DataEnv:
     """A data context that can be accessed by the function registered by
     `pipda.register_*` so that the data argument doesn't need to
     be passed when called
@@ -121,7 +129,7 @@ class DataContext:
 
     def delete(self) -> None:
         """Delete the attached data"""
-        self.set(NULL)
+        self.set(None)
 
 def get_verb_node(
         calling_node: ast.Call
@@ -133,26 +141,28 @@ def get_verb_node(
     parent = getattr(child, 'parent', None)
     while parent:
         if (
-                isinstance(parent, ast.BinOp) and
-                isinstance(parent.op,
-                           PIPING_SIGNS[Verb.CURRENT_SIGN].token) and
-                parent.right is child
+                (
+                    isinstance(parent, ast.BinOp) and parent.right is child or
+                    isinstance(parent, ast.AugAssign) and parent.value is child
+                ) and
+                isinstance(parent.op, PIPING_SIGNS[Verb.CURRENT_SIGN].token)
         ):
             return child
+
         child = parent
         parent = getattr(parent, 'parent', None)
     return None
 
-def get_context_data(frame: FrameType) -> Any:
+def get_env_data(frame: FrameType) -> Any:
     """Check and return if there is a data set in the context where
     the verb or function is called"""
     for value in frame.f_locals.values():
-        if not isinstance(value, DataContext):
+        if not isinstance(value, DataEnv):
             continue
         if value.name != DATA_CONTEXTVAR_NAME:
             continue
         return value.get()
-    return NULL
+    return None
 
 def is_argument_node(
         sub_node: ast.Call,
@@ -168,6 +178,9 @@ def is_argument_node(
                 is_argument_node_of(parent) is verb_node
         ):
             return True
+        if isinstance(parent, ast.Lambda):
+            # function inside lambda is not in a piping environment
+            return False
         parent = getattr(parent, 'parent', None)
     # when verb_node is ensured, we can anyway retrieve it as the parent of
     # sub_node
@@ -190,7 +203,7 @@ def is_argument_node_of(sub_node: ast.Call) -> Optional[ast.Call]:
         parent = getattr(parent, 'parent', None)
     return None
 
-def calling_type() -> Any:
+def calling_env(astnode_fail_warning: bool = True) -> Any:
     """Checking how the function is called:
     - piping:
         1. It is a verb that is piped directed. ie. data >> verb(...)
@@ -224,7 +237,7 @@ def calling_type() -> Any:
     # frame 2: func(...)
     frame = sys._getframe(2)
     my_node = Source.executing(frame).node
-    if not my_node:
+    if not my_node and astnode_fail_warning:
         warnings.warn(
             "Failed to fetch the node calling the function, "
             "call it with the original function."
@@ -232,15 +245,15 @@ def calling_type() -> Any:
         return None
 
     piping_verb_node = get_verb_node(my_node)
-    if piping_verb_node is my_node:
+    if piping_verb_node is my_node and piping_verb_node is not None:
         return 'piping-verb'
 
     if is_argument_node(my_node, piping_verb_node):
         return 'piping'
 
     # get the context data
-    contextdata = get_context_data(frame)
-    if contextdata is NULL:
+    contextdata = get_env_data(frame)
+    if contextdata is None:
         return None
 
     if is_argument_node_of(my_node) is not None:
@@ -254,23 +267,24 @@ def calling_type() -> Any:
 def evaluate_expr(
         expr: Any,
         data: Any,
-        context: Union[Context, ContextBase]
+        context: ContextAnnoType,
+        level: int = 0
 ) -> Any:
     """Evaluate a mixed expression"""
-    if isinstance(context, Context):
+    if isinstance(context, Enum):
         context = context.value
 
     if isinstance(expr, list):
-        return [evaluate_expr(elem, data, context) for elem in expr]
+        return [evaluate_expr(elem, data, context, level) for elem in expr]
     if isinstance(expr, tuple):
-        return tuple(evaluate_expr(elem, data, context) for elem in expr)
+        return tuple(evaluate_expr(elem, data, context, level) for elem in expr)
     if isinstance(expr, set):
-        return set(evaluate_expr(elem, data, context) for elem in expr)
+        return set(evaluate_expr(elem, data, context, level) for elem in expr)
     if isinstance(expr, slice):
         return slice(
-            evaluate_expr(expr.start, data, context),
-            evaluate_expr(expr.stop, data, context),
-            evaluate_expr(expr.step, data, context)
+            evaluate_expr(expr.start, data, context, level),
+            evaluate_expr(expr.stop, data, context, level),
+            evaluate_expr(expr.step, data, context, level)
         )
     # no need anymore for python3.7+
     # if isinstance(expr, OrderedDict):
@@ -280,33 +294,31 @@ def evaluate_expr(
     #     ])
     if isinstance(expr, dict):
         return {
-            key: evaluate_expr(val, data, context)
+            key: evaluate_expr(val, data, context, level)
             for key, val in expr.items()
         }
     if isinstance(expr, Expression):
-        # use its own context, unless it's a Reference or Operator object
-        ret = (expr.evaluate(data, context)
-               if not expr.context
-               else expr.evaluate(data))
-        return ret
+        return expr(data, context, level+1)
     return expr
 
 def evaluate_args(
         args: Tuple[Any],
         data: Any,
-        context: Union[Context, ContextBase]
+        context: ContextAnnoType,
+        level: int = 0
 ) -> Tuple[Any]:
     """Evaluate the non-keyword arguments"""
-    return tuple(evaluate_expr(arg, data, context) for arg in args)
+    return tuple(evaluate_expr(arg, data, context, level) for arg in args)
 
 def evaluate_kwargs(
         kwargs: Mapping[str, Any],
         data: Any,
-        context: Union[Context, ContextBase]
+        context: ContextAnnoType,
+        level: int = 0
 ) -> Mapping[str, Any]:
     """Evaluate the keyword arguments"""
     return {
-        key: evaluate_expr(val, data, context)
+        key: evaluate_expr(val, data, context, level)
         for key, val in kwargs.items()
     }
 
@@ -320,7 +332,7 @@ def singledispatch_register(
 
     def register_func(
             cls: Union[Type, Iterable[Type]],
-            context: Any = NULL,
+            context: Any = None,
             func: Optional[Callable] = None
     ) -> Callable:
         if not isinstance(cls, (tuple, set, list)):
@@ -328,7 +340,7 @@ def singledispatch_register(
 
         if func is None:
             return lambda fun: register_func(cls, context, fun)
-        if isinstance(context, Context):
+        if isinstance(context, Enum):
             context = context.value
         func.context = context
         ret = func
@@ -376,3 +388,13 @@ def unregister(func: Callable) -> Callable:
     if origfunc is None:
         raise ValueError(f'Function is not registered with pipda: {func}')
     return origfunc
+
+def have_expr(args: Tuple[Any], kwargs: Mapping[str, Any]) -> bool:
+    """Check if arg and kwargs have Expression object"""
+    for arg in args:
+        if isinstance(arg, Expression):
+            return True
+    for arg in kwargs.values():
+        if isinstance(arg, Expression):
+            return True
+    return False

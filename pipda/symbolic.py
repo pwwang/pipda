@@ -4,7 +4,7 @@ from typing import Optional, Any
 
 import varname.helpers
 
-from .utils import Expression, evaluate_expr
+from .utils import Expression, evaluate_expr, logger
 from .context import ContextBase
 
 class Reference(Expression, ABC):
@@ -21,14 +21,8 @@ class Reference(Expression, ABC):
     """
     def __init__(self,
                  parent: Any,
-                 ref: Any,
-                 context: Optional[ContextBase] = None) -> None:
-        super().__init__(context)
+                 ref: Any) -> None:
 
-        assert context is None, (
-            "No context should be passed to initialize "
-            f"a {self.__class__.__name__} object."
-        )
         self.parent = parent
         self.ref = ref
 
@@ -39,12 +33,15 @@ class Reference(Expression, ABC):
         )
 
     @abstractmethod
-    def evaluate(
+    def __call__(
             self,
             data: Any,
-            context: Optional[ContextBase] = None
+            context: Optional[ContextBase] = None,
+            level: int = 0
     ) -> Any:
         """Evaluate the reference according to the context"""
+        prefix = '- ' if level == 0 else '  ' * level
+        logger.debug('%sEvaluating %r with context %r.', prefix, self, context)
         assert context is not None, (
             f"Cannot evaluate a {self.__class__.__name__} "
             "object without a context."
@@ -53,28 +50,30 @@ class Reference(Expression, ABC):
 class ReferenceAttr(Reference):
     """Attribute references, for example: `f.A`, `f.A.B` etc."""
 
-    def evaluate(
+    def __call__(
             self,
             data: Any,
-            context: Optional[ContextBase] = None
+            context: Optional[ContextBase] = None,
+            level: int = 0
     ) -> Any:
         """Evaluate the attribute references"""
-        super().evaluate(data, context)
-        parent = evaluate_expr(self.parent, data, context)
+        super().__call__(data, context, level)
+        parent = evaluate_expr(self.parent, data, context, level)
         return context.getattr(parent, self.ref)
 
 class ReferenceItem(Reference):
     """Subscript references, for example: `f['A']`, `f.A['B']` etc"""
 
-    def evaluate(
+    def __call__(
             self,
             data: Any,
-            context: Optional[ContextBase] = None
+            context: Optional[ContextBase] = None,
+            level: int = 0
     ) -> Any:
         """Evaluate the subscript references"""
-        super().evaluate(data, context)
-        parent = evaluate_expr(self.parent, data, context)
-        ref = evaluate_expr(self.ref, data, context.ref)
+        super().__call__(data, context, level)
+        parent = evaluate_expr(self.parent, data, context, level)
+        ref = evaluate_expr(self.ref, data, context.ref, level)
         return context.getitem(parent, ref)
 
 class DirectRefAttr(ReferenceAttr):
@@ -101,10 +100,11 @@ class Symbolic(Expression):
     def __repr__(self) -> str:
         return f"<Symbolic:{self.__varname__}>"
 
-    def evaluate(
+    def __call__(
             self,
             data: Any,
-            context: Optional[ContextBase] = None
+            context: Optional[ContextBase] = None,
+            level: int = 0
     ) -> Any:
         """When evaluated, this should just return the data directly"""
         return data

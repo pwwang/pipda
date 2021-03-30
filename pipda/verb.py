@@ -1,13 +1,16 @@
 """Provide register_verb to register verbs"""
 import ast
 from collections import namedtuple
+from enum import Enum
 from functools import singledispatch, wraps
 from types import FunctionType
-from typing import Any, Callable, ClassVar, Iterable, Optional, Type, Union
+from typing import (
+    Any, Callable, ClassVar, Iterable, Mapping, Optional, Type, Union
+)
 
-from .utils import calling_type, singledispatch_register
+from .utils import calling_env, have_expr, singledispatch_register
 from .function import Function
-from .context import ContextBase, Context
+from .context import ContextAnnoType
 
 # The Sign tuple
 Sign = namedtuple('Sign', ['method', 'token'])
@@ -47,30 +50,38 @@ def register_piping_sign(sign: str):
 
     Verb.CURRENT_SIGN = sign
     new_sign = PIPING_SIGNS[sign]
-    setattr(Verb, new_sign.method, Verb.evaluate)
+    setattr(Verb, new_sign.method, Verb.__call__)
 
 register_piping_sign('>>')
 
 def register_verb(
         cls: Union[FunctionType, Type, Iterable[Type]] = object,
-        context: Union[Context, ContextBase] = Context.SELECT,
-        func: Optional[FunctionType] = None
+        context: ContextAnnoType = None,
+        func: Optional[FunctionType] = None,
+        extra_contexts: Optional[Mapping[str, ContextAnnoType]] = None
 ) -> Callable:
     """Mimic the singledispatch function to implement a function for
     specific types"""
     if func is None and isinstance(cls, FunctionType):
         func, cls = cls, object
     if func is None:
-        return lambda fun: register_verb(cls, context, fun)
+        return lambda fun: register_verb(cls, context, fun, extra_contexts)
 
     if not isinstance(cls, (tuple, set, list)):
         cls = (cls, )
 
-    if isinstance(context, Context):
+    if isinstance(context, Enum):
         context = context.value
 
     # allow register to have different context
     func.context = context
+
+    extra_contexts = extra_contexts or {}
+    func.extra_contexts = {
+        key: ctx.value if isinstance(ctx, Enum) else ctx
+        for key, ctx in extra_contexts.items()
+    }
+
     @singledispatch
     @wraps(func)
     def generic(_data: Any, *args: Any, **kwargs: Any) -> Any:
@@ -86,21 +97,33 @@ def register_verb(
             generic.register(single_cls, func)
 
     @wraps(func)
-    def wrapper(*args: Any,
-                _calling_type: Optional[str] = None,
-                **kwargs: Any) -> Any:
-        _calling_type = _calling_type or calling_type()
-        if isinstance(_calling_type, str) and _calling_type == 'piping-verb':
-            return Verb(generic, context, args, kwargs)
+    def wrapper(
+            *args: Any,
+            _env: Optional[str] = None,
+            **kwargs: Any
+    ) -> Any:
+        _env = (
+            calling_env(register_verb.astnode_fail_warning)
+            if _env is None else _env
+        )
+        if isinstance(_env, str) and _env == 'piping-verb':
+            return Verb(generic, args, kwargs)
 
-        if isinstance(_calling_type, str) and _calling_type == 'piping':
-            return Function(generic, context, args, kwargs, False)
+        # I am an argument of a verb
+        if isinstance(_env, str) and _env == 'piping':
+            return Function(generic, args, kwargs, False)
 
-        if _calling_type is None:
-            return func(*args, **kwargs)
+        # otherwise I am standalone
+        # If I have Expression objects as arguments, treat it as a Verb
+        # and execute it, with the first argument as data
+        if have_expr(args[1:], kwargs):
+            return Function(generic, args[1:], kwargs)(args[0])
+
+        if _env is None:
+            return generic(*args, **kwargs)
 
         # it's context data
-        return Verb(generic, context, args, kwargs).evaluate(_calling_type)
+        return Verb(generic, args, kwargs)(_env)
 
     wrapper.register = singledispatch_register(generic.register)
     wrapper.registry = generic.registry
@@ -109,3 +132,5 @@ def register_verb(
     wrapper.__origfunc__ = func
 
     return wrapper
+
+register_verb.astnode_fail_warning = True

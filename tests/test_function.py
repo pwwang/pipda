@@ -2,7 +2,7 @@ import pytest
 
 from collections import OrderedDict
 import contextvars
-from pipda.utils import DATA_CONTEXTVAR_NAME, DataContext, functype, unregister
+from pipda.utils import DATA_CONTEXTVAR_NAME, DataEnv, functype, unregister
 
 from pipda.verb import Verb
 from pipda import *
@@ -14,14 +14,14 @@ def test_function():
     def func(data, x):
         return data[x]
 
-    assert repr(func([0], 1, _calling_type='piping')) == (
+    assert repr(func([0], 1, _env='piping')) == (
         "Function(func='test_function.<locals>.func')"
     )
 
     ret = func([1], 0)
     assert ret == 1
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, x):
         return x
 
@@ -34,7 +34,7 @@ def test_function_deep():
     def func(data, x):
         return {key: data[key] for key in x}
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, keys):
         return keys
 
@@ -60,35 +60,35 @@ def test_function_deep():
     assert ret == {'a': 1, 'b': 2}
 
 def test_function_called_in_normal_way():
-    @register_func
+    @register_func(context=Context.EVAL)
     def func(data, x):
         return data[x]
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, x):
         return x
 
     r = [1, 2] >> verb(func(0) + 1)
     assert r == 2
 
-    r = func(1, _calling_type='piping').evaluate([0, 1])
+    r = func(1, _env='piping')([0, 1])
     assert r == 1
 
 def test_context():
-    @register_func
+    @register_func(context=Context.EVAL)
     def func(data, x):
         return data * x
 
-    @register_func(None)
+    @register_func(None, context=Context.EVAL)
     def func2(x):
         return x * 10
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, x):
         return data + x
 
-    ata = DataContext(100, 'other')
-    data = DataContext(2)
+    data = DataEnv(2)
+    data2 = DataEnv(100, 'other')
 
     y = verb(2)
     assert y == 4
@@ -127,11 +127,11 @@ def test_context():
         y = verb(2)
 
 def test_in_lambda():
-    @register_func
+    @register_func(context=Context.EVAL)
     def func(data, x):
         return data * x
 
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, func):
         return func(data)
 
@@ -149,20 +149,20 @@ def test_register_contexts_for_diff_cls():
     def _(data, x):
         return data[x]
 
-    @func.register(str)
+    @func.register(str, context=Context.EVAL)
     def _(data, x):
         return data + x
 
-    x = func(f[1], _calling_type='piping').evaluate([2, 3])
+    x = func(f[1], _env='piping')([2, 3])
     assert x == [2, 3] * 3
 
-    x = func(f['a'], _calling_type='piping').evaluate({'a': 1})
+    x = func(f['a'], _env='piping')({'a': 1})
     assert x == 1
 
-    x = func(f[1], _calling_type='piping').evaluate((1, 2, 3))
+    x = func(f[1], _env='piping')((1, 2, 3))
     assert x == 2
 
-    x = func(f[1], _calling_type='piping').evaluate('abc')
+    x = func(f[1], _env='piping')('abc')
     assert x == 'abcb'
 
 def test_unregister():
@@ -182,3 +182,138 @@ def test_unregister():
 
     with pytest.raises(ValueError):
         unregister(orig)
+
+def test_args_kwargs_have_expr():
+    f = Symbolic()
+    @register_func(None, context=Context.EVAL)
+    def func(x):
+        return x
+
+    out = func(f[0], _env=[1])
+    assert out == 1
+
+    with pytest.raises(ValueError):
+        func(f[0])
+
+    with pytest.raises(ValueError):
+        func(x=f[0])
+
+    @register_func(context=Context.EVAL)
+    def func2(data, x):
+        return x
+
+    out = func2([1], f[0])
+    assert out == 1
+
+def test_func_called_in_different_envs():
+    f = Symbolic()
+    @register_verb(context=Context.EVAL)
+    def verb(data, x):
+        return x + 1
+
+    @register_func(context=Context.EVAL)
+    def func(data, x):
+        return x + 2
+
+    @register_func(None, context=Context.EVAL)
+    def func_no_data(x):
+        return x + 4
+
+    # called with original func
+    out = verb(1, 2)
+    assert out == 3
+
+    out = func(1, 2)
+    assert out == 4
+
+    out = func_no_data(2)
+    assert out == 6
+
+    # called with expression
+    out = verb([2], f[0])
+    assert out == 3
+
+    out = func([2], f[0])
+    assert out == 4
+
+    out = func_no_data(f[0], _env=[2])
+    assert out == 6
+
+    # func as verb arg
+    out = [2] >> verb(func(f[0]))
+    assert out == 5
+
+    out = [2] >> verb(func_no_data(f[0]))
+    assert out == 7
+
+def test_verb_arg_only():
+    f = Symbolic()
+    @register_verb(context=Context.EVAL)
+    def verb(data, x):
+        return x + 1
+
+    @register_func(context=Context.EVAL)
+    def func(data, x):
+        return x + 2
+
+    @register_func(context=Context.EVAL, verb_arg_only=True)
+    def func2(data, x):
+        return x + 4
+
+    @register_func(None, context=Context.EVAL, verb_arg_only=True)
+    def func3(x):
+        return x + 8
+
+    ret = func(1, 2)
+    assert ret == 4
+
+    with pytest.raises(ValueError, match="only"):
+        func2(1, 2)
+    with pytest.raises(ValueError, match="only"):
+        func3(2)
+
+    ret = 1 >> verb(func(2))
+    assert ret == 5
+    ret = 1 >> verb(func2(2))
+    assert ret == 7
+    ret = 1 >> verb(func3(2))
+    assert ret == 11
+
+def test_extra_contexts():
+    f = Symbolic()
+    @register_func(dict,
+                   context=Context.EVAL,
+                   extra_contexts={'cols': Context.SELECT})
+    def func(data, cols, **values):
+        """Remove cols from data and insert values"""
+        ret = {key: val for key, val in data.items() if key not in cols}
+        ret.update(values)
+        return ret
+
+    x = {'a': 1, 'b': 2}
+    y = func(x, ['a'], c=f['a'], d=f['b'])
+    assert y == {'b':2, 'c':1, 'd': 2}
+
+    y = func(x, ['a'], c=f['a'], d=f['b']*2)
+    assert y == {'b':2, 'c':1, 'd': 4}
+
+def test_extra_contexts_error():
+    f = Symbolic()
+    @register_func(context=Context.EVAL, extra_contexts={'nosucharg': Context.SELECT})
+    def func(data, x): ...
+
+    with pytest.raises(KeyError, match='No such argument'):
+        func(1, f.a)
+
+def test_extra_contexts_nodata():
+    f = Symbolic()
+    @register_func(None,
+                   context=Context.EVAL,
+                   extra_contexts={'cols': Context.SELECT})
+    def func(*cols, **values):
+        """Remove cols from data and insert values"""
+        return cols, values
+
+    x = func(f['a'], f['b'], a=f['a'], b=f['b'], _env={'a':1, 'b':2})
+    assert x[0] == ('a', 'b')
+    assert x[1] == {'a':1, 'b':2}

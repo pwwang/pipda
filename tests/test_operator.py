@@ -15,8 +15,9 @@ def test_operator():
 
     op = f['a'] + f['b']
     assert isinstance(op, Operator)
-    # x = op.evaluate(d, Context.UNSET) # not affected
-    # assert x == 3
+
+    x = op(d, Context.EVAL.value) # not affected
+    assert x == 3
 
 def test_operator_nosuch():
     with pytest.raises(ValueError):
@@ -36,6 +37,15 @@ def test_register():
         def add(self, a, b):
             return a - b
 
+        @Operator.set_context(context=Context.EVAL)
+        def mul(self, a, b):
+            return a * b
+
+        @Operator.set_context(context=Context.EVAL,
+                              extra_contexts={'a': Context.SELECT})
+        def sub(self, a, b):
+            return a * b
+
     register_operator(A)
 
     f = Symbolic()
@@ -45,7 +55,15 @@ def test_register():
         return x
 
     d = {'a': 1, 'b': 2}
-    ret = d >> verb(f['a'] - f['b'])
+    ret = d >> verb(f['a'] // f['b'])
+    assert ret == 0
+
+    ret = d >> verb(f['a'] + f['b'])
     assert ret == -1
 
+    ret = d >> verb(f['a'] * f['b'])
+    assert ret == 2
+
+    ret = d >> verb(f['a'] - f['b'])
+    assert ret == 'aa'
 

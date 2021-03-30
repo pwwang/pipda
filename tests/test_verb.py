@@ -1,6 +1,6 @@
 import contextvars
 from pipda.symbolic import Reference
-from pipda.utils import DATA_CONTEXTVAR_NAME, DataContext, functype, unregister
+from pipda.utils import DATA_CONTEXTVAR_NAME, DataEnv, functype, unregister
 from pipda.context import ContextEval
 import pytest
 from pipda import *
@@ -9,7 +9,7 @@ from pipda.verb import *
 def test_verb():
     f = Symbolic()
 
-    @register_verb
+    @register_verb(context=Context.SELECT)
     def verb(data, x):
         return data[x]
 
@@ -23,10 +23,10 @@ def test_verb():
     assert ret == [1,2]
 
 def test_evaluated():
-    v = Verb(round, ContextEval(), (1, ), {})
+    v = Verb(round, (1, ), {})
     assert v.args == (1, )
     assert v.kwargs == {}
-    assert v.evaluate(1.123) == 1.1
+    assert v(1.123, Context.EVAL.value) == 1.1
 
 def test_register_piping_sign():
     assert Verb.CURRENT_SIGN == '>>'
@@ -43,7 +43,7 @@ def test_register_piping_sign_inexisting_method():
 
 
 def test_only_type():
-    @register_verb(int)
+    @register_verb(int, context=Context.EVAL)
     def verb(data, x):
         return data + x
 
@@ -53,7 +53,7 @@ def test_only_type():
     with pytest.raises(NotImplementedError):
         '1' >> verb('2')
 
-    @verb.register(str)
+    @verb.register(str, context=Context.EVAL)
     def _(data, x):
         return data + x + '0'
 
@@ -75,7 +75,7 @@ def test_context_unset():
             self.used.append(ref)
             return super().getattr(data, ref)
 
-    @register_verb(context=Context.UNSET)
+    @register_verb(context=Context.PENDING)
     def verb(data, x):
         mycontext = MyContext()
 
@@ -89,7 +89,7 @@ def test_context_unset():
     assert used_refs == ['a']
 
 def test_node_na():
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, x):
         return data + x
 
@@ -98,11 +98,12 @@ def test_node_na():
         assert verb(1, 1) == 2
 
 def test_context():
-    @register_verb
+    @register_verb(context=Context.EVAL)
     def verb(data, x):
         return data + x
 
-    data = DataContext(12)
+    data0 = DataEnv(100, 'whatever')
+    data = DataEnv(12)
     y = verb(3)
     assert y == 15
 
@@ -121,11 +122,11 @@ def test_diff_contexts_for_diff_types():
         ret[x] = data[x] * 2
         return ret
 
-    @verb.register((list, tuple)) # eval
+    @verb.register((list, tuple), context=Context.EVAL) # eval
     def _(data, x):
         return data + type(data)([x])
 
-    @verb.register(int, context=Context.UNSET)
+    @verb.register(int, context=Context.PENDING)
     def _(data, x):
         return verb([data], x)
 
@@ -163,7 +164,7 @@ def test_verb_as_arg():
     y = [1,2] >> add([lenof([lenof(f)])])
     assert y == [1, 2, 1]
 
-    @register_func
+    @register_func(context=Context.EVAL)
     def func(data):
         return len(data)
 
@@ -179,3 +180,55 @@ def test_unregister():
 
     assert unregister(registered) is orig
     assert functype(registered) == 'verb'
+
+def test_keyword_attr():
+    @register_verb(context=Context.EVAL)
+    def prod(data, *args):
+        ret = 1
+        for arg in args:
+            ret *= arg
+        return ret
+
+    data = lambda: 0
+    data.func = 2
+    data.datarg = 3
+    data.args = 4
+    data.kwargs = 5
+    data.parent = 6
+    data.ref = 7
+    data.data = 8
+    data.op = 9
+
+    f = Symbolic()
+    ret = data >> prod(
+        f.func, f.datarg, f.args, f.kwargs,
+        f.parent, f.ref, f.data, f.op
+    )
+    assert ret == 362880
+
+def test_astnode_fail_warning():
+    # default
+    @register_func(context=Context.SELECT)
+    def func(data, x):
+        return data[x]
+
+    with pytest.warns(UserWarning):
+        assert func([1,2], 1) == 2
+
+    register_func.astnode_fail_warning = False
+    with pytest.warns(None) as record:
+        assert func([1,2], 1) == 2
+    assert len(record) == 0
+    register_func.astnode_fail_warning = True
+
+def test_inplace_pipe():
+
+    @register_verb(context=Context.SELECT)
+    def verb(data, x, y):
+        copied = data[:]
+        copied[x] = y
+        return copied
+
+    x = [1,2,3]
+    x >>= verb(1,4)
+    assert x == [1,4,3]

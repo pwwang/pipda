@@ -14,7 +14,7 @@ class TestCase(unittest.TestCase):
             return [[dat for dat in data if dat < num],
                     [dat for dat in data if dat > num]]
 
-        @register_verb(list)
+        @register_verb(list, context=Context.EVAL)
         def add(data, num):
             if not isinstance(num, int):
                 num = list(num)
@@ -22,7 +22,7 @@ class TestCase(unittest.TestCase):
                 num = [num] * len(data)
             return [dat + num[i] for i, dat in enumerate(data)]
 
-        @add.register(int)
+        @add.register(int, context=Context.EVAL)
         def _(data, num):
             return data + num
 
@@ -41,7 +41,7 @@ class TestCase(unittest.TestCase):
     def test_int(self):
         X = Symbolic()
 
-        @register_verb(int)
+        @register_verb(int, context=Context.EVAL)
         def add(data, num):
             """Split a list into two lists by one of the numbers in the list"""
             return data + num
@@ -54,19 +54,19 @@ class TestCase(unittest.TestCase):
         X = Symbolic()
         self.assertEqual(repr(X), '<Symbolic:X>')
 
-        @register_verb(dict)
+        @register_verb(dict, context=Context.EVAL)
         def filter(data, keys):
             return {key: val for key, val in data.items() if key in keys}
 
-        @register_verb(dict)
+        @register_verb(dict, context=Context.EVAL)
         def length(data):
             return data.__len__()
 
-        @register_func
+        @register_func(context=Context.EVAL)
         def starts_with(data, prefix):
             return [key for key in data if key.startswith(prefix)]
 
-        @register_func()
+        @register_func(context=Context.EVAL)
         def ends_with(data, suffix):
             return [key for key in data if key.endswith(suffix)]
 
@@ -161,19 +161,19 @@ class TestCase(unittest.TestCase):
 
     def test_unsupported_type_for_func(self):
         X = Symbolic()
-        @register_verb(int)
+        @register_verb(int, context=Context.EVAL)
         def add(data, other):
             return data + other
 
-        @add.register(float)
+        @add.register(float, context=Context.EVAL)
         def _(data, other):
             return data * other
 
-        @register_func(int)
+        @register_func(int, context=Context.EVAL)
         def one(data):
             return 1
 
-        @register_func
+        @register_func(context=Context.EVAL)
         def two(data):
             return 2
 
@@ -195,7 +195,7 @@ class TestCase(unittest.TestCase):
     def test_operators(self):
         X = Symbolic()
 
-        @register_verb(int)
+        @register_verb(int, context=Context.EVAL)
         def add(data, arg):
             return data + arg
 
@@ -253,12 +253,12 @@ class TestCase(unittest.TestCase):
     def test_proxy_compiler_set_data(self):
         X = Symbolic()
 
-        @register_verb(FunctionType, context=None)
+        @register_verb(FunctionType, context=Context.PENDING)
         def add1(data, arg):
             arg = evaluate_expr(arg, data, context=Context.EVAL)
             return data.a + arg
 
-        @register_verb(FunctionType, context=None)
+        @register_verb(FunctionType, context=Context.PENDING)
         def add2(data, arg):
             arg = evaluate_expr(arg, d2, Context.EVAL)
             return data.a + arg
@@ -277,7 +277,7 @@ class TestCase(unittest.TestCase):
     def test_proxy_compiler_custom(self):
         X = Symbolic()
 
-        @register_verb(FunctionType, context=None)
+        @register_verb(FunctionType, context=Context.PENDING)
         def add(data, arg):
             arg = evaluate_expr(arg, data, Context.EVAL) * 10
             return data.a + arg
@@ -290,19 +290,19 @@ class TestCase(unittest.TestCase):
 
     def test_call_other_verbs_funcs(self):
         X = Symbolic()
-        @register_verb(int)
+        @register_verb(int, context=Context.EVAL)
         def add(data, other):
             return data + other
 
-        @register_verb(int)
+        @register_verb(int, context=Context.EVAL)
         def mul(data, other):
             return data * add(data, other)
 
-        @register_func
+        @register_func(context=Context.EVAL)
         def neg(data, num):
             return -num
 
-        @register_func
+        @register_func(context=Context.EVAL)
         def double_neg(data, num):
             return neg(data, num) * 2
 
@@ -317,12 +317,12 @@ class TestCase(unittest.TestCase):
 
     def test_register_multiple(self):
         X = Symbolic()
-        @register_verb
+        @register_verb(context=Context.EVAL)
         def add(data, other):
             return 0
 
-        @add.register(int)
-        @add.register(float)
+        @add.register(int, context=Context.EVAL)
+        @add.register(float, context=Context.EVAL)
         def _(data, other):
             return data + other
 
@@ -390,10 +390,10 @@ class TestCase(unittest.TestCase):
         self.assertEqual(r.data, {'a': 6, 'b': 2})
 
     def test_original_unaffected(self):
-        @register_func(int)
+        @register_func((int, str))
         def func(data):
             return data
-        @register_verb
+        @register_verb(context=Context.EVAL)
         def verb(data, x):
             return x
 
