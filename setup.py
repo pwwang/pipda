@@ -15,7 +15,7 @@ readme = ''
 setup(
     long_description=readme,
     name='pipda',
-    version='0.1.5',
+    version='0.2.0',
     description='A framework for data piping in python',
     python_requires='==3.*,>=3.7.0',
     author='pwwang',
