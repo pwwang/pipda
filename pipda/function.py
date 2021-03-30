@@ -86,7 +86,7 @@ class Function(Expression):
         if self.__class__.__name__ == 'Verb':
             level = 0
 
-        prefix = '- ' if level == 0 else f'  ' * level
+        prefix = '- ' if level == 0 else '  ' * level
         logger.debug('%sEvaluating %r with context %r.', prefix, self, context)
         if func_extra_contexts:
             # evaluate some specfic args

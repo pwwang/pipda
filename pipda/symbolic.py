@@ -40,7 +40,7 @@ class Reference(Expression, ABC):
             level: int = 0
     ) -> Any:
         """Evaluate the reference according to the context"""
-        prefix = '- ' if level == 0 else f'  ' * level
+        prefix = '- ' if level == 0 else '  ' * level
         logger.debug('%sEvaluating %r with context %r.', prefix, self, context)
         assert context is not None, (
             f"Cannot evaluate a {self.__class__.__name__} "
