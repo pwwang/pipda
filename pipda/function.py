@@ -135,7 +135,7 @@ def _register_function_no_datarg(
             )
 
         # Otherwise I am standalone
-        if have_expr(args, kwargs):
+        if have_expr(args, kwargs) and _env is None:
             return Function(func, args, kwargs, False)
 
         if _env is None:
