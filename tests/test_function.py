@@ -192,18 +192,18 @@ def test_args_kwargs_have_expr():
     out = func(f[0], _env=[1])
     assert out == 1
 
-    with pytest.raises(ValueError):
-        func(f[0])
+    out = func(f[0])
+    assert isinstance(out, Function)
 
-    with pytest.raises(ValueError):
-        func(x=f[0])
+    out = func(x=f[0])
+    assert isinstance(out, Function)
 
     @register_func(context=Context.EVAL)
     def func2(data, x):
         return x
 
-    out = func2([1], f[0])
-    assert out == 1
+    out = func2([1, 2], func(f[1]))
+    assert out == 2
 
 def test_func_called_in_different_envs():
     f = Symbolic()
