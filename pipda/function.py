@@ -135,13 +135,8 @@ def _register_function_no_datarg(
             )
 
         # Otherwise I am standalone
-        if have_expr(args, kwargs):
-            if _env is None:
-                raise ValueError(
-                    f"`{func.__qualname__}` has to be used in piping "
-                    "environment, inside with statement of DataEnv or "
-                    "data is passed to _env."
-                )
+        if have_expr(args, kwargs) and _env is None:
+            return Function(func, args, kwargs, False)
 
         if _env is None:
             return func(*args, **kwargs)
