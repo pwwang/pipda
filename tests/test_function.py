@@ -189,13 +189,26 @@ def test_args_kwargs_have_expr():
     def func(x):
         return x
 
+    @register_func(None, context=Context.SELECT)
+    def func2(x):
+        return x
+
     out = func(f[0], _env=[1])
     assert out == 1
 
     out = func(f[0])
     assert isinstance(out, Function)
 
+    out = func([f[0]])
+    assert isinstance(out, Function)
+
     out = func(x=f[0])
+    assert isinstance(out, Function)
+
+    out = func(x=[f[0]])
+    assert isinstance(out, Function)
+
+    out = func(x={0: f[0]})
     assert isinstance(out, Function)
 
     @register_func(context=Context.EVAL)
