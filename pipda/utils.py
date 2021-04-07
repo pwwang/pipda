@@ -390,6 +390,7 @@ def unregister(func: Callable) -> Callable:
     return origfunc
 
 def is_expr(expr: Any) -> bool:
+    """Check if an expression includes any Expression object"""
     if isinstance(expr, (list, tuple, set)):
         return any(is_expr(elem) for elem in expr)
 
