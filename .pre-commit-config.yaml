@@ -22,7 +22,7 @@ repos:
     rev: v2.4.4
     hooks:
     -   id: pylint
-        files: ^pipda.py$
+        files: ^pipda/.+$
         pass_filenames: false
         types: [python]
         args: [pipda]

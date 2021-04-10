@@ -12,7 +12,7 @@ from .utils import (
     singledispatch_register, logger
 )
 from .context import (
-    ContextAnnoType, ContextBase, ContextError
+    ContextAnnoType, ContextBase
 )
 
 class Function(Expression):
