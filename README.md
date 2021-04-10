@@ -58,7 +58,7 @@ df >> head(2)
 # 0    0    zero
 # 1    1    one
 
-@register_verb(pd.DataFrame)
+@register_verb(pd.DataFrame, context=Context.EVAL)
 def mutate(data, **kwargs):
     data = data.copy()
     for key, val in kwargs.items():
@@ -180,7 +180,7 @@ df >> mutate(z=if_else(f.x>1, 20, 10))
 
 ```python
 # function without data argument
-@register_func(None, context=Context.EVAL)
+@register_func(None)
 def length(strings):
     return [len(s) for s in strings]
 

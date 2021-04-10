@@ -16,8 +16,13 @@ def test_use_unset():
     def add(data, x):
         ...
 
+    # No need context, can evaluate
+    out = add(1, _env='piping')(1, context=None)
+    assert out is None
+
+    f = Symbolic()
     with pytest.raises(ContextError):
-        add(1, _env='piping')(1, context=None)
+        add(f.a, _env='piping')(1, context=None)
 
 def test_context_passby():
     f = Symbolic()

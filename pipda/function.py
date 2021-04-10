@@ -12,7 +12,7 @@ from .utils import (
     singledispatch_register, logger
 )
 from .context import (
-    ContextAnnoType, ContextBase, ContextError
+    ContextAnnoType, ContextBase
 )
 
 class Function(Expression):
@@ -69,10 +69,10 @@ class Function(Expression):
         context = func_context or context
 
         # The main context has to be set
-        if not context: # still unset
-            raise ContextError(
-                f'Cannot evaluate {self!r} with an unset context.'
-            )
+        # if not context: # still unset
+        #     raise ContextError(
+        #         f'Cannot evaluate {self!r} with an unset context.'
+        #     )
 
         args = (data, *self.args) if self.datarg else self.args
         kwargs = self.kwargs.copy()
@@ -100,13 +100,23 @@ class Function(Expression):
         if '_context' in bondargs.arguments:
             bondargs.arguments['_context'] = context
 
-        if context.name == 'pending':
+        if context and context.name == 'pending':
             # leave args/kwargs for the child
             # verb/function/operator to evaluate
             return self.func(*bondargs.args, **bondargs.kwargs)
 
-        args = evaluate_args(bondargs.args, data, context.args, level)
-        kwargs = evaluate_kwargs(bondargs.kwargs, data, context.kwargs, level)
+        args = evaluate_args(
+            bondargs.args,
+            data,
+            context.args if context else context,
+            level
+        )
+        kwargs = evaluate_kwargs(
+            bondargs.kwargs,
+            data,
+            context.kwargs if context else context,
+            level
+        )
         return self.func(*args, **kwargs)
 
 def _register_function_no_datarg(
@@ -186,6 +196,11 @@ def _register_function_datarg(
             raise ValueError(
                 f"`{func.__qualname__}` must only be used inside verbs"
             )
+
+        # If nothing passed, assuming waiting for the data coming in to evaluate
+        # Not expanding this to complicated situations
+        if not args and not kwargs and _env is None:
+            return Function(generic, args, kwargs)
 
         if have_expr(args[1:], kwargs):
             return Function(generic, args[1:], kwargs)(args[0])
