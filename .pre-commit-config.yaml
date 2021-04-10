@@ -46,4 +46,4 @@ repos:
         language: system
         args: [tests/]
         pass_filenames: false
-        files: ^tests/.+$|^pipda.py$
+        files: ^tests/.+$|^pipda/.+$

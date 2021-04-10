@@ -5,7 +5,7 @@ from typing import Optional, Any
 import varname.helpers
 
 from .utils import Expression, evaluate_expr, logger
-from .context import ContextBase
+from .context import ContextBase, ContextError
 
 class Reference(Expression, ABC):
     """The Reference class, used to define how it should be evaluated
@@ -42,10 +42,12 @@ class Reference(Expression, ABC):
         """Evaluate the reference according to the context"""
         prefix = '- ' if level == 0 else '  ' * level
         logger.debug('%sEvaluating %r with context %r.', prefix, self, context)
-        assert context is not None, (
-            f"Cannot evaluate a {self.__class__.__name__} "
-            "object without a context."
-        )
+
+        if context is None:
+            raise ContextError(
+                f"Cannot evaluate {repr(self)} "
+                "object without a context."
+            )
 
 class ReferenceAttr(Reference):
     """Attribute references, for example: `f.A`, `f.A.B` etc."""
@@ -59,6 +61,7 @@ class ReferenceAttr(Reference):
         """Evaluate the attribute references"""
         super().__call__(data, context, level)
         parent = evaluate_expr(self.parent, data, context, level)
+
         return context.getattr(parent, self.ref)
 
 class ReferenceItem(Reference):

@@ -68,7 +68,7 @@ def test_function_called_in_normal_way():
     def func2(x=-1, y=1):
         return x+y
 
-    @register_func(context=Context.EVAL)
+    @register_func
     def func3(data):
         return len(data)
 

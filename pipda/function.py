@@ -69,10 +69,10 @@ class Function(Expression):
         context = func_context or context
 
         # The main context has to be set
-        if not context: # still unset
-            raise ContextError(
-                f'Cannot evaluate {self!r} with an unset context.'
-            )
+        # if not context: # still unset
+        #     raise ContextError(
+        #         f'Cannot evaluate {self!r} with an unset context.'
+        #     )
 
         args = (data, *self.args) if self.datarg else self.args
         kwargs = self.kwargs.copy()
@@ -100,13 +100,23 @@ class Function(Expression):
         if '_context' in bondargs.arguments:
             bondargs.arguments['_context'] = context
 
-        if context.name == 'pending':
+        if context and context.name == 'pending':
             # leave args/kwargs for the child
             # verb/function/operator to evaluate
             return self.func(*bondargs.args, **bondargs.kwargs)
 
-        args = evaluate_args(bondargs.args, data, context.args, level)
-        kwargs = evaluate_kwargs(bondargs.kwargs, data, context.kwargs, level)
+        args = evaluate_args(
+            bondargs.args,
+            data,
+            context.args if context else context,
+            level
+        )
+        kwargs = evaluate_kwargs(
+            bondargs.kwargs,
+            data,
+            context.kwargs if context else context,
+            level
+        )
         return self.func(*args, **kwargs)
 
 def _register_function_no_datarg(
