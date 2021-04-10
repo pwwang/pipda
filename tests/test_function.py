@@ -64,6 +64,14 @@ def test_function_called_in_normal_way():
     def func(data, x):
         return data[x]
 
+    @register_func(None, context=Context.EVAL)
+    def func2(x=-1, y=1):
+        return x+y
+
+    @register_func(context=Context.EVAL)
+    def func3(data):
+        return len(data)
+
     @register_verb(context=Context.EVAL)
     def verb(data, x):
         return x
@@ -71,8 +79,22 @@ def test_function_called_in_normal_way():
     r = [1, 2] >> verb(func(0) + 1)
     assert r == 2
 
+    r = [1, 2] >> verb(func2() + 1)
+    assert r == 1
+
     r = func(1, _env='piping')([0, 1])
     assert r == 1
+
+    r = func([1,2,3], 2)
+    assert r == 3
+
+    r = func2(2,3)
+    assert r == 5
+
+    r = func3()
+    assert isinstance(r, Function)
+    r = r("abcd")
+    assert r == 4
 
 def test_context():
     @register_func(context=Context.EVAL)

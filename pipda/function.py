@@ -187,6 +187,11 @@ def _register_function_datarg(
                 f"`{func.__qualname__}` must only be used inside verbs"
             )
 
+        # If nothing passed, assuming waiting for the data coming in to evaluate
+        # Not expanding this to complicated situations
+        if not args and not kwargs and _env is None:
+            return Function(generic, args, kwargs)
+
         if have_expr(args[1:], kwargs):
             return Function(generic, args[1:], kwargs)(args[0])
 
