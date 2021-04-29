@@ -58,20 +58,26 @@ def register_verb(
         cls: Union[FunctionType, Type, Iterable[Type]] = object,
         context: ContextAnnoType = None,
         func: Optional[FunctionType] = None,
-        extra_contexts: Optional[Mapping[str, ContextAnnoType]] = None
+        extra_contexts: Optional[Mapping[str, ContextAnnoType]] = None,
+        **attrs: Any
 ) -> Callable:
     """Mimic the singledispatch function to implement a function for
     specific types"""
     if func is None and isinstance(cls, FunctionType):
         func, cls = cls, object
     if func is None:
-        return lambda fun: register_verb(cls, context, fun, extra_contexts)
+        return lambda fun: register_verb(
+            cls, context, fun, extra_contexts, **attrs
+        )
 
     if not isinstance(cls, (tuple, set, list)):
         cls = (cls, )
 
     if isinstance(context, Enum):
         context = context.value
+
+    for name, attr in attrs.items():
+        setattr(func, name, attr)
 
     # allow register to have different context
     func.context = context

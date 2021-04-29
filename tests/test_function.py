@@ -352,3 +352,11 @@ def test_extra_contexts_nodata():
     x = func(f['a'], f['b'], a=f['a'], b=f['b'], _env={'a':1, 'b':2})
     assert x[0] == ('a', 'b')
     assert x[1] == {'a':1, 'b':2}
+
+def test_register_with_attrs():
+    @register_func(attr=1)
+    def func(*args, **kwargs):
+        ...
+
+    out = func()
+    assert out.func.attr == 1

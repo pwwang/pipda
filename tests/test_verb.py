@@ -232,3 +232,22 @@ def test_inplace_pipe():
     x = [1,2,3]
     x >>= verb(1,4)
     assert x == [1,4,3]
+
+def test_register_with_attrs():
+    @register_verb(context=Context.PENDING)
+    def verb(data, x):
+        return x
+
+    @register_verb(None, attr=1)
+    def verb1():
+        return 1
+
+    @register_verb(attr=2)
+    def verb2(data):
+        return 2
+
+    out = None >> verb(verb1())
+    assert out.func.attr == 1
+
+    out = None >> verb(verb2())
+    assert out.func.attr == 2
