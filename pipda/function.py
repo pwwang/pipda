@@ -121,9 +121,10 @@ class Function(Expression):
 
 def _register_function_no_datarg(
         func: Callable,
-        verb_arg_only: bool
+        verb_arg_only: bool,
 ) -> Callable:
     """Register functions without data as the first argument"""
+
     @wraps(func)
     def wrapper(
             *args: Any,
@@ -224,7 +225,8 @@ def register_func(
         context: Optional[ContextAnnoType] = None,
         func: Optional[FunctionType] = None,
         verb_arg_only: bool = False,
-        extra_contexts: Optional[Mapping[str, ContextAnnoType]] = None
+        extra_contexts: Optional[Mapping[str, ContextAnnoType]] = None,
+        **attrs: Any
 ) -> Callable:
     """Register a function to be used in verb
 
@@ -239,12 +241,15 @@ def register_func(
             context,
             fun,
             verb_arg_only,
-            extra_contexts
+            extra_contexts,
+            **attrs
         )
 
     if isinstance(context, Enum):
         context = context.value
 
+    for name, attr in attrs.items():
+        setattr(func, name, attr)
     func.context = context
 
     extra_contexts = extra_contexts or {}
