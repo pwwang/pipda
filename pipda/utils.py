@@ -274,12 +274,18 @@ def evaluate_expr(
     if isinstance(context, Enum):
         context = context.value
 
-    if isinstance(expr, list):
-        return [evaluate_expr(elem, data, context, level) for elem in expr]
-    if isinstance(expr, tuple):
-        return tuple(evaluate_expr(elem, data, context, level) for elem in expr)
-    if isinstance(expr, set):
-        return set(evaluate_expr(elem, data, context, level) for elem in expr)
+    if isinstance(expr, Expression):
+        return expr(data, context, level+1)
+
+    if hasattr(expr.__class__, '_pipda_eval'):
+        return expr._pipda_eval(data, context, level)
+
+    if isinstance(expr, (tuple, list, set)):
+        # In case it's subclass
+        return expr.__class__((
+            evaluate_expr(elem, data, context, level)
+            for elem in expr
+        ))
     if isinstance(expr, slice):
         return slice(
             evaluate_expr(expr.start, data, context, level),
@@ -293,12 +299,10 @@ def evaluate_expr(
     #         for key, val in expr.items()
     #     ])
     if isinstance(expr, dict):
-        return {
+        return expr.__class__({
             key: evaluate_expr(val, data, context, level)
             for key, val in expr.items()
-        }
-    if isinstance(expr, Expression):
-        return expr(data, context, level+1)
+        })
     return expr
 
 def evaluate_args(
