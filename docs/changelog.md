@@ -1,3 +1,6 @@
+## 0.2.5
+- Allow custom evaluation for objects in verb arguments.
+
 ## 0.2.4
 - Allow extra attributes to be registered together with funcs/verbs
 

@@ -351,6 +351,11 @@ class TestCase(unittest.TestCase):
             __getitem__ = __getattr__
             __setitem__ = __setattr__
 
+        class Data2(Data):
+            def _pipda_eval(self, data, context, level):
+                self.data['z'] = 1
+                return self
+
         @register_verb(context=Context.SELECT)
         def select(data, *columns):
             return Data(**{key: data[key] for key in columns})
@@ -388,6 +393,9 @@ class TestCase(unittest.TestCase):
         self.assertEqual(r.data, {'a': 2})
         r = (d >> mutate(a=1, b=2, c=3) >> mutate(a=2*f.c) >> select(f.a, f.b))
         self.assertEqual(r.data, {'a': 6, 'b': 2})
+
+        r = Data(a=1) >> mutate(b=Data2())
+        assert r.b.z == 1
 
     def test_original_unaffected(self):
         @register_func((int, str))
