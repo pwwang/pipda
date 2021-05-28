@@ -98,7 +98,7 @@ class Symbolic(Expression):
 
     def __getitem__(self, item: Any) -> Any:
         """Create a DirectRefItem object"""
-        return ReferenceItem(self, item)
+        return DirectRefItem(self, item)
 
     def __repr__(self) -> str:
         return f"<Symbolic:{self.__varname__}>"

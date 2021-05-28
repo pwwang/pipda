@@ -153,7 +153,7 @@ def test_debug(caplog):
     logs = caplog.text.splitlines()
     assert "Evaluating Verb(func='test_debug.<locals>.verb') with context <ContextEval" in logs[0]
     assert "Evaluating Function(func='test_debug.<locals>.func1') with context <ContextEval" in logs[1]
-    assert "Evaluating ReferenceItem(parent=<Symbolic:f>, ref=2) with context <ContextEval" in logs[2]
+    assert "Evaluating DirectRefItem(parent=<Symbolic:f>, ref=2) with context <ContextEval" in logs[2]
     assert "Evaluating Function(func='test_debug.<locals>.func2') with context <ContextSelect" in logs[3]
     assert "Evaluating Function(func='test_debug.<locals>.func1') with context <ContextSelect" in logs[4]
-    assert "Evaluating ReferenceItem(parent=<Symbolic:f>, ref=4) with context <ContextSelect" in logs[5]
+    assert "Evaluating DirectRefItem(parent=<Symbolic:f>, ref=4) with context <ContextSelect" in logs[5]
