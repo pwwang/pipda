@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pipda"
-version = "0.2.5"
+version = "0.2.6"
 description = "A framework for data piping in python"
 authors = ["pwwang <pwwang@pwwang.com>"]
 license = "MIT"

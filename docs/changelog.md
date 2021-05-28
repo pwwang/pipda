@@ -1,3 +1,6 @@
+## 0.2.6
+- Let `Symbolic.__getitem__` return `DirectRefItem` instead of `ReferenceItem`
+
 ## 0.2.5
 - Allow custom evaluation for objects in verb arguments.
 
