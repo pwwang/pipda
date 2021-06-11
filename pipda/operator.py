@@ -76,7 +76,7 @@ class Operator(Function):
 
         return wrapper
 
-    def __call__(
+    def _pipda_eval(
             self,
             data: Any,
             context: Optional[ContextBase] = None,
@@ -90,7 +90,7 @@ class Operator(Function):
         # set the context and data in case they need to be used
         # inside the function.
         self.data = data
-        return super().__call__(data, context, level)
+        return super()._pipda_eval(data, context, level)
 
     def __getattr__(self, name: str) -> Any:
         """Get the function to handle the operator"""

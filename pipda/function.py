@@ -32,7 +32,7 @@ class Function(Expression):
     """
 
     def __init__(self,
-                 func: Callable,
+                 func: Union[Callable, Expression],
                  args: Tuple[Any],
                  kwargs: Mapping[str, Any],
                  datarg: bool = True):
@@ -45,7 +45,7 @@ class Function(Expression):
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(func={self.func.__qualname__!r})'
 
-    def __call__(
+    def _pipda_eval(
             self,
             data: Any,
             context: Optional[ContextBase] = None,
@@ -57,6 +57,9 @@ class Function(Expression):
         the context argument will not be used, since it will not override
         the context of the function
         """
+        if isinstance(self.func, Expression):
+            self.func = evaluate_expr(self.func, data, context, level)
+
         dispatch = getattr(self.func, 'dispatch', None)
         func_context = None
         func_extra_contexts = None
@@ -151,7 +154,7 @@ def _register_function_no_datarg(
 
         if _env is None:
             return func(*args, **kwargs)
-        return Function(func, args, kwargs, False)(_env)
+        return Function(func, args, kwargs, False)._pipda_eval(_env)
 
     wrapper.__pipda__ = 'PlainFunction'
     wrapper.__origfunc__ = func
@@ -204,13 +207,13 @@ def _register_function_datarg(
             return Function(generic, args, kwargs)
 
         if have_expr(args[1:], kwargs):
-            return Function(generic, args[1:], kwargs)(args[0])
+            return Function(generic, args[1:], kwargs)._pipda_eval(args[0])
 
         if _env is None:
             return generic(*args, **kwargs)
 
         # context data
-        return Function(generic, args, kwargs)(_env)
+        return Function(generic, args, kwargs)._pipda_eval(_env)
 
     wrapper.register = singledispatch_register(generic.register)
     wrapper.registry = generic.registry
