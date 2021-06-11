@@ -1,3 +1,6 @@
+## 0.2.7
+- Allow `Reference objects` to be functions (callable)
+
 ## 0.2.6
 - Let `Symbolic.__getitem__` return `DirectRefItem` instead of `ReferenceItem`
 
