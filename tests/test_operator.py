@@ -16,7 +16,7 @@ def test_operator():
     op = f['a'] + f['b']
     assert isinstance(op, Operator)
 
-    x = op(d, Context.EVAL.value) # not affected
+    x = op._pipda_eval(d, Context.EVAL.value) # not affected
     assert x == 3
 
 def test_operator_nosuch():

@@ -98,7 +98,7 @@ class Expression(ABC):
         return None
 
     @abstractmethod
-    def __call__(
+    def _pipda_eval(
             self,
             data: Any,
             context: Optional[ContextBase] = None,
@@ -274,10 +274,9 @@ def evaluate_expr(
     if isinstance(context, Enum):
         context = context.value
 
-    if isinstance(expr, Expression):
-        return expr(data, context, level+1)
-
     if hasattr(expr.__class__, '_pipda_eval'):
+        # Not only for Expression objects, but also
+        # allow customized classes
         return expr._pipda_eval(data, context, level)
 
     if isinstance(expr, (tuple, list, set)):

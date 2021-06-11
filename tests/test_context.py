@@ -7,9 +7,9 @@ from pipda.context import *
 def test_use_pending():
     f = Symbolic()
     with pytest.raises(NotImplementedError):
-        f.a(None, context=Context.PENDING.value)
+        f.a._pipda_eval(None, context=Context.PENDING.value)
     with pytest.raises(NotImplementedError):
-        f['a'](None, context=Context.PENDING.value)
+        f['a']._pipda_eval(None, context=Context.PENDING.value)
 
 def test_use_unset():
     @register_func(context=None)
@@ -17,12 +17,12 @@ def test_use_unset():
         ...
 
     # No need context, can evaluate
-    out = add(1, _env='piping')(1, context=None)
+    out = add(1, _env='piping')._pipda_eval(1, context=None)
     assert out is None
 
     f = Symbolic()
     with pytest.raises(ContextError):
-        add(f.a, _env='piping')(1, context=None)
+        add(f.a, _env='piping')._pipda_eval(1, context=None)
 
 def test_context_passby():
     f = Symbolic()

@@ -82,7 +82,7 @@ def test_function_called_in_normal_way():
     r = [1, 2] >> verb(func2() + 1)
     assert r == 1
 
-    r = func(1, _env='piping')([0, 1])
+    r = func(1, _env='piping')._pipda_eval([0, 1])
     assert r == 1
 
     r = func([1,2,3], 2)
@@ -93,7 +93,7 @@ def test_function_called_in_normal_way():
 
     r = func3()
     assert isinstance(r, Function)
-    r = r("abcd")
+    r = r._pipda_eval("abcd")
     assert r == 4
 
 def test_context():
@@ -175,16 +175,16 @@ def test_register_contexts_for_diff_cls():
     def _(data, x):
         return data + x
 
-    x = func(f[1], _env='piping')([2, 3])
+    x = func(f[1], _env='piping')._pipda_eval([2, 3])
     assert x == [2, 3] * 3
 
-    x = func(f['a'], _env='piping')({'a': 1})
+    x = func(f['a'], _env='piping')._pipda_eval({'a': 1})
     assert x == 1
 
-    x = func(f[1], _env='piping')((1, 2, 3))
+    x = func(f[1], _env='piping')._pipda_eval((1, 2, 3))
     assert x == 2
 
-    x = func(f[1], _env='piping')('abc')
+    x = func(f[1], _env='piping')._pipda_eval('abc')
     assert x == 'abcb'
 
 def test_unregister():

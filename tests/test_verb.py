@@ -26,7 +26,7 @@ def test_evaluated():
     v = Verb(round, (1, ), {})
     assert v.args == (1, )
     assert v.kwargs == {}
-    assert v(1.123, Context.EVAL.value) == 1.1
+    assert v._pipda_eval(1.123, Context.EVAL.value) == 1.1
 
 def test_register_piping_sign():
     assert Verb.CURRENT_SIGN == '>>'
