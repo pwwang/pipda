@@ -67,12 +67,14 @@ def test_context_unset():
         def __init__(self):
             self.used = []
 
-        def getitem(self, data, ref):
-            self.used.append(ref)
+        def getitem(self, data, ref, is_direct):
+            if is_direct:
+                self.used.append(ref)
             return super().getitem(data, ref)
 
-        def getattr(self, data, ref):
-            self.used.append(ref)
+        def getattr(self, data, ref, is_direct):
+            if is_direct:
+                self.used.append(ref)
             return super().getattr(data, ref)
 
     @register_verb(context=Context.PENDING)
@@ -83,10 +85,14 @@ def test_context_unset():
         return x, mycontext.used
 
     f = Symbolic()
-    d = {'a': 1, 'b': 2}
+    d = {'a': 1, 'b': {'c': 2}}
     ret, used_refs = d >> verb(f['a'])
     assert ret == 1
     assert used_refs == ['a']
+
+    ret, used_refs = d >> verb(f['b']['c'])
+    assert ret == 2
+    assert used_refs == ['b']
 
 def test_node_na():
     @register_verb(context=Context.EVAL)

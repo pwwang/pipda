@@ -1,3 +1,6 @@
+## 0.2.8
+- Add `is_direct` argument to context getitem/getattr to tell if the reference is a direct reference.
+
 ## 0.2.7
 - Allow `Reference objects` to be functions (callable)
 
