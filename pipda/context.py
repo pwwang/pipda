@@ -29,11 +29,11 @@ class ContextBase(ABC): # pragma: no cover
     """
 
     @abstractmethod
-    def getattr(self, parent: Any, ref: str) -> Any:
+    def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> Any:
         """Defines how `f.A` is evaluated"""
 
     @abstractmethod
-    def getitem(self, parent: Any, ref: Any) -> Any:
+    def getitem(self, parent: Any, ref: Any, is_direct: bool = False) -> Any:
         """Defines how `f[item]` is evaluated"""
 
     def __repr__(self) -> str:
@@ -70,11 +70,11 @@ class ContextSelect(ContextBase):
     """
     name: ClassVar[str] = 'select'
 
-    def getattr(self, parent: Any, ref: str) -> str:
+    def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> str:
         """Get the `ref` directly, regardless of `data`"""
         return ref
 
-    def getitem(self, parent: Any, ref: Any) -> Any:
+    def getitem(self, parent: Any, ref: Any, is_direct: bool = False) -> Any:
         """Get the `ref` directly, which is already evaluated by `f[ref]`"""
         return ref
 
@@ -86,30 +86,30 @@ class ContextEval(ContextBase):
     """
     name: ClassVar[str] = 'eval'
 
-    def getattr(self, parent: Any, ref: str) -> Any:
+    def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> Any:
         """How to evaluate `f.A`"""
         return getattr(parent, ref)
 
-    def getitem(self, parent: Any, ref: Any) -> Any:
+    def getitem(self, parent: Any, ref: Any, is_direct: bool = False) -> Any:
         """How to evaluate `f[item]`"""
         return parent[ref]
 
     ref = ContextSelect()
 
 class ContextPending(ContextBase):
-    """Custom context"""
+    """Pending context"""
     name: ClassVar[str] = 'pending'
 
-    def getattr(self, parent: Any, ref: str) -> str:
+    def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> str:
         """Get the `ref` directly, regardless of `data`"""
         raise NotImplementedError(
-            'Custom context cannot be used to evaluate.'
+            'Pending context cannot be used to evaluate.'
         )
 
-    def getitem(self, parent: Any, ref: Any) -> Any:
+    def getitem(self, parent: Any, ref: Any, is_direct: bool = False) -> Any:
         """Get the `ref` directly, which is already evaluated by `f[ref]`"""
         raise NotImplementedError(
-            'Custom context cannot be used to evaluate.'
+            'Pending context cannot be used to evaluate.'
         )
 
 
@@ -118,12 +118,12 @@ class ContextMixed(ContextBase):
     and `**args` are evaluated with `ContextEval`."""
     name: ClassVar[str] = 'mixed'
 
-    def getattr(self, parent: Any, ref: str) -> None:
+    def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> None:
         raise NotImplementedError(
             "Mixed context should be used via `.args` or `.kwargs`"
         )
 
-    def getitem(self, parent: Any, ref: Any) -> None:
+    def getitem(self, parent: Any, ref: Any, is_direct: bool = False) -> None:
         raise NotImplementedError(
             "Mixed context should be used via `.args` or `.kwargs`"
         )

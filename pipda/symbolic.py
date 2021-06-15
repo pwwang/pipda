@@ -1,6 +1,6 @@
 """Provides Symbolic and Reference classes"""
 from abc import ABC, abstractmethod
-from typing import Optional, Any
+from typing import ClassVar, Optional, Any
 
 import varname.helpers
 
@@ -58,6 +58,8 @@ class Reference(Expression, ABC):
 
 class ReferenceAttr(Reference):
     """Attribute references, for example: `f.A`, `f.A.B` etc."""
+    # Whether it's a direct reference
+    direct: ClassVar[bool] = False
 
     def _pipda_eval(
             self,
@@ -71,10 +73,11 @@ class ReferenceAttr(Reference):
         super()._pipda_eval(data, context, level)
         parent = evaluate_expr(self.parent, data, context, level)
 
-        return context.getattr(parent, self.ref)
+        return context.getattr(parent, self.ref, self.__class__.direct)
 
 class ReferenceItem(Reference):
     """Subscript references, for example: `f['A']`, `f.A['B']` etc"""
+    direct: ClassVar[bool] = False
 
     def _pipda_eval(
             self,
@@ -86,13 +89,15 @@ class ReferenceItem(Reference):
         super()._pipda_eval(data, context, level)
         parent = evaluate_expr(self.parent, data, context, level)
         ref = evaluate_expr(self.ref, data, context.ref, level)
-        return context.getitem(parent, ref)
+        return context.getitem(parent, ref, self.__class__.direct)
 
 class DirectRefAttr(ReferenceAttr):
     """The direct attribute reference, such as `f.A`"""
+    direct: ClassVar[bool] = True
 
 class DirectRefItem(ReferenceItem):
     """The direct attribute reference, such as `f['A']`"""
+    direct: ClassVar[bool] = True
 
 @varname.helpers.register
 class Symbolic(Expression):
