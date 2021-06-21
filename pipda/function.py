@@ -57,13 +57,14 @@ class Function(Expression):
         the context argument will not be used, since it will not override
         the context of the function
         """
-        if isinstance(self.func, Expression):
-            self.func = evaluate_expr(self.func, data, context, level)
+        func = self.func # don't change at 2nd evaluation
+        if isinstance(func, Expression):
+            func = evaluate_expr(func, data, context, level)
 
-        dispatch = getattr(self.func, 'dispatch', None)
+        dispatch = getattr(func, 'dispatch', None)
         func_context = None
         func_extra_contexts = None
-        dispatcher = self.func
+        dispatcher = func
         if dispatch is not None:
             dispatcher = dispatch(type(data))
         func_context = getattr(dispatcher, 'context', None)
@@ -106,7 +107,7 @@ class Function(Expression):
         if context and context.name == 'pending':
             # leave args/kwargs for the child
             # verb/function/operator to evaluate
-            return self.func(*bondargs.args, **bondargs.kwargs)
+            return func(*bondargs.args, **bondargs.kwargs)
 
         args = evaluate_args(
             bondargs.args,
@@ -120,7 +121,7 @@ class Function(Expression):
             context.kwargs if context else context,
             level
         )
-        return self.func(*args, **kwargs)
+        return func(*args, **kwargs)
 
 def _register_function_no_datarg(
         func: Callable,
