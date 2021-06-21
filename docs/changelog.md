@@ -1,3 +1,6 @@
+## 0.2.9
+- Avoid func of Function object to be re-evaluated (fixing datar#14)
+
 ## 0.2.8
 - Add `is_direct` argument to context getitem/getattr to tell if the reference is a direct reference.
 
