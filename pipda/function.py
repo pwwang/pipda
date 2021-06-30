@@ -234,8 +234,44 @@ def register_func(
 ) -> Callable:
     """Register a function to be used in verb
 
-    when cls is None, meaning the function doesn't have data as the first
-    argument
+    If `func` is not given (works like `register_verb(cls, context=...)`),
+    it returns a function, works as a decorator.
+
+    For example
+        >>> @register_func(numpy.ndarray, context=Context.EVAL)
+        >>> def func(data, ...):
+        >>>     ...
+
+    When function is passed as a non-keyword argument, other arguments are as
+    defaults
+        >>> @register_func
+        >>> def func(data, ...):
+        >>>     ...
+
+    In such a case, it is like a generic function to work with all types of
+    data.
+
+    `data` is not a required argument. If not required, `cls` should be
+    specified as `None`.
+
+    Args:
+        cls: The classes of data for the verb
+            Multiple classes are supported to be passed as a list/tuple/set.
+        context: The context to evaluate the Expression objects
+        func: The function to be decorated if passed explicitly
+        verb_arg_only: Whether the function should be only used as an argument
+            of a verb. This means it only works in the format of
+            >>> data >> verb(..., func(...), ...)
+            Note that even this won't work
+            >>> verb(data, ..., func(...), ...)
+        extra_contexts: Extra contexts (if not the same as `context`)
+            for specific arguments
+        **attrs: Other attributes to be attached to the function
+
+    Returns:
+        A decorator function if `func` is not given or a wrapper function
+        like a singledispatch generic function that can register other types,
+        show all registry and dispatch for a specific type
     """
     if func is None and isinstance(cls, FunctionType):
         func, cls = cls, object

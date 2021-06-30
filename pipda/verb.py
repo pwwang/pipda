@@ -61,8 +61,39 @@ def register_verb(
         extra_contexts: Optional[Mapping[str, ContextAnnoType]] = None,
         **attrs: Any
 ) -> Callable:
-    """Mimic the singledispatch function to implement a function for
-    specific types"""
+    """Register a verb with specific types of data
+
+    If `func` is not given (works like `register_verb(cls, context=...)`),
+    it returns a function, works as a decorator.
+
+    For example
+        >>> @register_verb(DataFrame, context=Context.EVAL)
+        >>> def verb(data, ...):
+        >>>     ...
+
+    When function is passed as a non-keyword argument, other arguments are as
+    defaults
+        >>> @register_verb
+        >>> def verb(data, ...):
+        >>>     ...
+
+    In such a case, it is like a generic function to work with all types of
+    data.
+
+    Args:
+        cls: The classes of data for the verb
+            Multiple classes are supported to be passed as a list/tuple/set.
+        context: The context to evaluate the Expression objects
+        func: The function to be decorated if passed explicitly
+        extra_contexts: Extra contexts (if not the same as `context`)
+            for specific arguments
+        **attrs: Other attributes to be attached to the function
+
+    Returns:
+        A decorator function if `func` is not given or a wrapper function
+        like a singledispatch generic function that can register other types,
+        show all registry and dispatch for a specific type
+    """
     if func is None and isinstance(cls, FunctionType):
         func, cls = cls, object
     if func is None:
