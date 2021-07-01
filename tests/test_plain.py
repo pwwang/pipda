@@ -1,10 +1,12 @@
 import pytest
 
-from pipda.utils import evaluate_expr
+from pipda.utils import PipingEnvs
 from pipda.function import *
-from pipda import register_verb, Symbolic, Context
+from pipda import register_func, register_verb, Symbolic, Context
 
-def test_plain_function():
+from . import f
+
+def test_plain_function(f):
     @register_func(None, context=Context.EVAL)
     def mean(x):
         return float(sum(x)) / float(len(x))
@@ -20,12 +22,10 @@ def test_plain_function():
     m = mean([1, 2])
     assert m == 1.5
 
-    f = Symbolic()
-
     r = d >> mutate(c=mean([f['a'], f['b']]))
     assert r == {'a': 1, 'b': 2, 'c': 1.5}
 
-def test_plain_context_unset():
+def test_plain_context_unset(f):
     def mean(x):
         return float(sum(x)) / float(len(x))
 
@@ -43,11 +43,9 @@ def test_plain_context_unset():
 
     m = mean([1, 2])
     assert m == 1.5
-    m = mean([1, 2], _env='piping')._pipda_eval([1, 2])
+    m = mean([1, 2], _env=PipingEnvs.PIPING)._pipda_eval([1, 2])
     assert m == 1.5
 
     d = {'a': 1, 'b': 2}
-    f = Symbolic()
     r = d >> mutate(c=mean([f['a'], f['b']]))
     assert r == {'a': 1, 'b': 2, 'c': 1.5}
-

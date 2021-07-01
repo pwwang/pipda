@@ -192,6 +192,12 @@ class TestCase(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             'a' >> add(1)
 
+        with self.assertRaises(NotImplementedError):
+            add('a', 1)
+
+        with self.assertRaises(TypeError):
+            add(1,2,3)
+
     def test_operators(self):
         X = Symbolic()
 
@@ -248,7 +254,7 @@ class TestCase(unittest.TestCase):
 
     def test_error_changing_piping_sign(self):
         with self.assertRaises(ValueError):
-            register_piping_sign('~')
+            register_piping('~')
 
     def test_proxy_compiler_set_data(self):
         X = Symbolic()
@@ -352,7 +358,7 @@ class TestCase(unittest.TestCase):
             __setitem__ = __setattr__
 
         class Data2(Data):
-            def _pipda_eval(self, data, context, level):
+            def _pipda_eval(self, data, context):
                 self.data['z'] = 1
                 return self
 

@@ -298,19 +298,66 @@ df >> mutate_mycontext(m=f[f.y][:1].values[0])
 
     Any limitations apply to `executing` to detect the AST node will apply to `pipda`. It may not work in some circumstances where other AST magics apply.
 
-- Use the original verb or function from `register_verb`/`register_func` directly:
+- Calling registered verbs/functions regularly:
+
+    The piping syntax (`>>`) is recommended with `pipda`. Because everything is determined with this syntax.
+
+    However, `pipda` tries to support regular calling. The ambiguity can come from the situations where the arguments passed in can shift one position right (such that they fit the piping calling), and first value passed in can also be dispatched and fit in the second argument.
+
+    For example:
 
     ```python
-    df >> mutate(z=f.x ^ 2)
-    # use the select function directly
-    select(data, 'x', 'z')
+    @register_verb(int)
+    def add(a: int, b: int = 1):
+        return a + b
     ```
+
+    If you call it like this `add(2)`, then we have no idea if this is calling `add(2, b=1)`, or `add(b=2)` and it's waiting for the data (`a`) to be piped in. In such a case, the function is called in the former way, but a warning will be showing.
+
+    To avoid this, as it states in the warning message, according to the reasons of the ambiguity, we should make sure that the values passed in cannot be shifted one position right (given values for all arguments would do it):
+
+    ```python
+    add(2, 1) # or add(2, b=1)
+    ```
+
+    or try not to use optional arguments while defining the function;
+
+    or make sure the first value cannot be dispatched:
+
+    ```python
+    @register_verb(int)
+    def add(a: int, b: float = 1.0):
+        return a + b
+
+    add(2.0)
+    ```
+    In such a case, it is for sure that it is called like `add(b=2.0)` and wait for `a` to be piped in.
+
+    You can even have a different type annotation for the second argument, even the same value can be accepted:
+
+    ```python
+    @register_verb(int)
+    def add(a: int, b: Optional[int] = 1):
+        return a + b
+
+    add(2)
+    ```
+
+    This will force it to call `add(2, b=1)`, but this definitely has some side effects:
+    ```python
+    verb(data, add(2))
+    ```
+    Here `add(2)` is intended to be called like `add(b=2)`, but unexpectedly, it will call like `add(2, b=1)`. Using the piping syntax will perfectly solve this:
+    ```python
+    data >> verb(add(2))
+    ```
+    since we know the function called in a verb is supposed to wait for the data to be piped in.
 
 - Use another piping sign
 
     ```python
-    from pipda import register_piping_sign
-    register_piping_sign('^')
+    from pipda import register_piping
+    register_piping('^')
 
     # register verbs and functions
     df ^ verb1(...) ^ verb2(...)

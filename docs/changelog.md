@@ -1,3 +1,11 @@
+## 0.3.0
+Added:
+- Add a better regular calling strategy and warn for ambiguity
+- Support #11
+
+Breaking changes:
+- Rename `register_piping_sign` to `register_piping`
+
 ## 0.2.9
 - Avoid func of Function object to be re-evaluated (fixing datar#14)
 

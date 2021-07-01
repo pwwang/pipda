@@ -2,11 +2,13 @@ import pytest
 
 from collections import OrderedDict
 import contextvars
-from pipda.utils import DATA_CONTEXTVAR_NAME, DataEnv, functype, unregister
+from pipda.utils import DATA_CONTEXTVAR_NAME, functype, PipingEnvs
 
 from pipda.verb import Verb
 from pipda import *
 from pipda.function import *
+
+from . import f
 
 def test_function():
 
@@ -14,8 +16,8 @@ def test_function():
     def func(data, x):
         return data[x]
 
-    assert repr(func([0], 1, _env='piping')) == (
-        "Function(func='test_function.<locals>.func')"
+    assert repr(func([0], 1, _env=PipingEnvs.PIPING)) == (
+        "Function(func='test_function.<locals>.func', dataarg=True)"
     )
 
     ret = func([1], 0)
@@ -28,7 +30,7 @@ def test_function():
     ret = [2] >> verb(func(0))
     assert ret == 2
 
-def test_function_deep():
+def test_function_deep(f):
 
     @register_func(context=Context.SELECT)
     def func(data, x):
@@ -38,7 +40,6 @@ def test_function_deep():
     def verb(data, keys):
         return keys
 
-    f = Symbolic()
     d = {'a': 1, 'b': 2, 'c': 3}
     ret = d >> verb(func([f.a, f.b]))
     assert ret == {'a': 1, 'b': 2}
@@ -59,12 +60,12 @@ def test_function_deep():
     ret = d >> verb(func_dict({'x': f.a, 'y': f.b}))
     assert ret == {'a': 1, 'b': 2}
 
-def test_function_called_in_normal_way():
+def test_function_called_in_normal_way(f):
     @register_func(context=Context.EVAL)
     def func(data, x):
         return data[x]
 
-    @register_func(None, context=Context.EVAL)
+    @register_func(None, context=Context.SELECT)
     def func2(x=-1, y=1):
         return x+y
 
@@ -82,7 +83,7 @@ def test_function_called_in_normal_way():
     r = [1, 2] >> verb(func2() + 1)
     assert r == 1
 
-    r = func(1, _env='piping')._pipda_eval([0, 1])
+    r = func(1, _env=PipingEnvs.PIPING)._pipda_eval([0, 1])
     assert r == 1
 
     r = func([1,2,3], 2)
@@ -95,6 +96,12 @@ def test_function_called_in_normal_way():
     assert isinstance(r, Function)
     r = r._pipda_eval("abcd")
     assert r == 4
+
+    r = func2(f.a, f.b)
+    assert isinstance(r, Function)
+
+    with pytest.raises(TypeError):
+        r = func2(1,2,3)
 
 def test_context():
     @register_func(context=Context.EVAL)
@@ -109,7 +116,7 @@ def test_context():
     def verb(data, x):
         return data + x
 
-    data = DataEnv(2)
+    _ = DataEnv(2)
     data2 = DataEnv(100, 'other')
 
     y = verb(2)
@@ -144,9 +151,13 @@ def test_context():
     # when working as an argument, the function is working in piping mode
     assert 'Function' in y
 
-    data.delete()
-    with pytest.raises(TypeError, match='missing 1 required'):
-        y = verb(2)
+    _.delete()
+    # with pytest.raises(TypeError, match='missing'):
+    y = verb(2)
+    assert isinstance(y, Function)
+
+    y = verb(1,2)
+    assert y == 3
 
 def test_in_lambda():
     @register_func(context=Context.EVAL)
@@ -160,8 +171,7 @@ def test_in_lambda():
     y = 10 >> verb(lambda d: func(d, 11))
     assert y == 110
 
-def test_register_contexts_for_diff_cls():
-    f = Symbolic()
+def test_register_contexts_for_diff_cls(f):
 
     @register_func(list, context=Context.EVAL)
     def func(data, x):
@@ -175,16 +185,16 @@ def test_register_contexts_for_diff_cls():
     def _(data, x):
         return data + x
 
-    x = func(f[1], _env='piping')._pipda_eval([2, 3])
+    x = func(f[1], _env=PipingEnvs.PIPING)._pipda_eval([2, 3])
     assert x == [2, 3] * 3
 
-    x = func(f['a'], _env='piping')._pipda_eval({'a': 1})
+    x = func(f['a'], _env=PipingEnvs.PIPING)._pipda_eval({'a': 1})
     assert x == 1
 
-    x = func(f[1], _env='piping')._pipda_eval((1, 2, 3))
+    x = func(f[1], _env=PipingEnvs.PIPING)._pipda_eval((1, 2, 3))
     assert x == 2
 
-    x = func(f[1], _env='piping')._pipda_eval('abc')
+    x = func(f[1], _env=PipingEnvs.PIPING)._pipda_eval('abc')
     assert x == 'abcb'
 
 def test_unregister():
@@ -205,8 +215,7 @@ def test_unregister():
     with pytest.raises(ValueError):
         unregister(orig)
 
-def test_args_kwargs_have_expr():
-    f = Symbolic()
+def test_args_kwargs_have_expr(f):
     @register_func(None, context=Context.EVAL)
     def func(x):
         return x
@@ -240,8 +249,7 @@ def test_args_kwargs_have_expr():
     out = func2([1, 2], func(f[1]))
     assert out == 2
 
-def test_func_called_in_different_envs():
-    f = Symbolic()
+def test_func_called_in_different_envs(f):
     @register_verb(context=Context.EVAL)
     def verb(data, x):
         return x + 1
@@ -281,8 +289,7 @@ def test_func_called_in_different_envs():
     out = [2] >> verb(func_no_data(f[0]))
     assert out == 7
 
-def test_verb_arg_only():
-    f = Symbolic()
+def test_verb_arg_only(f):
     @register_verb(context=Context.EVAL)
     def verb(data, x):
         return x + 1
@@ -314,8 +321,7 @@ def test_verb_arg_only():
     ret = 1 >> verb(func3(2))
     assert ret == 11
 
-def test_extra_contexts():
-    f = Symbolic()
+def test_extra_contexts(f):
     @register_func(dict,
                    context=Context.EVAL,
                    extra_contexts={'cols': Context.SELECT})
@@ -332,16 +338,14 @@ def test_extra_contexts():
     y = func(x, ['a'], c=f['a'], d=f['b']*2)
     assert y == {'b':2, 'c':1, 'd': 4}
 
-def test_extra_contexts_error():
-    f = Symbolic()
+def test_extra_contexts_error(f):
     @register_func(context=Context.EVAL, extra_contexts={'nosucharg': Context.SELECT})
     def func(data, x): ...
 
     with pytest.raises(KeyError, match='No such argument'):
-        func(1, f.a)
+        y = func(1, f.a)
 
-def test_extra_contexts_nodata():
-    f = Symbolic()
+def test_extra_contexts_nodata(f):
     @register_func(None,
                    context=Context.EVAL,
                    extra_contexts={'cols': Context.SELECT})
@@ -355,8 +359,9 @@ def test_extra_contexts_nodata():
 
 def test_register_with_attrs():
     @register_func(attr=1)
-    def func(*args, **kwargs):
+    def func(data, *args, **kwargs):
         ...
 
     out = func()
+    assert isinstance(out, Function)
     assert out.func.attr == 1
