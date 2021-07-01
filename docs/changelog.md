@@ -1,6 +1,6 @@
 ## 0.3.0
 Added:
-- Add a better regular calling trategy and warn for ambiguity
+- Add a better regular calling strategy and warn for ambiguity
 - Support #11
 
 Breaking changes:
