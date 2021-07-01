@@ -353,6 +353,8 @@ df >> mutate_mycontext(m=f[f.y][:1].values[0])
     ```
     since we know the function called in a verb is supposed to wait for the data to be piped in.
 
+    See also: [Piping vs regular calling][20]
+
 - Use another piping sign
 
     ```python
@@ -436,3 +438,4 @@ You can also define you own by subclassing the `Operator` class, and then regist
 [17]: https://pwwang.github.io/pipda/api/pipda/
 [18]: https://pwwang.github.io/pipda/changelog/
 [19]: https://mybinder.org/v2/gh/pwwang/pipda/master?filepath=README.ipynb
+[20]: https://pwwang.github.io/datar/piping_vs_regular/
