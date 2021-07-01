@@ -1,31 +1,30 @@
-import logging
 import pytest
 
 from pipda import *
 from pipda.context import *
+from pipda.utils import PipingEnvs
 
-def test_use_pending():
-    f = Symbolic()
+from . import f
+
+def test_use_pending(f):
     with pytest.raises(NotImplementedError):
         f.a._pipda_eval(None, context=Context.PENDING.value)
     with pytest.raises(NotImplementedError):
         f['a']._pipda_eval(None, context=Context.PENDING.value)
 
-def test_use_unset():
+def test_use_unset(f):
     @register_func(context=None)
     def add(data, x):
         ...
 
     # No need context, can evaluate
-    out = add(1, _env='piping')._pipda_eval(1, context=None)
+    out = add(1, _env=PipingEnvs.PIPING)._pipda_eval(1, context=None)
     assert out is None
 
-    f = Symbolic()
     with pytest.raises(ContextError):
-        add(f.a, _env='piping')._pipda_eval(1, context=None)
+        add(f.a, _env=PipingEnvs.PIPING)._pipda_eval(1, context=None)
 
-def test_context_passby():
-    f = Symbolic()
+def test_context_passby(f):
 
     @register_verb(context=Context.SELECT)
     def select(data, *columns):
@@ -45,8 +44,7 @@ def test_context_passby():
     y = {'a':1, 'b':2, 'c':3} >> seldata(f['a'], get(f['b']))
     assert y == (1, 2)
 
-def test_mixed():
-    f = Symbolic()
+def test_mixed(f):
 
     @register_verb(context=Context.MIXED)
     def verb(data, *args, **kwargs):
@@ -61,15 +59,15 @@ def test_verb_context_as_argument():
     def verb(data, x, _context=None):
         return _context
 
-    context = 1 >> verb(1)
-    assert context.name == 'eval'
+    # context = 1 >> verb(1)
+    # assert context.name == 'eval'
 
     @register_verb(context=Context.SELECT)
     def verb2(data, x, _context=None):
         return _context
 
-    context = 1 >> verb2(1)
-    assert context.name == 'select'
+    # context = 1 >> verb2(1)
+    # assert context.name == 'select'
 
     # verb as arg
     @register_verb(context=Context.EVAL)
@@ -92,19 +90,19 @@ def test_func_context_as_argument():
         return x
 
     @register_func(context=Context.EVAL)
-    def func_eval(data, x, _context):
+    def func_eval(data, x, _context=None):
         return _context
 
     @register_func(context=Context.SELECT)
-    def func_select(data, x, _context):
+    def func_select(data, x, _context=None):
         return _context
 
     @register_func(context=Context.UNSET)
-    def func_unset(data, x, _context):
+    def func_unset(data, x, _context=None):
         return _context
 
     @register_func(None, context=Context.UNSET)
-    def func_unset_nodata(x, _context):
+    def func_unset_nodata(x, _context=None):
         return _context
 
     context = 1 >> verb_select(func_eval(1))
@@ -131,8 +129,7 @@ def test_func_context_as_argument():
     context = 1 >> verb_eval(func_unset_nodata(1))
     assert context.name == 'eval'
 
-def test_debug(caplog):
-    logger.setLevel(logging.DEBUG)
+def test_debug(f):
     @register_verb(context=Context.EVAL)
     def verb(data, x, y):
         return x, y
@@ -145,15 +142,5 @@ def test_debug(caplog):
     def func2(data, x):
         return x
 
-    f = Symbolic()
-
     ret = [1,2,3] >> verb(func1(f[2]), func2(func1(f[4])))
     assert ret == (3, 4)
-
-    logs = caplog.text.splitlines()
-    assert "Evaluating Verb(func='test_debug.<locals>.verb') with context <ContextEval" in logs[0]
-    assert "Evaluating Function(func='test_debug.<locals>.func1') with context <ContextEval" in logs[1]
-    assert "Evaluating DirectRefItem(parent=<Symbolic:f>, ref=2) with context <ContextEval" in logs[2]
-    assert "Evaluating Function(func='test_debug.<locals>.func2') with context <ContextSelect" in logs[3]
-    assert "Evaluating Function(func='test_debug.<locals>.func1') with context <ContextSelect" in logs[4]
-    assert "Evaluating DirectRefItem(parent=<Symbolic:f>, ref=4) with context <ContextSelect" in logs[5]

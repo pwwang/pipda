@@ -1,33 +1,25 @@
 """Provide the utilities and Expression class"""
-from enum import Enum
-import sys
 import ast
-import logging
-from types import FrameType
+import inspect
+import sys
 import warnings
-from functools import partialmethod
-from typing import (
-    Any, Callable, Iterable, Mapping, Optional, Tuple, Type, Union
-)
 from abc import ABC, abstractmethod
+from enum import Enum, auto
+from functools import partialmethod
+from types import FrameType
+from typing import Any, Callable, Mapping, Optional, Tuple
 
 from executing import Source
 
 from .context import ContextAnnoType, ContextBase
 
 NULL = object()
-DATA_CONTEXTVAR_NAME = '__pipda_data__'
+DATA_CONTEXTVAR_NAME = '__pipda_context_data__'
 
-
-# logger
-logger = logging.getLogger('pipda') # pylint: disable=invalid-name
-logger.setLevel(logging.INFO)
-stream_handler = logging.StreamHandler() # pylint: disable=invalid-name
-stream_handler.setFormatter(logging.Formatter(
-    '[%(asctime)s][%(name)s][%(levelname)7s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-))
-logger.addHandler(stream_handler)
+class PipingEnvs(Enum):
+    """Types of piping/calling envs"""
+    PIPING = auto()
+    PIPING_VERB = auto()
 
 class Expression(ABC):
     """The abstract Expression class"""
@@ -102,7 +94,6 @@ class Expression(ABC):
             self,
             data: Any,
             context: Optional[ContextBase] = None,
-            level: int = 0
     ) -> Any:
         """Evaluate the expression using given data"""
 
@@ -129,13 +120,15 @@ class DataEnv:
 
     def delete(self) -> None:
         """Delete the attached data"""
-        self.set(None)
+        self.set(NULL)
 
 def get_verb_node(
         calling_node: ast.Call
 ) -> Tuple[ast.Call, Optional[ast.Call]]:
     """Get the ast node that is ensured the piped verb call"""
-    from .verb import PIPING_SIGNS, Verb
+    from .verb import Verb
+    from .register import PIPING_SIGNS
+
     # check if we have the piping node (i.e. >>)
     child = calling_node
     parent = getattr(child, 'parent', None)
@@ -155,14 +148,17 @@ def get_verb_node(
 
 def get_env_data(frame: FrameType) -> Any:
     """Check and return if there is a data set in the context where
-    the verb or function is called"""
-    for value in frame.f_locals.values():
-        if not isinstance(value, DataEnv):
-            continue
-        if value.name != DATA_CONTEXTVAR_NAME:
-            continue
-        return value.get()
-    return None
+    the verb or function is called
+
+    The data has to be named as `_`
+    """
+    envdata = frame.f_locals.get('_', None)
+    if (
+            not isinstance(envdata, DataEnv) or
+            envdata.name != DATA_CONTEXTVAR_NAME
+    ):
+        return NULL
+    return envdata.get()
 
 def is_argument_node(
         sub_node: ast.Call,
@@ -242,33 +238,32 @@ def calling_env(astnode_fail_warning: bool = True) -> Any:
             "Failed to fetch the node calling the function, "
             "call it with the original function."
         )
-        return None
+        return NULL
 
     piping_verb_node = get_verb_node(my_node)
     if piping_verb_node is my_node and piping_verb_node is not None:
-        return 'piping-verb'
+        return PipingEnvs.PIPING_VERB
 
     if is_argument_node(my_node, piping_verb_node):
-        return 'piping'
+        return PipingEnvs.PIPING
 
     # get the context data
     contextdata = get_env_data(frame)
-    if contextdata is None:
-        return None
+    if contextdata is NULL:
+        return NULL
 
     if is_argument_node_of(my_node) is not None:
         # When working as an argument, the function is working in piping mode
         # Because we don't know (or it takes too much efforts to) whether
         # the parent node is a function registered by pipda.register_* or not.
-        return 'piping'
+        return PipingEnvs.PIPING
 
     return contextdata
 
 def evaluate_expr(
         expr: Any,
         data: Any,
-        context: ContextAnnoType,
-        level: int = 0
+        context: ContextAnnoType
 ) -> Any:
     """Evaluate a mixed expression"""
     if isinstance(context, Enum):
@@ -277,19 +272,19 @@ def evaluate_expr(
     if hasattr(expr.__class__, '_pipda_eval'):
         # Not only for Expression objects, but also
         # allow customized classes
-        return expr._pipda_eval(data, context, level)
+        return expr._pipda_eval(data, context)
 
     if isinstance(expr, (tuple, list, set)):
         # In case it's subclass
         return expr.__class__((
-            evaluate_expr(elem, data, context, level)
+            evaluate_expr(elem, data, context)
             for elem in expr
         ))
     if isinstance(expr, slice):
         return slice(
-            evaluate_expr(expr.start, data, context, level),
-            evaluate_expr(expr.stop, data, context, level),
-            evaluate_expr(expr.step, data, context, level)
+            evaluate_expr(expr.start, data, context),
+            evaluate_expr(expr.stop, data, context),
+            evaluate_expr(expr.step, data, context)
         )
     # no need anymore for python3.7+
     # if isinstance(expr, OrderedDict):
@@ -299,7 +294,7 @@ def evaluate_expr(
     #     ])
     if isinstance(expr, dict):
         return expr.__class__({
-            key: evaluate_expr(val, data, context, level)
+            key: evaluate_expr(val, data, context)
             for key, val in expr.items()
         })
     return expr
@@ -307,51 +302,21 @@ def evaluate_expr(
 def evaluate_args(
         args: Tuple[Any],
         data: Any,
-        context: ContextAnnoType,
-        level: int = 0
+        context: ContextAnnoType
 ) -> Tuple[Any]:
     """Evaluate the non-keyword arguments"""
-    return tuple(evaluate_expr(arg, data, context, level) for arg in args)
+    return tuple(evaluate_expr(arg, data, context) for arg in args)
 
 def evaluate_kwargs(
         kwargs: Mapping[str, Any],
         data: Any,
-        context: ContextAnnoType,
-        level: int = 0
+        context: ContextAnnoType
 ) -> Mapping[str, Any]:
     """Evaluate the keyword arguments"""
     return {
-        key: evaluate_expr(val, data, context, level)
+        key: evaluate_expr(val, data, context)
         for key, val in kwargs.items()
     }
-
-def singledispatch_register(
-        register: Callable[[Type, Callable], Callable]
-) -> Callable[
-        [Union[Type, Iterable[Type]], Any, Optional[Callable]],
-        Callable
-]:
-    """Allow register of generic function to register types with context"""
-
-    def register_func(
-            cls: Union[Type, Iterable[Type]],
-            context: Any = None,
-            func: Optional[Callable] = None
-    ) -> Callable:
-        if not isinstance(cls, (tuple, set, list)):
-            cls = [cls]
-
-        if func is None:
-            return lambda fun: register_func(cls, context, fun)
-        if isinstance(context, Enum):
-            context = context.value
-        func.context = context
-        ret = func
-        for klass in cls:
-            ret = register(klass, ret)
-        return ret
-
-    return register_func
 
 def functype(func: Callable) -> str:
     """Check the type of the function
@@ -377,37 +342,18 @@ def functype(func: Callable) -> str:
         return 'plain-func'
     return 'plain'
 
-def unregister(func: Callable) -> Callable:
-    """Get the original function before register
+def bind_arguments(
+        func: Callable,
+        args: Tuple,
+        kwargs: Mapping[str, Any]
+) -> inspect.BoundArguments:
+    """Try to bind arguments, instead of run the function to see if arguments
+    can fit the function"""
+    signature = inspect.signature(func)
+    try:
+        bondargs = signature.bind(*args, **kwargs)
+    except TypeError as terr:
+        raise TypeError(f"[{func.__qualname__}] {terr}") from None
 
-    Args:
-        func: The function that is either registered by
-            `register_verb` or `register_func`
-
-    Returns:
-        The original function that before register
-    """
-    origfunc = getattr(func, '__origfunc__', None)
-    if origfunc is None:
-        raise ValueError(f'Function is not registered with pipda: {func}')
-    return origfunc
-
-def is_expr(expr: Any) -> bool:
-    """Check if an expression includes any Expression object"""
-    if isinstance(expr, (list, tuple, set)):
-        return any(is_expr(elem) for elem in expr)
-
-    if isinstance(expr, dict):
-        return any(is_expr(item) for item in expr.items())
-
-    return isinstance(expr, Expression)
-
-def have_expr(args: Tuple[Any], kwargs: Mapping[str, Any]) -> bool:
-    """Check if arg and kwargs have Expression object"""
-    for arg in args:
-        if is_expr(arg):
-            return True
-    for arg in kwargs.values():
-        if is_expr(arg):
-            return True
-    return False
+    bondargs.apply_defaults()
+    return bondargs

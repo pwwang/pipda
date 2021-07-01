@@ -94,8 +94,6 @@ class ContextEval(ContextBase):
         """How to evaluate `f[item]`"""
         return parent[ref]
 
-    ref = ContextSelect()
-
 class ContextPending(ContextBase):
     """Pending context"""
     name: ClassVar[str] = 'pending'

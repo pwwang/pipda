@@ -2,8 +2,9 @@ import pytest
 from pipda import *
 from pipda.operator import *
 
-def test_operator():
-    f = Symbolic()
+from . import f
+
+def test_operator(f):
 
     @register_verb(context=Context.EVAL)
     def verb(data, x):
@@ -32,7 +33,7 @@ def test_register_error():
     with pytest.raises(ValueError):
         register_operator(A)
 
-def test_register():
+def test_register(f):
     class A(Operator):
         def add(self, a, b):
             return a - b
@@ -47,8 +48,6 @@ def test_register():
             return a * b
 
     register_operator(A)
-
-    f = Symbolic()
 
     @register_verb(context=Context.EVAL)
     def verb(data, x):

@@ -3,17 +3,17 @@ import pytest
 from pipda.symbolic import Reference
 from pipda import *
 
-def test_symbolic():
-    f = Symbolic()
+from . import f
+
+def test_symbolic(f):
     assert isinstance(f.a, Reference)
     assert isinstance(f['a'], Reference)
     assert f._pipda_eval(1) == 1
     assert f.__index__() is None
 
-def test_reference():
-    f = Symbolic()
+def test_reference(f):
     assert f.a._pipda_eval(1, ContextSelect()) == 'a'
-    assert repr(f.a) == "DirectRefAttr(parent=<Symbolic:f>, ref='a')"
+    assert repr(f.a) == "DirectRefAttr(parent=<Symbolic:g>, ref='a')"
 
     with pytest.raises(NotImplementedError):
         f.a._pipda_eval(1, ContextMixed())
@@ -42,8 +42,7 @@ def test_reference():
     # with pytest.raises(TypeError):
     assert f[1]._pipda_eval(0, ContextSelect()) == 1
 
-def test_attr_of_directattr():
-    f = Symbolic()
+def test_attr_of_directattr(f):
     class Series:
         def __init__(self, elems):
             self.elems = elems

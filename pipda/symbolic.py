@@ -4,7 +4,7 @@ from typing import ClassVar, Optional, Any
 
 import varname.helpers
 
-from .utils import Expression, evaluate_expr, logger
+from .utils import Expression, evaluate_expr
 from .context import ContextBase, ContextError
 from .function import Function
 
@@ -41,13 +41,9 @@ class Reference(Expression, ABC):
     def _pipda_eval(
             self,
             data: Any,
-            context: Optional[ContextBase] = None,
-            level: int = 0
+            context: Optional[ContextBase] = None
     ) -> Any:
         """Evaluate the reference according to the context"""
-        prefix = '- ' if level == 0 else '  ' * level
-        logger.debug('%sEvaluating %r with context %r.', prefix, self, context)
-
         if context is None:
             # needs context to be evaluated
             raise ContextError(
@@ -64,14 +60,13 @@ class ReferenceAttr(Reference):
     def _pipda_eval(
             self,
             data: Any,
-            context: Optional[ContextBase] = None,
-            level: int = 0
+            context: Optional[ContextBase] = None
     ) -> Any:
         """Evaluate the attribute references"""
         # if we don't have a context here, assuming that
         # we are calling `f.a.b(1)`, instead of evaluation
-        super()._pipda_eval(data, context, level)
-        parent = evaluate_expr(self.parent, data, context, level)
+        super()._pipda_eval(data, context)
+        parent = evaluate_expr(self.parent, data, context)
 
         return context.getattr(parent, self.ref, self.__class__.direct)
 
@@ -82,13 +77,12 @@ class ReferenceItem(Reference):
     def _pipda_eval(
             self,
             data: Any,
-            context: Optional[ContextBase] = None,
-            level: int = 0
+            context: Optional[ContextBase] = None
     ) -> Any:
         """Evaluate the subscript references"""
-        super()._pipda_eval(data, context, level)
-        parent = evaluate_expr(self.parent, data, context, level)
-        ref = evaluate_expr(self.ref, data, context.ref, level)
+        super()._pipda_eval(data, context)
+        parent = evaluate_expr(self.parent, data, context)
+        ref = evaluate_expr(self.ref, data, context.ref)
         return context.getitem(parent, ref, self.__class__.direct)
 
 class DirectRefAttr(ReferenceAttr):
@@ -119,8 +113,7 @@ class Symbolic(Expression):
     def _pipda_eval(
             self,
             data: Any,
-            context: Optional[ContextBase] = None,
-            level: int = 0
+            context: Optional[ContextBase] = None
     ) -> Any:
         """When evaluated, this should just return the data directly"""
         return data

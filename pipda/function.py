@@ -1,19 +1,15 @@
 """Provides register_func to register functions"""
-from enum import Enum
-import inspect
-from functools import singledispatch, wraps
-from types import FunctionType
 from typing import (
-    Any, Callable, Iterable, Mapping, Optional, Tuple, Type, Union
+    Any, Callable, Mapping, Optional, Tuple, Type, Union
 )
 from .utils import (
     Expression,
-    evaluate_args, evaluate_expr, evaluate_kwargs, calling_env, have_expr,
-    singledispatch_register, logger
+    bind_arguments,
+    evaluate_args,
+    evaluate_expr,
+    evaluate_kwargs
 )
-from .context import (
-    ContextAnnoType, ContextBase
-)
+from .context import ContextBase
 
 class Function(Expression):
     """The Function class, defining how the function should be executed
@@ -28,28 +24,31 @@ class Function(Expression):
         context: The context
         args: The arguments of the function
         kwargs: The keyword arguments of the function
-        datarg: Whether the function has data as the first argument
+        dataarg: Whether the function has data as the first argument
     """
-
-    def __init__(self,
-                 func: Union[Callable, Expression],
-                 args: Tuple[Any],
-                 kwargs: Mapping[str, Any],
-                 datarg: bool = True):
+    def __init__(
+            self,
+            func: Union[Callable, Expression],
+            args: Tuple[Any],
+            kwargs: Mapping[str, Any],
+            dataarg: bool = True
+    ) -> None:
 
         self.func = func
-        self.datarg = datarg
         self.args = args
         self.kwargs = kwargs
+        self.dataarg = dataarg
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(func={self.func.__qualname__!r})'
+        return (
+            f'{self.__class__.__name__}'
+            f'(func={self.func.__qualname__!r}, dataarg={self.dataarg})'
+        )
 
     def _pipda_eval(
             self,
             data: Any,
-            context: Optional[ContextBase] = None,
-            level: int = 0
+            context: Optional[ContextBase] = None
     ) -> Any:
         """Execute the function with the data
 
@@ -57,41 +56,19 @@ class Function(Expression):
         the context argument will not be used, since it will not override
         the context of the function
         """
-        func = self.func # don't change at 2nd evaluation
+        # don't change at 2nd evaluation
+        # in case we have f.col.mean()
+        func = self.func
         if isinstance(func, Expression):
-            func = evaluate_expr(func, data, context, level)
+            func = evaluate_expr(func, data, context)
 
-        dispatch = getattr(func, 'dispatch', None)
-        func_context = None
-        func_extra_contexts = None
-        dispatcher = func
-        if dispatch is not None:
-            dispatcher = dispatch(type(data))
+        dispatcher = _get_dispatcher(func, type(data))
         func_context = getattr(dispatcher, 'context', None)
         func_extra_contexts = getattr(dispatcher, 'extra_contexts', None)
 
         context = func_context or context
-
-        # The main context has to be set
-        # if not context: # still unset
-        #     raise ContextError(
-        #         f'Cannot evaluate {self!r} with an unset context.'
-        #     )
-
-        args = (data, *self.args) if self.datarg else self.args
-        kwargs = self.kwargs.copy()
-        signature = inspect.signature(dispatcher)
-        if '_context' in signature.parameters:
-            kwargs['_context'] = None
-
-        bondargs = signature.bind(*args, **kwargs)
-        bondargs.apply_defaults()
-
-        if self.__class__.__name__ == 'Verb':
-            level = 0
-
-        prefix = '- ' if level == 0 else '  ' * level
-        logger.debug('%sEvaluating %r with context %r.', prefix, self, context)
+        args = (data, *self.args) if self.dataarg else self.args
+        bondargs = bind_arguments(dispatcher, args, self.kwargs)
         if func_extra_contexts:
             # evaluate some specfic args
             for key, ctx in func_extra_contexts.items():
@@ -112,205 +89,20 @@ class Function(Expression):
         args = evaluate_args(
             bondargs.args,
             data,
-            context.args if context else context,
-            level
+            context.args if context else context
         )
         kwargs = evaluate_kwargs(
             bondargs.kwargs,
             data,
-            context.kwargs if context else context,
-            level
+            context.kwargs if context else context
         )
         return func(*args, **kwargs)
 
-def _register_function_no_datarg(
-        func: Callable,
-        verb_arg_only: bool,
-) -> Callable:
-    """Register functions without data as the first argument"""
+# Helper functions --------------------------------
 
-    @wraps(func)
-    def wrapper(
-            *args: Any,
-            _env: Optional[str] = None,
-            **kwargs: Any
-    ) -> Any:
-        _env = (
-            calling_env(register_func.astnode_fail_warning)
-            if _env is None else _env
-        )
+def _get_dispatcher(func: Callable, typ: Type) -> Callable:
+    dispatch = getattr(func, 'dispatch', None)
+    if dispatch is None:
+        return func
 
-        # As argument of a verb
-        if isinstance(_env, str) and _env == 'piping':
-            return Function(func, args, kwargs, False)
-
-        if verb_arg_only and _env is None:
-            raise ValueError(
-                f"`{func.__qualname__}` must only be used inside verbs"
-            )
-
-        # Otherwise I am standalone
-        if have_expr(args, kwargs) and _env is None:
-            return Function(func, args, kwargs, False)
-
-        if _env is None:
-            return func(*args, **kwargs)
-        return Function(func, args, kwargs, False)._pipda_eval(_env)
-
-    wrapper.__pipda__ = 'PlainFunction'
-    wrapper.__origfunc__ = func
-    return wrapper
-
-def _register_function_datarg(
-        cls: Iterable[Type],
-        func: Callable,
-        verb_arg_only: bool
-) -> Callable:
-    """Register functions with data as the first argument"""
-
-    @singledispatch
-    @wraps(func)
-    def generic(_data: Any, *args: Any, **kwargs: Any) -> Any:
-        if object in cls:
-            return func(_data, *args, **kwargs)
-        raise NotImplementedError(
-            f'{func.__name__!r} not registered '
-            f'for type: {type(_data)}.'
-        )
-
-    for one_cls in cls:
-        if one_cls is not object:
-            generic.register(one_cls, func)
-
-    @wraps(func)
-    def wrapper(
-            *args: Any,
-            _env: Optional[str] = None,
-            **kwargs: Any
-    ) -> Any:
-        _env = (
-            calling_env(register_func.astnode_fail_warning)
-            if _env is None else _env
-        )
-
-        # As argument of a verb
-        if isinstance(_env, str) and _env == 'piping':
-            return Function(generic, args, kwargs)
-
-        if verb_arg_only and _env is None:
-            raise ValueError(
-                f"`{func.__qualname__}` must only be used inside verbs"
-            )
-
-        # If nothing passed, assuming waiting for the data coming in to evaluate
-        # Not expanding this to complicated situations
-        if not args and not kwargs and _env is None:
-            return Function(generic, args, kwargs)
-
-        if have_expr(args[1:], kwargs):
-            return Function(generic, args[1:], kwargs)._pipda_eval(args[0])
-
-        if _env is None:
-            return generic(*args, **kwargs)
-
-        # context data
-        return Function(generic, args, kwargs)._pipda_eval(_env)
-
-    wrapper.register = singledispatch_register(generic.register)
-    wrapper.registry = generic.registry
-    wrapper.dispatch = generic.dispatch
-    wrapper.__pipda__ = 'Function'
-    wrapper.__origfunc__ = func
-
-    return wrapper
-
-def register_func(
-        cls: Union[FunctionType, Type, Iterable[Type]] = object,
-        context: Optional[ContextAnnoType] = None,
-        func: Optional[FunctionType] = None,
-        verb_arg_only: bool = False,
-        extra_contexts: Optional[Mapping[str, ContextAnnoType]] = None,
-        **attrs: Any
-) -> Callable:
-    """Register a function to be used in verb
-
-    If `func` is not given (works like `register_verb(cls, context=...)`),
-    it returns a function, works as a decorator.
-
-    For example
-        >>> @register_func(numpy.ndarray, context=Context.EVAL)
-        >>> def func(data, ...):
-        >>>     ...
-
-    When function is passed as a non-keyword argument, other arguments are as
-    defaults
-        >>> @register_func
-        >>> def func(data, ...):
-        >>>     ...
-
-    In such a case, it is like a generic function to work with all types of
-    data.
-
-    `data` is not a required argument. If not required, `cls` should be
-    specified as `None`.
-
-    Args:
-        cls: The classes of data for the verb
-            Multiple classes are supported to be passed as a list/tuple/set.
-        context: The context to evaluate the Expression objects
-        func: The function to be decorated if passed explicitly
-        verb_arg_only: Whether the function should be only used as an argument
-            of a verb. This means it only works in the format of
-            >>> data >> verb(..., func(...), ...)
-            Note that even this won't work
-            >>> verb(data, ..., func(...), ...)
-        extra_contexts: Extra contexts (if not the same as `context`)
-            for specific arguments
-        **attrs: Other attributes to be attached to the function
-
-    Returns:
-        A decorator function if `func` is not given or a wrapper function
-        like a singledispatch generic function that can register other types,
-        show all registry and dispatch for a specific type
-    """
-    if func is None and isinstance(cls, FunctionType):
-        func, cls = cls, object
-    if func is None:
-        return lambda fun: register_func(
-            cls,
-            context,
-            fun,
-            verb_arg_only,
-            extra_contexts,
-            **attrs
-        )
-
-    if isinstance(context, Enum):
-        context = context.value
-
-    for name, attr in attrs.items():
-        setattr(func, name, attr)
-    func.context = context
-
-    extra_contexts = extra_contexts or {}
-    func.extra_contexts = {
-        key: ctx.value if isinstance(ctx, Enum) else ctx
-        for key, ctx in extra_contexts.items()
-    }
-
-    if cls is None:
-        return _register_function_no_datarg(
-            func,
-            verb_arg_only
-        )
-
-    if not isinstance(cls, (tuple, list, set)):
-        cls = (cls, )
-
-    return _register_function_datarg(
-        cls,
-        func,
-        verb_arg_only
-    )
-
-register_func.astnode_fail_warning = True
+    return dispatch(typ)

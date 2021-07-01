@@ -1,13 +1,12 @@
-import contextvars
-from pipda.symbolic import Reference
-from pipda.utils import DATA_CONTEXTVAR_NAME, DataEnv, functype, unregister
+from pipda.utils import functype
 from pipda.context import ContextEval
 import pytest
 from pipda import *
 from pipda.verb import *
 
-def test_verb():
-    f = Symbolic()
+from . import f
+
+def test_verb(f):
 
     @register_verb(context=Context.SELECT)
     def verb(data, x):
@@ -28,18 +27,18 @@ def test_evaluated():
     assert v.kwargs == {}
     assert v._pipda_eval(1.123, Context.EVAL.value) == 1.1
 
-def test_register_piping_sign():
+def test_register_piping():
     assert Verb.CURRENT_SIGN == '>>'
 
-    register_piping_sign('<<')
+    register_piping('<<')
     assert Verb.CURRENT_SIGN == '<<'
     assert Verb.__rrshift__
 
-    register_piping_sign('>>')
+    register_piping('>>')
 
-def test_register_piping_sign_inexisting_method():
+def test_register_piping_inexisting_method():
     with pytest.raises(ValueError):
-        register_piping_sign('nosuch')
+        register_piping('nosuch')
 
 
 def test_only_type():
@@ -60,7 +59,7 @@ def test_only_type():
     ret = '1' >> verb('2')
     assert ret == '120'
 
-def test_context_unset():
+def test_context_unset(f):
 
     class MyContext(ContextEval):
 
@@ -84,7 +83,6 @@ def test_context_unset():
         x = evaluate_expr(x, data, context=mycontext)
         return x, mycontext.used
 
-    f = Symbolic()
     d = {'a': 1, 'b': {'c': 2}}
     ret, used_refs = d >> verb(f['a'])
     assert ret == 1
@@ -109,15 +107,14 @@ def test_context():
         return data + x
 
     data0 = DataEnv(100, 'whatever')
-    data = DataEnv(12)
+    _ = DataEnv(12)
     y = verb(3)
     assert y == 15
 
     y = verb(3) >> verb(1)
     assert y == 16
 
-def test_diff_contexts_for_diff_types():
-    f = Symbolic()
+def test_diff_contexts_for_diff_types(f):
     @register_verb(str, context=Context.EVAL)
     def verb(data, x):
         return data + x
@@ -154,8 +151,7 @@ def test_diff_contexts_for_diff_types():
     y = 1 >> verb(f[0])
     assert y == [1, 1]
 
-def test_verb_as_arg():
-    f = Symbolic()
+def test_verb_as_arg(f):
     @register_verb(list, context=Context.EVAL)
     def add(data, x):
         return data + x
@@ -164,11 +160,11 @@ def test_verb_as_arg():
     def lenof(data):
         return len(data)
 
-    y = [1,2] >> add([lenof(f)])
-    assert y == [1, 2, 2]
+    # y = [1,2] >> add([lenof(f)])
+    # assert y == [1, 2, 2]
 
-    y = [1,2] >> add([lenof([lenof(f)])])
-    assert y == [1, 2, 1]
+    # y = [1,2] >> add([lenof([lenof(f)])])
+    # assert y == [1, 2, 1]
 
     @register_func(context=Context.EVAL)
     def func(data):
@@ -187,7 +183,7 @@ def test_unregister():
     assert unregister(registered) is orig
     assert functype(registered) == 'verb'
 
-def test_keyword_attr():
+def test_keyword_attr(f):
     @register_verb(context=Context.EVAL)
     def prod(data, *args):
         ret = 1
@@ -205,7 +201,6 @@ def test_keyword_attr():
     data.data = 8
     data.op = 9
 
-    f = Symbolic()
     ret = data >> prod(
         f.func, f.datarg, f.args, f.kwargs,
         f.parent, f.ref, f.data, f.op
@@ -244,8 +239,8 @@ def test_register_with_attrs():
     def verb(data, x):
         return x
 
-    @register_verb(None, attr=1)
-    def verb1():
+    @register_verb(object, attr=1)
+    def verb1(data):
         return 1
 
     @register_verb(attr=2)
@@ -257,3 +252,95 @@ def test_register_with_attrs():
 
     out = None >> verb(verb2())
     assert out.func.attr == 2
+
+def test_called_regularly(f):
+     @register_verb(context=Context.SELECT)
+     def select(df, col1, col2):
+         return tuple(getattr(df, col) for col in (col1, col2))
+
+     df = lambda: 0
+     df.a = 1
+     df.b = 2
+     df.c = 3
+
+     out = select(df=df, col1=f.a, col2=f.b)
+     assert out == (1,2)
+
+     @register_verb(context=Context.EVAL)
+     def diag(x = 1, n = None):
+         return [x] * n
+
+     @diag.register(list)
+     def _(x = 1, n = None):
+         return x * n
+
+     out = diag(1, 3)
+     assert (out == [1,1,1]) is True
+     out = diag([1], 3)
+     assert (out == [1,1,1]) is True
+
+def test_called_regularly_with_func(f):
+    # GH11
+    @register_verb(dict, context=Context.SELECT)
+    def select(df, cols):
+        return tuple(df[col] for col in cols)
+
+    @register_func
+    def where(df, fun):
+        return [col for col in df if fun(df[col])]
+
+    @register_func(None)
+    def add(xy):
+        return [''.join(xy)]
+
+    is_even = lambda x: x % 2 == 0
+
+    df = {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'bd': 5}
+    out = df >> select(where(is_even))
+    assert out == (2, 4)
+
+    out = where(df, is_even)
+    assert out == ['b', 'd']
+
+    out = select(df, where(is_even))
+    assert out == (2, 4)
+
+    out = select(df, add(where(is_even)))
+    assert out == (5, )
+
+    out = where(is_even)
+    assert isinstance(out, Function)
+
+def test_error_when_register_none_type():
+    with pytest.raises(ValueError):
+        register_verb(None, func=lambda x: x)
+
+def test_try_ambiguous_regular_calling(f):
+    @register_verb(int, context=Context.SELECT)
+    def add(a, b, c=1):
+        return a + b + c
+
+    with pytest.warns(UserWarning, match="ambiguity"):
+        out = add(2, 3)
+    assert out == 6
+
+    with pytest.warns(UserWarning, match="ambiguity"):
+        out = add(2, f[3])
+    assert out == 6
+
+    # extra value to avoid warning
+    out = add(2, 3, 1)
+    assert out == 6
+
+
+    out = add(2.1, 3.1)
+    assert isinstance(out, Function)
+
+    @register_verb(int)
+    def add2(a: int, b:int = 1):
+        return a + b
+
+    with pytest.warns(UserWarning, match="ambiguity"):
+        out = add2(2)
+
+    assert out == 3

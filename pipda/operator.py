@@ -1,11 +1,12 @@
 """Provide the Operator class"""
+import operator
 from enum import Enum
 from functools import wraps
-import operator
-from typing import Any, Callable, Mapping, Optional, Tuple, Type
+from typing import Any, Callable, Mapping, Optional, Tuple
 
-from .function import Function
 from .context import ContextAnnoType, ContextBase
+from .function import Function
+
 
 class Operator(Function):
     """Operator class, defining how the operators in verb/function arguments
@@ -79,8 +80,7 @@ class Operator(Function):
     def _pipda_eval(
             self,
             data: Any,
-            context: Optional[ContextBase] = None,
-            level: int = 0
+            context: Optional[ContextBase] = None
     ) -> Any:
         """Evaluate the operator
 
@@ -90,25 +90,9 @@ class Operator(Function):
         # set the context and data in case they need to be used
         # inside the function.
         self.data = data
-        return super()._pipda_eval(data, context, level)
+        return super()._pipda_eval(data, context)
 
     def __getattr__(self, name: str) -> Any:
         """Get the function to handle the operator"""
         # See if standard operator function exists
         return getattr(operator, name)
-
-def register_operator(op_class: Type[Operator]) -> Type[Operator]:
-    """Register an Operator class
-
-    The context count be a dict of operator name to context.
-    For those operators not listed, will use Context.EVAL.
-    """
-    if not issubclass(op_class, Operator):
-        raise ValueError(
-            "The operator class to be registered must be "
-            "a subclass of pipda.Operator."
-        )
-    Operator.REGISTERED = op_class
-    return op_class
-
-register_operator(Operator)
