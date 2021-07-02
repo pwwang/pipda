@@ -302,7 +302,7 @@ df >> mutate_mycontext(m=f[f.y][:1].values[0])
 
     The piping syntax (`>>`) is recommended with `pipda`. Because everything is determined with this syntax.
 
-    However, `pipda` tries to support regular calling. The ambiguity can come from the situations where the arguments passed in can shift one position right (such that they fit the piping calling), and first value passed in can also be dispatched and fit in the second argument.
+    However, `pipda` tries to support regular calling. The ambiguity can come from the situations where the arguments passed in can shift one position right (such that they fit the piping calling). When binding the arguments, types are also checked to see if they can fit into the function.
 
     For example:
 
@@ -312,17 +312,18 @@ df >> mutate_mycontext(m=f[f.y][:1].values[0])
         return a + b
     ```
 
-    If you call it like this `add(2)`, then we have no idea if this is calling `add(2, b=1)`, or `add(b=2)` and it's waiting for the data (`a`) to be piped in. In such a case, the function is called in the former way, but a warning will be showing.
+    If you call it like this `add(2)`, then we have no idea if this should be interpreted as `add(2, b=1)`, or `add(b=2)` and it's waiting for the data (`a`) to be piped in. In such a case, the function is called in the former way, but a warning will be showing.
 
     To avoid this, as it states in the warning message, according to the reasons of the ambiguity, we should make sure that the values passed in cannot be shifted one position right (given values for all arguments would do it):
 
     ```python
     add(2, 1) # or add(2, b=1)
+    # when shift one position right (None, 2, 1) cannot be bound.
     ```
 
     or try not to use optional arguments while defining the function;
 
-    or make sure the first value cannot be dispatched:
+    or make sure the type annotations are more specific.
 
     ```python
     @register_verb(int)
@@ -333,8 +334,7 @@ df >> mutate_mycontext(m=f[f.y][:1].values[0])
     ```
     In such a case, it is for sure that it is called like `add(b=2.0)` and wait for `a` to be piped in.
 
-    You can even have a different type annotation for the second argument, even the same value can be accepted:
-
+    Using broader type annotations may also cause the ambiguity:
     ```python
     @register_verb(int)
     def add(a: int, b: Optional[int] = 1):

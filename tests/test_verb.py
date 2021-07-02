@@ -317,7 +317,7 @@ def test_error_when_register_none_type():
 
 def test_try_ambiguous_regular_calling(f):
     @register_verb(int, context=Context.SELECT)
-    def add(a, b, c=1):
+    def add(a:int, b:int, c:int=1):
         return a + b + c
 
     with pytest.warns(UserWarning, match="ambiguity"):
@@ -332,9 +332,8 @@ def test_try_ambiguous_regular_calling(f):
     out = add(2, 3, 1)
     assert out == 6
 
-
-    out = add(2.1, 3.1)
-    assert isinstance(out, Function)
+    with pytest.raises(TypeError):
+        add(2.1, 3.1)
 
     @register_verb(int)
     def add2(a: int, b:int = 1):

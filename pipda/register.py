@@ -1,10 +1,9 @@
 """Provide register_* suite"""
 import ast
-import inspect
 import warnings
 from collections import namedtuple
 from enum import Enum
-from functools import singledispatch, wraps, lru_cache
+from functools import singledispatch, wraps
 from itertools import chain
 from types import FunctionType
 from typing import (
@@ -287,18 +286,13 @@ def _generializing(func: Callable, types: Iterable[Type]) -> Callable:
     if object in types:
         generic = singledispatch(func)
     else:
-        # have to define this function here, so that every time a new function
-        # is generated.
-        # Otherwise, singledispatch mixed the registry when registering the
-        # same function
-        def _not_implemented(_data: Any, *args: Any, **kwargs: Any) -> None:
+        @singledispatch
+        @wraps(func)
+        def generic(_data: Any, *args: Any, **kwargs: Any) -> None:
             raise NotImplementedError(
-                f'{_not_implemented.__qualname__!r} is not '
+                f'{func.__qualname__!r} is not '
                 f'registered for type: {type(_data)}.'
             )
-        # __name__ is used to tell if object is allowed
-        _not_implemented.__qualname__ = func.__qualname__
-        generic = singledispatch(_not_implemented)
 
     for typ in types:
         if typ is not object:
@@ -454,13 +448,24 @@ def _try_calling_dataarg(
     """
     first_bind_error = None
     try:
-        boundargs1 = bind_arguments(func.__origfunc__, args, kwargs)
+        boundargs1 = bind_arguments(
+            func.__origfunc__,
+            args,
+            kwargs,
+            type_check=True
+        )
     except TypeError as terr:
         first_bind_error = terr
         boundargs1 = None
 
     try:
-        boundargs2 = bind_arguments(func.__origfunc__, (None, *args), kwargs)
+        boundargs2 = bind_arguments(
+            func.__origfunc__,
+            (None, *args),
+            kwargs,
+            type_check=True,
+            ignore_first=True
+        )
     except TypeError:
         boundargs2 = None
 
@@ -477,43 +482,28 @@ def _try_calling_dataarg(
         # firstarg is always not NULL since boundargs1 succeeded
         # this requires verbs/functions with data arg to be defined with first
         # argument non-optional.
-        if _dispatchable(func, type(firstarg)):
-            if _match_secondarg(func.__origfunc__):
-                # The first argument can be dispatched and
-                # can also be fit to the second argument
-                # This causes the ambiguity
-                warnings.warn(
-                    f"Trying to calling `{func.__qualname__}` regularly. "
-                    "However, ambiguity may occur to determine whether it "
-                    "should be called regularly or return a Function object. "
-                    "Take one/multiple of the following to avoid this: \n\n"
-                    " 1. Use less optional arguments while "
-                    "defining the function;\n"
-                    " 2. Make sure second argument having a different type"
-                    "annotation than the first; \n"
-                    " 3. Specify values to the optional arguments "
-                    "while calling.\n\n"
-                    "Use the piping syntax if it is not the way you want.\n"
-                )
-
-            if _have_expr(rest_args, rest_kwargs):
-                return (
-                    Function(func, rest_args, rest_kwargs)._pipda_eval(
-                        firstarg
-                    )
-                    if env is NULL
-                    else Function(func, args, kwargs, False)._pipda_eval(
-                        env
-                    )
-                )
-
-            return func(*boundargs1.args, **boundargs1.kwargs)
-
-        return (
-            Function(func, args, kwargs)
-            if env is NULL
-            else Function(func, args, kwargs)._pipda_eval(env)
+        warnings.warn(
+            f"Trying to calling `{func.__qualname__}` regularly. "
+            "However, ambiguity may occur to determine whether it "
+            "should be called regularly or return a `Function` object. "
+            "Take one/multiple of the following to avoid this: \n\n"
+            " 1. Use less optional arguments while "
+            "defining the function;\n"
+            " 2. Use more specific type annotations "
+            "(i.e. Union[...] instead of Any); \n"
+            " 3. Specify values to the optional arguments "
+            "while calling.\n\n"
+            "Use the piping syntax if it is not the way you want.\n"
         )
+
+        if _have_expr(rest_args, rest_kwargs):
+            return (
+                Function(func, rest_args, rest_kwargs)._pipda_eval(firstarg)
+                if env is NULL
+                else Function(func, args, kwargs, False)._pipda_eval(env)
+            )
+
+        return func(*boundargs1.args, **boundargs1.kwargs)
 
     if boundargs1: # it is for sure regular call
         if _have_expr(rest_args, rest_kwargs):
@@ -603,38 +593,6 @@ def _is_expr(expr: Any) -> bool:
 def _have_expr(args: Tuple[Any], kwargs: Mapping[str, Any]) -> bool:
     """Check if arg and kwargs have Expression object"""
     return any(_is_expr(arg) for arg in chain(args, kwargs.values()))
-
-@lru_cache()
-def _dispatchable(
-        generic: Callable,
-        type_firstarg: Type
-) -> bool:
-    """Check if a type can be dispatched"""
-    return generic.dispatch(type_firstarg).__name__ != '_not_implemented'
-
-def _match_secondarg(func: Callable) -> bool:
-    """Check if a value can fit the second argument of a function"""
-    signature = inspect.signature(func)
-    parameters = list(signature.parameters.values())
-    firsttype = parameters[0].annotation
-    secondtype = parameters[1].annotation
-
-    # singledispatch dispatching for type annotations yet
-    # still need a better solution for this
-    # firsttype is secondtype or firsttype in secondtype.__args__?
-    # 3rd-party packages: pyre, etc?
-    return firsttype is secondtype
-    # if secondtype is inspect._empty:
-    #     return True
-
-    # The type annotation for the second argument could be too broad,
-    # for example: def func(a: DataFrame, b: Any): ...
-    # we don't want b to match the first value.
-
-    # # https://stackoverflow.com/questions/55503673
-    # # https://stackoverflow.com/questions/50563546
-    # return type_checker(secondtype).is_typeof(value)
-
 
 register_piping('>>')
 register_operator(Operator)

@@ -12,6 +12,7 @@ from typing import Any, Callable, Mapping, Optional, Tuple
 from executing import Source
 
 from .context import ContextAnnoType, ContextBase
+from ._typechecking import instanceof
 
 NULL = object()
 DATA_CONTEXTVAR_NAME = '__pipda_context_data__'
@@ -345,15 +346,55 @@ def functype(func: Callable) -> str:
 def bind_arguments(
         func: Callable,
         args: Tuple,
-        kwargs: Mapping[str, Any]
+        kwargs: Mapping[str, Any],
+        type_check: bool = False,
+        ignore_first: bool = False,
+        ignore_expr: bool = True
 ) -> inspect.BoundArguments:
     """Try to bind arguments, instead of run the function to see if arguments
-    can fit the function"""
+    can fit the function
+
+    Args:
+        func: The function
+        args: The positional arguments to bind to the function
+        kwargs: The keyword arguments to bind to the function
+        type_check: Whether do the type check for the values
+        ignore_first: Whether ignore type check for the first argument
+        ignore_expr: Whether ignore type check for Expression objects
+            (Since they are waiting for evaluation)
+
+    Raises:
+        TypeError: When arguments failed to bind or types of values
+            don't match argument type annotations if `type_check` is True.
+
+    Returns:
+        inspect.BoundArguments
+    """
     signature = inspect.signature(func)
     try:
-        bondargs = signature.bind(*args, **kwargs)
+        boundargs = signature.bind(*args, **kwargs)
     except TypeError as terr:
         raise TypeError(f"[{func.__qualname__}] {terr}") from None
 
-    bondargs.apply_defaults()
-    return bondargs
+    if len(boundargs.arguments) > 0 and type_check:
+        # some arguments bound
+        firstarg = list(signature.parameters)[0]
+        for key, val in boundargs.arguments.items():
+            if ignore_first and key == firstarg:
+                continue
+
+            if ignore_expr and isinstance(val, Expression):
+                continue
+
+            annotation = signature.parameters[key].annotation
+            if annotation is inspect._empty:
+                continue
+
+            if not instanceof(val, signature.parameters[key].annotation):
+                raise TypeError(
+                    f"[{func.__qualname__}] Expect a value of "
+                    f"{annotation} for argument `{key}`, got {val}"
+                )
+
+    boundargs.apply_defaults()
+    return boundargs

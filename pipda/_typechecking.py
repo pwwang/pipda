@@ -1,257 +1,226 @@
-# """Provide helpers to check where a value is a valid type
+"""Provide helpers to check where a value is a valid type
 
-# https://stackoverflow.com/questions/55503673
+https://stackoverflow.com/questions/55503673
 
-# Only support python3.7+, simplified version
-# """
-# import typing
+Only support python3.7+, simplified version
+"""
+# pylint: disable=unused-argument
 
-# def is_generic(type_):
-#     """Check if a type is generic"""
-#     if isinstance(type_, typing._GenericAlias):
-#         return True
+import typing
 
-#     if isinstance(type_, typing._SpecialForm):
-#         return type_ not in {typing.Any}
+def _is_generic(type_):
+    """Check if a type is generic"""
+    if isinstance(type_, typing._GenericAlias):
+        return True
 
-#     return False
+    if isinstance(type_, typing._SpecialForm):
+        return type_ not in {typing.Any}
 
-# def is_base_generic(type_):
-#     """Check if a type is base generic"""
-#     if (
-#             hasattr(typing, '_SpecialGenericAlias') and
-#             isinstance(type_, typing._SpecialGenericAlias)
-#     ): # pragma: no cover
-#         #python 3.8+
-#         return True
+    return False
 
-#     if isinstance(type_, typing._GenericAlias):
-#         protocol = getattr(
-#             typing,
-#             '_Protocol',
-#             getattr(typing, 'Protocol', None)
-#         )
-#         if type_.__origin__ in {typing.Generic, protocol}:
-#             return False # pragma: no cover
+def _is_base_generic(type_):
+    """Check if a type is base generic"""
+    if (
+            hasattr(typing, '_SpecialGenericAlias') and
+            isinstance(type_, typing._SpecialGenericAlias)
+    ): # pragma: no cover
+        #python 3.8+
+        return True
 
-#         # if isinstance(type_, typing._VariadicGenericAlias):
-#         #     return True
+    if isinstance(type_, typing._GenericAlias):
+        protocol = getattr(
+            typing,
+            '_Protocol',
+            getattr(typing, 'Protocol', None)
+        )
+        if type_.__origin__ in {typing.Generic, protocol}:
+            return False # pragma: no cover
 
-#         return len(type_.__parameters__) > 0
+        # if isinstance(type_, typing._VariadicGenericAlias):
+        #     return True
 
-#     if isinstance(type_, typing._SpecialForm):
-#         return type_._name in {'ClassVar', 'Union', 'Optional'}
+        return len(type_.__parameters__) > 0
 
-#     return False
+    if isinstance(type_, typing._SpecialForm):
+        return type_._name in {'ClassVar', 'Union', 'Optional'}
 
-# def is_qualified_generic(type_: typing.Type) -> typing.Type:
-#     """Check if a type is a qualified generic"""
-#     return (
-#         is_generic(type_) and not is_base_generic(type_)
-#     )
+    return False
 
-# def get_base_generic(type_):
-#     """Subclasses of Generic will have their _name set to None, but
-#     their __origin__ will point to the base generic
-#     """
-#     if not is_qualified_generic(type_): # pragma: no cover
-#         raise TypeError(
-#             f'{type_} is not a qualified Generic and thus has no base'
-#         )
+def _is_qualified_generic(type_: typing.Type) -> typing.Type:
+    """Check if a type is a qualified generic"""
+    return (
+        _is_generic(type_) and not _is_base_generic(type_)
+    )
 
-#     if type_._name is None:
-#         return type_.__origin__
+def _get_base_generic(type_):
+    """Subclasses of Generic will have their _name set to None, but
+    their __origin__ will point to the base generic
+    """
+    if not _is_qualified_generic(type_): # pragma: no cover
+        raise TypeError(
+            f'{type_} is not a qualified Generic and thus has no base'
+        )
 
-#     return getattr(typing, type_._name)
+    if type_._name is None:
+        return type_.__origin__
 
-# def type_name(type_: typing.Type) -> str:
-#     """Get the name of the type"""
-#     generic_base = type_
-#     if is_qualified_generic(type_):
-#         generic_base = get_base_generic(type_)
+    return getattr(typing, type_._name)
 
-#     return generic_base._name
+def _type_name(type_: typing.Type) -> str:
+    """Get the name of the type"""
+    generic_base = type_
+    if _is_qualified_generic(type_):
+        generic_base = _get_base_generic(type_)
 
-# ITERABLE_TYPES = {
-#     'Container',
-#     'Collection',
-#     'AbstractSet',
-#     'MutableSet',
-#     'Sequence',
-#     'MutableSequence',
-#     'ByteString',
-#     'Deque',
-#     'List',
-#     'Set',
-#     'FrozenSet',
-#     'KeysView',
-#     'ValuesView',
-#     'AsyncIterable',
-#     'Iterable',
-# }
+    return generic_base._name
 
-# MAPPING_TYPES = {
-#     'Mapping',
-#     'MutableMapping',
-#     'MappingView',
-#     'ItemsView',
-#     'Dict',
-#     'DefaultDict',
-#     'Counter',
-#     'ChainMap',
-# }
+ITERABLE_TYPES = {
+    'Container',
+    'Collection',
+    'AbstractSet',
+    'MutableSet',
+    'Sequence',
+    'MutableSequence',
+    'ByteString',
+    'Deque',
+    'List',
+    'Set',
+    'FrozenSet',
+    'KeysView',
+    'ValuesView',
+    'AsyncIterable',
+    'Iterable',
+}
 
+MAPPING_TYPES = {
+    'Mapping',
+    'MutableMapping',
+    'MappingView',
+    'ItemsView',
+    'Dict',
+    'DefaultDict',
+    'Counter',
+    'ChainMap',
+}
 
+def _get_subtypes(type_: typing.Type) -> typing.Tuple:
+    """Get the subtypes"""
+    try:
+        return tuple(type_.__args__)
+    except AttributeError:
+        return ()
 
-# class TypeChecker:
-#     """General type checker"""
-#     def __init__(self, type_):
-#         self.type_ = type_
+def _python_type(type_: typing.Type) -> typing.Type:
+    """Given a type annotation or a class as input,
+    returns the corresponding python class.
 
-#     def is_typeof(self, value: typing.Any) -> bool:
-#         """Check if a value is of this type"""
-#         return isinstance(value, self.type_)
+    Examples:
+        >>> _python_type(typing.Dict)
+        <class 'dict'>
+        >>> _python_type(typing.List[int])
+        <class 'list'>
+        >>> _python_type(int)
+        <class 'int'>
+    """
+    try:
+        mro = type_.mro()
+    except AttributeError: # pragma: no cover
+        # if it doesn't have an mro method, it must be a weird typing object
+        return type_.__origin__
 
+    if typing.Type in mro: # pragma: no cover
+        return type_.python_type
+    if type_.__module__ == 'typing':
+        return type_.__origin__
 
-# class UnionTypeChecker(TypeChecker):
-#     """Type checker for Union"""
-#     @property
-#     def subtypes(self) -> typing.Tuple[TypeChecker]:
-#         """Get the subtypes"""
-#         try:
-#             return tuple(type_checker(arg) for arg in self.type_.__args__)
-#         except AttributeError:
-#             return ()
+    return type_ # pragma: no cover
 
-#     def is_typeof(self, value: typing.Any) -> bool:
-#         """Check if a value is of this type"""
-#         subtypes = self.subtypes
-#         if subtypes:
-#             return any(typ.is_typeof(value) for typ in self.subtypes)
-#         return True
+def _type_checker(value: typing.Any, type_: typing.Type) -> bool:
+    """General type checker"""
+    return isinstance(value, type_)
 
-# class CallableTypeChecker(TypeChecker):
-#     """Type checker for Callable"""
+def _union_type_checker(value: typing.Any, type_: typing.Type) -> bool:
+    """Type checker for Union"""
+    subtypes = _get_subtypes(type_)
+    if subtypes:
+        return any(instanceof(value, typ) for typ in subtypes)
+    return True
 
-#     def is_typeof(self, value: typing.Any) -> bool:
-#         """Check if a value is of this type"""
-#         # Ignore the argument types and return types
-#         return callable(value)
+def _callable_type_checker(value: typing.Any, type_: typing.Type) -> bool:
+    """Type checker for Callable"""
+    # Ignore the argument types and return types
+    return callable(value)
 
-# class TypeTypeChecker(TypeChecker):
-#     """Type checker for Type"""
+def _type_type_checker(value: typing.Any, type_: typing.Type) -> bool:
+    """Type checker for Type"""
+    # Ignore subtypes
+    return isinstance(value, type)
 
-#     def is_typeof(self, value: typing.Any) -> bool:
-#         """Check if a value is of this type"""
-#         # Ignore subtypes
-#         return isinstance(value, type)
+def _any_type_checker(value: typing.Any, type_: typing.Type) -> bool:
+    """Type checker for Any"""
+    return True
 
-# class AnyTypeChecker(TypeChecker):
-#     """Type checker for Any"""
+def _basegeneric_type_checker(value: typing.Any, type_: typing.Type) -> bool:
+    """Type checker for base generic type"""
+    return isinstance(value, _python_type(type_))
 
-#     def is_typeof(self, value: typing.Any) -> bool:
-#         """Check if a value is of this type"""
-#         return True
+def _iterable_type_checker(value: typing.Any, type_: typing.Type) -> bool:
+    """Type checker for iterable types"""
+    if not _basegeneric_type_checker(value, type_):
+        return False
 
-# class BaseGenericTypeChecker(TypeChecker):
-#     """Type checker for base generic type"""
+    subtype = _get_subtypes(type_)[0]
+    return all(instanceof(val, subtype) for val in value)
 
-#     @property
-#     def python_type(self):
-#         """Given a type annotation or a class as input,
-#         returns the corresponding python class.
+def _mapping_type_checker(value: typing.Any, type_: typing.Type) -> bool:
+    """Type checker for mapping types"""
 
-#         Examples:
-#             >>> python_type(typing.Dict)
-#             <class 'dict'>
-#             >>> python_type(typing.List[int])
-#             <class 'list'>
-#             >>> python_type(int)
-#             <class 'int'>
-#         """
-#         try:
-#             mro = self.type_.mro()
-#         except AttributeError: # pragma: no cover
-#           # if it doesn't have an mro method, it must be a weird typing object
-#             return self.type_.__origin__
+    if not _basegeneric_type_checker(value, type_):
+        return False
 
-#         if typing.Type in mro: # pragma: no cover
-#             return self.type_.python_type
-#         if self.type_.__module__ == 'typing':
-#             return self.type_.__origin__
+    keytype, valtype = _get_subtypes(type_)
+    return all(
+        instanceof(key, keytype) and instanceof(val, valtype)
+        for key, val in value.items()
+    )
 
-#         return self.type_ # pragma: no cover
+def _tuple_type_checker(value: typing.Any, type_: typing.Type) -> bool:
+    """Type checker for Tuple"""
 
-#     def is_typeof(self, value: typing.Any) -> bool:
-#         """Check if a value is of this type"""
-#         return isinstance(value, self.python_type)
+    if not _basegeneric_type_checker(value, type_):
+        return False
 
-# class IterableTypeChecker(UnionTypeChecker, BaseGenericTypeChecker):
-#     """Type checker for iterable types"""
+    subtypes = _get_subtypes(type_)
+    return all(
+        instanceof(val, valtype)
+        for val, valtype in zip(value, subtypes)
+    )
 
-#     def is_typeof(self, value: typing.Any) -> bool:
-#         """Check if a value is of this type"""
-#         if not BaseGenericTypeChecker.is_typeof(self, value):
-#             return False
+def instanceof(value: typing.Any, type_: typing.Type) -> bool:
+    """Check of a value is of given type"""
+    if type_.__module__ == 'typing':
+        name = _type_name(type_)
+        if name == 'Union':
+            return _union_type_checker(value, type_)
+        if name == 'Callable':
+            return _callable_type_checker(value, type_)
+        if name == 'Any':
+            return _any_type_checker(value, type_)
+        if name == 'Type':
+            return _type_type_checker(value, type_)
 
-#         subtype = self.subtypes[0]
-#         return all(subtype.is_typeof(val) for val in value)
+    if _is_base_generic(type_):
+        return _basegeneric_type_checker(value, type_)
 
-# class MappingTypeChecker(UnionTypeChecker, BaseGenericTypeChecker):
-#     """Type checker for mapping types"""
+    if _is_qualified_generic(type_):
+        name = _type_name(type_)
+        if name in ITERABLE_TYPES:
+            return _iterable_type_checker(value, type_)
 
-#     def is_typeof(self, value: typing.Any) -> bool:
-#         """Check if a value is of this type"""
+        if name in MAPPING_TYPES:
+            return _mapping_type_checker(value, type_)
 
-#         if not BaseGenericTypeChecker.is_typeof(self, value):
-#             return False
+        if name == 'Tuple':
+            return _tuple_type_checker(value, type_)
 
-#         keytype, valtype = self.subtypes
-#         return all(
-#             keytype.is_typeof(key) and valtype.is_typeof(val)
-#             for key, val in value.items()
-#         )
-
-# class TupleTypeChecker(UnionTypeChecker, BaseGenericTypeChecker):
-#     """Type checker for Tuple"""
-
-#     def is_typeof(self, value: typing.Any) -> bool:
-#         """Check if a value is of this type"""
-
-#         if not BaseGenericTypeChecker.is_typeof(self, value):
-#             return False
-
-#         return all(
-#             valtype.is_typeof(val)
-#             for val, valtype in zip(value, self.subtypes)
-#         )
-
-# def type_checker(type_: typing.Type) -> TypeChecker:
-#     """TypeChecker distributor"""
-
-#     if type_.__module__ == 'typing':
-#         name = type_name(type_)
-#         if name == 'Union':
-#             return UnionTypeChecker(type_)
-#         if name == 'Callable':
-#             return CallableTypeChecker(type_)
-#         if name == 'Any':
-#             return AnyTypeChecker(type_)
-#         if name == 'Type':
-#             return TypeTypeChecker(type_)
-
-#     if is_base_generic(type_):
-#         return BaseGenericTypeChecker(type_)
-
-#     if is_qualified_generic(type_):
-#         name = type_name(type_)
-#         if name in ITERABLE_TYPES:
-#             return IterableTypeChecker(type_)
-
-#         if name in MAPPING_TYPES:
-#             return MappingTypeChecker(type_)
-
-#         if name == 'Tuple':
-#             return TupleTypeChecker(type_)
-
-#     return TypeChecker(type_)
+    return _type_checker(value, type_)
