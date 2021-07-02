@@ -29,19 +29,19 @@ class Expression(ABC):
         """Make it hashable"""
         return hash(id(self))
 
-    def __getattr__(self, name: str) -> "ReferenceAttr":
+    def __getattr__(self, name: str) -> "Expression":
         """Whenever `expr.attr` is encountered,
         return a ReferenceAttr object"""
         from .symbolic import ReferenceAttr
         return ReferenceAttr(self, name)
 
-    def __getitem__(self, item: Any) -> "ReferenceItem":
+    def __getitem__(self, item: Any) -> "Expression":
         """Whenever `expr[item]` is encountered,
         return a ReferenceAttr object"""
         from .symbolic import ReferenceItem
         return ReferenceItem(self, item)
 
-    def _op_handler(self, op: str, *args: Any, **kwargs: Any) -> "Operator":
+    def _op_handler(self, op: str, *args: Any, **kwargs: Any) -> "Expression":
         """Handle the operators"""
         from .operator import Operator
         return Operator.REGISTERED(op, (self, *args), kwargs)
@@ -75,10 +75,10 @@ class Expression(ABC):
     __rpow__ = partialmethod(_op_handler, 'rpow')
     __contains__ = partialmethod(_op_handler, 'contains')
 
-    __lt__ = partialmethod(_op_handler, 'lt')
+    __lt__ = partialmethod(_op_handler, 'lt') # type: ignore
     __le__ = partialmethod(_op_handler, 'le')
-    __eq__ = partialmethod(_op_handler, 'eq')
-    __ne__ = partialmethod(_op_handler, 'ne')
+    __eq__ = partialmethod(_op_handler, 'eq') # type: ignore
+    __ne__ = partialmethod(_op_handler, 'ne') # type: ignore
     __gt__ = partialmethod(_op_handler, 'gt')
     __ge__ = partialmethod(_op_handler, 'ge')
     __neg__ = partialmethod(_op_handler, 'neg')
@@ -123,9 +123,7 @@ class DataEnv:
         """Delete the attached data"""
         self.set(NULL)
 
-def get_verb_node(
-        calling_node: ast.Call
-) -> Tuple[ast.Call, Optional[ast.Call]]:
+def get_verb_node(calling_node: ast.Call) -> Optional[ast.Call]:
     """Get the ast node that is ensured the piped verb call"""
     from .verb import Verb
     from .register import PIPING_SIGNS
@@ -264,7 +262,7 @@ def calling_env(astnode_fail_warning: bool = True) -> Any:
 def evaluate_expr(
         expr: Any,
         data: Any,
-        context: ContextAnnoType
+        context: Optional[ContextAnnoType]
 ) -> Any:
     """Evaluate a mixed expression"""
     if isinstance(context, Enum):
@@ -301,10 +299,10 @@ def evaluate_expr(
     return expr
 
 def evaluate_args(
-        args: Tuple[Any],
+        args: Tuple,
         data: Any,
         context: ContextAnnoType
-) -> Tuple[Any]:
+) -> Tuple:
     """Evaluate the non-keyword arguments"""
     return tuple(evaluate_expr(arg, data, context) for arg in args)
 

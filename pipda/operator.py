@@ -2,7 +2,7 @@
 import operator
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable, Mapping, Optional, Tuple
+from typing import Any, Callable, Mapping, Optional, Tuple, ClassVar, Type
 
 from .context import ContextAnnoType, ContextBase
 from .function import Function
@@ -24,11 +24,11 @@ class Operator(Function):
         REGISTERED: The registered Operator class. It's this class by default
             Use `register_operator` as a decorator to register a operator class
     """
-    REGISTERED = None
+    REGISTERED: ClassVar[Type["Operator"]] = None
 
     def __init__(self,
                  op: str,
-                 args: Tuple[Any],
+                 args: Tuple,
                  kwargs: Mapping[str, Any],
                  datarg: bool = False) -> None:
 

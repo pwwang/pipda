@@ -29,7 +29,7 @@ class Function(Expression):
     def __init__(
             self,
             func: Union[Callable, Expression],
-            args: Tuple[Any],
+            args: Tuple,
             kwargs: Mapping[str, Any],
             dataarg: bool = True
     ) -> None:
@@ -62,7 +62,7 @@ class Function(Expression):
         if isinstance(func, Expression):
             func = evaluate_expr(func, data, context)
 
-        dispatcher = _get_dispatcher(func, type(data))
+        dispatcher = _get_dispatcher(func, type(data)) # type: ignore
         func_context = getattr(dispatcher, 'context', None)
         func_extra_contexts = getattr(dispatcher, 'extra_contexts', None)
 
@@ -84,7 +84,7 @@ class Function(Expression):
         if context and context.name == 'pending':
             # leave args/kwargs for the child
             # verb/function/operator to evaluate
-            return func(*bondargs.args, **bondargs.kwargs)
+            return func(*bondargs.args, **bondargs.kwargs) # type: ignore
 
         args = evaluate_args(
             bondargs.args,
@@ -96,7 +96,7 @@ class Function(Expression):
             data,
             context.kwargs if context else context
         )
-        return func(*args, **kwargs)
+        return func(*args, **kwargs) # type: ignore
 
 # Helper functions --------------------------------
 

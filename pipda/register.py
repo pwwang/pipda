@@ -1,5 +1,6 @@
 """Provide register_* suite"""
 import ast
+import typing
 import warnings
 from collections import namedtuple
 from enum import Enum
@@ -17,11 +18,14 @@ from typing import (
     Union
 )
 
-from .context import ContextBase, ContextAnnoType
+from .context import ContextAnnoType, ContextBase
 from .function import Function
-from .utils import Expression, NULL, PipingEnvs, bind_arguments, calling_env
-from .verb import Verb
 from .operator import Operator
+from .utils import NULL, Expression, PipingEnvs, bind_arguments, calling_env
+from .verb import Verb
+
+if typing.TYPE_CHECKING: # pragma: no cover
+    import inspect
 
 # The Sign tuple
 Sign = namedtuple('Sign', ['method', 'token'])
@@ -253,11 +257,11 @@ def unregister(func: Callable) -> Callable:
 
 def _clean_register_args(
         types: Optional[Union[FunctionType, Type, Iterable[Type]]],
-        context: ContextAnnoType,
+        context: Optional[ContextAnnoType],
         func: Optional[Callable],
         extra_contexts: Optional[Mapping[str, ContextAnnoType]]
 ) -> Tuple[
-        Optional[Union[Type, Iterable[Type]]],
+        Optional[Iterable[Type]],
         Optional[ContextBase],
         Optional[Callable],
         Optional[Mapping[str, ContextBase]]
@@ -267,7 +271,7 @@ def _clean_register_args(
         func, types = types, object
 
     if types is not None and not isinstance(types, (tuple, set, list)):
-        types = (types, )
+        types = (types, ) # type: ignore
 
     if isinstance(context, Enum):
         context = context.value
@@ -278,9 +282,12 @@ def _clean_register_args(
         for key, ctx in extra_contexts.items()
     }
 
-    return types, context, func, extra_contexts
+    return types, context, func, extra_contexts # type: ignore
 
-def _generializing(func: Callable, types: Iterable[Type]) -> Callable:
+def _generializing(
+        func: Callable,
+        types: Iterable[Type]
+) -> Callable:
     """Returns the generic function and register the types
     """
     if object in types:
@@ -402,7 +409,7 @@ def _singledispatch_register(
     """Allow register of generic function to register types with context"""
     def _register_func(
             types: Union[Type, Iterable[Type]],
-            context: Any = None,
+            context: Optional[ContextAnnoType] = None,
             func: Optional[Callable] = None
     ) -> Callable:
         types, context, func, _ = _clean_register_args(
@@ -446,7 +453,9 @@ def _try_calling_dataarg(
     pending for evaluation. If env (data) is provided, return the
     evaluated results, using the env
     """
-    first_bind_error = None
+    first_bind_error = None  # type: Exception
+    boundargs1 = None # type: Optional[inspect.BoundArguments]
+    boundargs2 = None # type: Optional[inspect.BoundArguments]
     try:
         boundargs1 = bind_arguments(
             func.__origfunc__,
@@ -456,7 +465,6 @@ def _try_calling_dataarg(
         )
     except TypeError as terr:
         first_bind_error = terr
-        boundargs1 = None
 
     try:
         boundargs2 = bind_arguments(
@@ -467,7 +475,7 @@ def _try_calling_dataarg(
             ignore_first=True
         )
     except TypeError:
-        boundargs2 = None
+        ...
 
     firstarg, rest_args, rest_kwargs = _strip_first_arg(args, kwargs)
     if boundargs1 and boundargs2:
@@ -572,7 +580,7 @@ def _register_func_no_dataarg(
     return _wrapping_no_dataarg(func, 'PlainFunction', verb_arg_only)
 
 def _register_func_dataarg(
-        types: Union[FunctionType, Type, Iterable[Type]],
+        types: Iterable[Type],
         func: Callable,
         verb_arg_only: bool
 ) -> Callable:
@@ -590,7 +598,7 @@ def _is_expr(expr: Any) -> bool:
 
     return isinstance(expr, Expression)
 
-def _have_expr(args: Tuple[Any], kwargs: Mapping[str, Any]) -> bool:
+def _have_expr(args: Tuple, kwargs: Mapping[str, Any]) -> bool:
     """Check if arg and kwargs have Expression object"""
     return any(_is_expr(arg) for arg in chain(args, kwargs.values()))
 

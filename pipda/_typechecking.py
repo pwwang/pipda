@@ -46,7 +46,7 @@ def _is_base_generic(type_):
 
     return False
 
-def _is_qualified_generic(type_: typing.Type) -> typing.Type:
+def _is_qualified_generic(type_: typing.Type) -> bool:
     """Check if a type is a qualified generic"""
     return (
         _is_generic(type_) and not _is_base_generic(type_)

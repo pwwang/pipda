@@ -68,7 +68,11 @@ class ReferenceAttr(Reference):
         super()._pipda_eval(data, context)
         parent = evaluate_expr(self.parent, data, context)
 
-        return context.getattr(parent, self.ref, self.__class__.direct)
+        return context.getattr(
+            parent,
+            self.ref,
+            self.__class__.direct
+        )
 
 class ReferenceItem(Reference):
     """Subscript references, for example: `f['A']`, `f.A['B']` etc"""
@@ -83,7 +87,12 @@ class ReferenceItem(Reference):
         super()._pipda_eval(data, context)
         parent = evaluate_expr(self.parent, data, context)
         ref = evaluate_expr(self.ref, data, context.ref)
-        return context.getitem(parent, ref, self.__class__.direct)
+
+        return context.getitem(
+            parent,
+            ref,
+            self.__class__.direct
+        )
 
 class DirectRefAttr(ReferenceAttr):
     """The direct attribute reference, such as `f.A`"""

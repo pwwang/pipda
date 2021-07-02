@@ -18,16 +18,14 @@ repos:
         pass_filenames: false
         always_run: true
         language: system
--   repo: https://github.com/pre-commit/mirrors-pylint
-    rev: v2.4.4
-    hooks:
     -   id: pylint
+        name: Run pylint
+        entry: pylint
+        language: system
         files: ^pipda/.+$
         pass_filenames: false
         types: [python]
         args: [pipda]
--   repo: local
-    hooks:
     -   id: poetry2setuppy
         name: Convert pyproject.toml to setup.py
         entry: dephell deps convert --from=poetry --to=setup.py
@@ -40,6 +38,14 @@ repos:
         language: system
         files: pyproject.toml
         pass_filenames: false
+    -   id: mypycheck
+        name: Type checking by mypy
+        entry: mypy
+        language: system
+        files: ^pipda/.+$
+        pass_filenames: false
+        types: [python]
+        args: [-p, pipda]
     -   id: pytest
         name: Run pytest
         entry: pytest
