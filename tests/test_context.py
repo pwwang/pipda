@@ -10,8 +10,9 @@ def test_context_select():
 
 def test_context_eval():
     ce = ContextEval()
+    l = []
     assert ce.name == 'eval'
-    assert ce.getattr([], '__len__') == [].__len__
+    assert ce.getattr(l, '__len__') == l.__len__
     assert ce.getitem([1 ,2], 0) == 1
 
 def test_context_pending():
