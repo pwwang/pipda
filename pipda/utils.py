@@ -1,102 +1,69 @@
-"""Provide the utilities and Expression class"""
+"""Provide utilities"""
 import ast
 import inspect
 import sys
 import warnings
-from abc import ABC, abstractmethod
 from enum import Enum, auto
-from functools import partialmethod
+from functools import lru_cache, singledispatch
 from types import FrameType
-from typing import Any, Callable, Mapping, Optional, Tuple
+from typing import Any, Callable, Mapping, Tuple
 
 from executing import Source
+from pure_eval import Evaluator, CannotEval
 
-from .context import ContextAnnoType, ContextBase
-from ._typechecking import instanceof
+from .context import ContextAnnoType
 
-NULL = object()
-DATA_CONTEXTVAR_NAME = '__pipda_context_data__'
+DATA_CONTEXTVAR_NAME = "__pipda_context_data__"
 
-class PipingEnvs(Enum):
+
+class InaccessibleToNULLException(Exception):
+    """Raises when access to NULLClass object"""
+
+
+class NULLClass:
+    """Sometimes, None is a valid option. In order to distinguish this
+    situation, NULL is used for a default.
+
+    It is also used as data to fast evaluate FastEvalFunction and FastEvalVerb
+    objects. If failed, InaccessibleToNULLException will be raised.
+    """
+
+    def __repr__(self) -> str:
+        """String representation"""
+        return "NULL"
+
+    def _inaccessible(self, *args: Any, **kwargs: Any) -> Any:
+        raise InaccessibleToNULLException
+
+    __bool__ = _inaccessible
+    __len__ = _inaccessible
+    __getitem__ = _inaccessible
+    __getattr__ = _inaccessible
+    # more ?
+
+
+NULL = NULLClass()
+
+
+class CallingEnvs(Enum):
     """Types of piping/calling envs"""
+
+    # When a function works as an argument of a verb calling
+    # data >> verb(func())
+    #              ^^^^^^
+    # Or
+    # verb(data, func())
+    #            ^^^^^^
     PIPING = auto()
+    # When I am the verb in piping syntax
+    # data >> verb(...)
+    #         ^^^^^^^^^
     PIPING_VERB = auto()
+    # # When I am an argument of any function not in a piping syntax
+    # # func(x=func2())
+    # #        ^^^^^^^
+    # FUNC_ARG = auto()
 
-class Expression(ABC):
-    """The abstract Expression class"""
-
-    def __hash__(self) -> int:
-        """Make it hashable"""
-        return hash(id(self))
-
-    def __getattr__(self, name: str) -> "Expression":
-        """Whenever `expr.attr` is encountered,
-        return a ReferenceAttr object"""
-        from .symbolic import ReferenceAttr
-        return ReferenceAttr(self, name)
-
-    def __getitem__(self, item: Any) -> "Expression":
-        """Whenever `expr[item]` is encountered,
-        return a ReferenceAttr object"""
-        from .symbolic import ReferenceItem
-        return ReferenceItem(self, item)
-
-    def _op_handler(self, op: str, *args: Any, **kwargs: Any) -> "Expression":
-        """Handle the operators"""
-        from .operator import Operator
-        return Operator.REGISTERED(op, (self, *args), kwargs)
-
-    # Make sure the operators connect all expressions into one
-    __add__ = partialmethod(_op_handler, 'add')
-    __radd__ = partialmethod(_op_handler, 'radd')
-    __sub__ = partialmethod(_op_handler, 'sub')
-    __rsub__ = partialmethod(_op_handler, 'rsub')
-    __mul__ = partialmethod(_op_handler, 'mul')
-    __rmul__ = partialmethod(_op_handler, 'rmul')
-    __matmul__ = partialmethod(_op_handler, 'matmul')
-    __rmatmul__ = partialmethod(_op_handler, 'rmatmul')
-    __truediv__ = partialmethod(_op_handler, 'truediv')
-    __rtruediv__ = partialmethod(_op_handler, 'rtruediv')
-    __floordiv__ = partialmethod(_op_handler, 'floordiv')
-    __rfloordiv__ = partialmethod(_op_handler, 'rfloordiv')
-    __mod__ = partialmethod(_op_handler, 'mod')
-    __rmod__ = partialmethod(_op_handler, 'rmod')
-    __lshift__ = partialmethod(_op_handler, 'lshift')
-    __rlshift__ = partialmethod(_op_handler, 'rlshift')
-    __rshift__ = partialmethod(_op_handler, 'rshift')
-    __rrshift__ = partialmethod(_op_handler, 'rrshift')
-    __and__ = partialmethod(_op_handler, 'and_')
-    __rand__ = partialmethod(_op_handler, 'rand')
-    __xor__ = partialmethod(_op_handler, 'xor')
-    __rxor__ = partialmethod(_op_handler, 'rxor')
-    __or__ = partialmethod(_op_handler, 'or_')
-    __ror__ = partialmethod(_op_handler, 'ror')
-    __pow__ = partialmethod(_op_handler, 'pow')
-    __rpow__ = partialmethod(_op_handler, 'rpow')
-    __contains__ = partialmethod(_op_handler, 'contains')
-
-    __lt__ = partialmethod(_op_handler, 'lt') # type: ignore
-    __le__ = partialmethod(_op_handler, 'le')
-    __eq__ = partialmethod(_op_handler, 'eq') # type: ignore
-    __ne__ = partialmethod(_op_handler, 'ne') # type: ignore
-    __gt__ = partialmethod(_op_handler, 'gt')
-    __ge__ = partialmethod(_op_handler, 'ge')
-    __neg__ = partialmethod(_op_handler, 'neg')
-    __pos__ = partialmethod(_op_handler, 'pos')
-    __invert__ = partialmethod(_op_handler, 'invert')
-
-    # pylint: disable=bad-option-value,invalid-index-returned
-    def __index__(self):
-        """Allow Expression object to work as indexes"""
-        return None
-
-    @abstractmethod
-    def _pipda_eval(
-            self,
-            data: Any,
-            context: Optional[ContextBase] = None,
-    ) -> Any:
-        """Evaluate the expression using given data"""
 
 class DataEnv:
     """A data context that can be accessed by the function registered by
@@ -123,27 +90,6 @@ class DataEnv:
         """Delete the attached data"""
         self.set(NULL)
 
-def get_verb_node(calling_node: ast.Call) -> Optional[ast.Call]:
-    """Get the ast node that is ensured the piped verb call"""
-    from .verb import Verb
-    from .register import PIPING_SIGNS
-
-    # check if we have the piping node (i.e. >>)
-    child = calling_node
-    parent = getattr(child, 'parent', None)
-    while parent:
-        if (
-                (
-                    isinstance(parent, ast.BinOp) and parent.right is child or
-                    isinstance(parent, ast.AugAssign) and parent.value is child
-                ) and
-                isinstance(parent.op, PIPING_SIGNS[Verb.CURRENT_SIGN].token)
-        ):
-            return child
-
-        child = parent
-        parent = getattr(parent, 'parent', None)
-    return None
 
 def get_env_data(frame: FrameType) -> Any:
     """Check and return if there is a data set in the context where
@@ -151,80 +97,30 @@ def get_env_data(frame: FrameType) -> Any:
 
     The data has to be named as `_`
     """
-    envdata = frame.f_locals.get('_', None)
-    if (
-            not isinstance(envdata, DataEnv) or
-            envdata.name != DATA_CONTEXTVAR_NAME
-    ):
+    envdata = frame.f_locals.get("_", None)
+    if not isinstance(envdata, DataEnv) or envdata.name != DATA_CONTEXTVAR_NAME:
         return NULL
     return envdata.get()
 
-def is_argument_node(
-        sub_node: ast.Call,
-        verb_node: Optional[ast.Call]
-) -> bool:
-    """Check if node func() is an argument of verb() (i.e. verb(func()))"""
-    if not verb_node:
-        return False
-    parent = sub_node
-    while parent:
-        if isinstance(parent, ast.Call) and (
-                parent is verb_node or
-                is_argument_node_of(parent) is verb_node
-        ):
-            return True
-        if isinstance(parent, ast.Lambda):
-            # function inside lambda is not in a piping environment
-            return False
-        parent = getattr(parent, 'parent', None)
-    # when verb_node is ensured, we can anyway retrieve it as the parent of
-    # sub_node
-    return False # pragma: no cover
 
-def is_argument_node_of(sub_node: ast.Call) -> Optional[ast.Call]:
-    """Check if node func() is an argument of any function calls"""
-    parent = getattr(sub_node, 'parent', None)
-    while parent:
-        if isinstance(parent, ast.Call) and (
-                sub_node in parent.args or any(
-                    keyword.value is sub_node
-                    for keyword in parent.keywords
-                )
-        ):
-            return parent
-        if isinstance(parent, ast.Lambda):
-            # function inside lambda is not in a piping environment
-            return None
-        parent = getattr(parent, 'parent', None)
-    return None
-
-def calling_env(astnode_fail_warning: bool = True) -> Any:
+def calling_env(warn_astnode_failure: bool = True) -> Any:
     """Checking how the function is called:
-    - piping:
-        1. It is a verb that is piped directed. ie. data >> verb(...)
-        2. It is a function called as (part of) the argument of a piping verb.
-            ie.:
 
-            >>> data >> verb(func(...))
+    1. PIPING_VERB: It is a verb that is piped directed. ie. data >> verb(...)
+    2. PIPING: It is a function called as (part of) the argument
+        of a piping verb. ie.:
 
-            Note: `func` here could also be a verb. When a function is called
-            inside a lambda body, it should not be counted in this situation:
+        >>> data >> verb(func(...))
 
-            >>> data >> verb(lambda: func(...))
+        Note that `func` here could also be a verb. When a function is called
+        inside a lambda body, it should not be counted in this situation:
 
-            In this case, func should be called as normal function.
-            This function should return `None`
-    - the context data:
-        It is a verb that is not piped but with a data context. ie.:
+        >>> data >> verb(lambda: func(...))
 
-        >>> data = contextvars.ContextVar(DATA_CONTEXTVAR_NAME, default=data)
-        >>> y = verb(arg)
-
-        Note that in such a case, the function should not be called as (part of)
-        any arguments of other function calls. If so, this function should
-        return `piping`, leaving it for the parent funtion to evaluate it.
-    - None:
-        None of the above situation fits
+        In this case, func should be called as normal function.
+        This function should return `None`
+    3. FUNC_ARG: It is an argument of any function call
+    4. None: None of the above situation fits
 
     This function should be only called inside register_*.wrapper
     """
@@ -232,90 +128,95 @@ def calling_env(astnode_fail_warning: bool = True) -> Any:
     # frame 2: func(...)
     frame = sys._getframe(2)
     my_node = Source.executing(frame).node
-    if not my_node and astnode_fail_warning:
+    if not my_node and warn_astnode_failure:
         warnings.warn(
             "Failed to fetch the node calling the function, "
             "call it with the original function."
         )
-        return NULL
+        return None
 
-    piping_verb_node = get_verb_node(my_node)
+    piping_verb_node = _get_piping_verb_node(my_node)
     if piping_verb_node is my_node and piping_verb_node is not None:
-        return PipingEnvs.PIPING_VERB
+        return CallingEnvs.PIPING_VERB
 
-    if is_argument_node(my_node, piping_verb_node):
-        return PipingEnvs.PIPING
+    if _is_piping_verb_argument_node(my_node, piping_verb_node):
+        return CallingEnvs.PIPING
 
-    # get the context data
-    contextdata = get_env_data(frame)
-    if contextdata is NULL:
-        return NULL
+    parent_call_node = _argument_node_of(my_node)
+    if parent_call_node is None:
+        return None
 
-    if is_argument_node_of(my_node) is not None:
-        # When working as an argument, the function is working in piping mode
-        # Because we don't know (or it takes too much efforts to) whether
-        # the parent node is a function registered by pipda.register_* or not.
-        return PipingEnvs.PIPING
+    # check if parent call node is a function registered by
+    # register_verb/register_func
+    evaluator = Evaluator.from_frame(frame)
+    try:
+        func = evaluator[parent_call_node.func]
+    except CannotEval:  # pragma: no cover
+        return None
 
-    return contextdata
+    if functype(func) != "plain":
+        return CallingEnvs.PIPING
 
-def evaluate_expr(
-        expr: Any,
-        data: Any,
-        context: Optional[ContextAnnoType]
-) -> Any:
+    return None
+
+
+def evaluate_expr(expr: Any, data: Any, context: ContextAnnoType) -> Any:
     """Evaluate a mixed expression"""
     if isinstance(context, Enum):
         context = context.value
 
-    if hasattr(expr.__class__, '_pipda_eval'):
+    if hasattr(expr.__class__, "_pipda_eval"):
         # Not only for Expression objects, but also
         # allow customized classes
         return expr._pipda_eval(data, context)
 
     if isinstance(expr, (tuple, list, set)):
         # In case it's subclass
-        return expr.__class__((
-            evaluate_expr(elem, data, context)
-            for elem in expr
-        ))
+        return expr.__class__(
+            (evaluate_expr(elem, data, context) for elem in expr)
+        )
+
     if isinstance(expr, slice):
         return slice(
             evaluate_expr(expr.start, data, context),
             evaluate_expr(expr.stop, data, context),
-            evaluate_expr(expr.step, data, context)
+            evaluate_expr(expr.step, data, context),
         )
-    # no need anymore for python3.7+
-    # if isinstance(expr, OrderedDict):
-    #     return OrderedDict([
-    #         (key, evaluate_expr(val, data, context))
-    #         for key, val in expr.items()
-    #     ])
+
     if isinstance(expr, dict):
-        return expr.__class__({
-            key: evaluate_expr(val, data, context)
-            for key, val in expr.items()
-        })
+        return expr.__class__(
+            {
+                key: evaluate_expr(val, data, context)
+                for key, val in expr.items()
+            }
+        )
     return expr
 
-def evaluate_args(
-        args: Tuple,
-        data: Any,
-        context: ContextAnnoType
-) -> Tuple:
-    """Evaluate the non-keyword arguments"""
-    return tuple(evaluate_expr(arg, data, context) for arg in args)
 
-def evaluate_kwargs(
-        kwargs: Mapping[str, Any],
-        data: Any,
-        context: ContextAnnoType
-) -> Mapping[str, Any]:
-    """Evaluate the keyword arguments"""
-    return {
-        key: evaluate_expr(val, data, context)
-        for key, val in kwargs.items()
-    }
+@singledispatch
+def has_expr(expr: Any) -> bool:
+    """Check if expr has any Expression object in it"""
+    from .expression import Expression
+
+    return isinstance(expr, Expression)
+
+
+@has_expr.register(tuple)
+@has_expr.register(list)
+@has_expr.register(set)
+def _(expr: Any) -> Any:
+    return any(has_expr(elem) for elem in expr)
+
+
+@has_expr.register(slice)
+def _(expr: Any) -> Any:
+    return has_expr((expr.start, expr.stop, expr.step))
+
+
+@has_expr.register(dict)
+def _(expr: Any) -> Any:
+    return any(has_expr(elem) for elem in expr.values())
+
 
 def functype(func: Callable) -> str:
     """Check the type of the function
@@ -332,22 +233,23 @@ def functype(func: Callable) -> str:
             without data as the first argument
         - plain: A plain python function
     """
-    pipda_type = getattr(func, '__pipda__', None)
-    if pipda_type == 'Verb':
-        return 'verb'
-    if pipda_type == 'Function':
-        return 'func'
-    if pipda_type == 'PlainFunction':
-        return 'plain-func'
-    return 'plain'
+    pipda_type = getattr(func, "__pipda__", None)
+    if pipda_type == "Verb":
+        return "verb"
+    if pipda_type == "Function":
+        return "func"
+    if pipda_type == "PlainFunction":
+        return "plain-func"
+    return "plain"
+
 
 def bind_arguments(
-        func: Callable,
-        args: Tuple,
-        kwargs: Mapping[str, Any],
-        type_check: bool = False,
-        ignore_first: bool = False,
-        ignore_expr: bool = True
+    func: Callable,
+    args: Tuple,
+    kwargs: Mapping[str, Any],
+    # type_check: bool = False,
+    # ignore_first: bool = False,
+    # ignore_types: Tuple[Type] = (Expression, )
 ) -> inspect.BoundArguments:
     """Try to bind arguments, instead of run the function to see if arguments
     can fit the function
@@ -358,8 +260,7 @@ def bind_arguments(
         kwargs: The keyword arguments to bind to the function
         type_check: Whether do the type check for the values
         ignore_first: Whether ignore type check for the first argument
-        ignore_expr: Whether ignore type check for Expression objects
-            (Since they are waiting for evaluation)
+        ignore_types: Types to be ignored (always return True for any values)
 
     Raises:
         TypeError: When arguments failed to bind or types of values
@@ -374,25 +275,99 @@ def bind_arguments(
     except TypeError as terr:
         raise TypeError(f"[{func.__qualname__}] {terr}") from None
 
-    if len(boundargs.arguments) > 0 and type_check:
-        # some arguments bound
-        firstarg = list(signature.parameters)[0]
-        for key, val in boundargs.arguments.items():
-            if ignore_first and key == firstarg:
-                continue
+    # if len(boundargs.arguments) > 0 and type_check:
+    #     # some arguments bound
+    #     firstarg = list(signature.parameters)[0]
+    #     for key, val in boundargs.arguments.items():
+    #         if ignore_first and key == firstarg:
+    #             continue
 
-            if ignore_expr and isinstance(val, Expression):
-                continue
+    #         annotation = signature.parameters[key].annotation
+    #         if annotation is inspect._empty:
+    #             continue
 
-            annotation = signature.parameters[key].annotation
-            if annotation is inspect._empty:
-                continue
-
-            if not instanceof(val, signature.parameters[key].annotation):
-                raise TypeError(
-                    f"[{func.__qualname__}] Expect a value of "
-                    f"{annotation} for argument `{key}`, got {val}"
-                )
+    #         if not instanceof(val, annotation, ignore=ignore_types):
+    #             raise TypeError(
+    #                 f"[{func.__qualname__}] Argument `{key}` expect a value "
+    #                 f"of {annotation}, got {val}"
+    #             )
 
     boundargs.apply_defaults()
     return boundargs
+
+
+# Helper functions -----------------------------
+
+
+@lru_cache()
+def _get_piping_verb_node(calling_node: ast.Call) -> ast.Call:
+    """Get the ast node that is ensured the piping verb call
+
+    Args:
+        calling_node: Current Call node
+
+    Returns:
+        The verb call node if found, otherwise None
+    """
+    from .verb import Verb
+    from .register import PIPING_SIGNS
+
+    # check if we have the piping node (i.e. >>)
+    child = calling_node
+    parent = getattr(child, "parent", None)
+    token = PIPING_SIGNS[Verb.CURRENT_SIGN].token
+    while parent:
+        if (
+            # data >> verb(...)
+            (isinstance(parent, ast.BinOp) and parent.right is child)
+            or
+            # data >>= verb(...)
+            (isinstance(parent, ast.AugAssign) and parent.value is child)
+        ) and isinstance(parent.op, token):
+            return child
+
+        child = parent
+        parent = getattr(parent, "parent", None)
+    return None
+
+
+@lru_cache()
+def _is_piping_verb_argument_node(
+    sub_node: ast.Call, verb_node: ast.Call
+) -> bool:
+    """Check if node func() is an argument of verb() (i.e. verb(func()))"""
+    if not verb_node:
+        return False
+    parent = sub_node
+    while parent:
+        if isinstance(parent, ast.Call) and (
+            parent is verb_node or _argument_node_of(parent) is verb_node
+        ):
+            return True
+
+        if isinstance(parent, ast.Lambda):
+            # function inside lambda is not in a piping environment
+            return False
+        parent = getattr(parent, "parent", None)
+    # when verb_node is ensured, we can anyway retrieve it as the parent of
+    # sub_node
+    return False  # pragma: no cover
+
+
+@lru_cache()
+def _argument_node_of(sub_node: ast.Call) -> ast.Call:
+    """Get the Call node of a argument subnode"""
+    parent = getattr(sub_node, "parent", None)
+    while parent:
+        if isinstance(parent, ast.Call) and (
+            sub_node in parent.args or sub_node in parent.keywords
+        ):
+            return parent
+
+        if isinstance(parent, ast.Lambda):
+            # function inside lambda is not in a piping environment
+            return None
+
+        sub_node = parent
+        parent = getattr(parent, "parent", None)
+    return None

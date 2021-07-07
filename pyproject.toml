@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pipda"
-version = "0.3.0"
+version = "0.4.0"
 description = "A framework for data piping in python"
 authors = ["pwwang <pwwang@pwwang.com>"]
 license = "MIT"
@@ -9,6 +9,7 @@ license = "MIT"
 python = "^3.7"
 varname = "*"
 executing = "*"
+pure_eval = "0.*"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
@@ -21,6 +22,16 @@ build-backend = "poetry.masonry.api"
 [tool.mypy]
 ignore_missing_imports = true
 allow_redefinition = true
-disable_error_code = ["attr-defined"]
+disable_error_code = ["attr-defined", "no-redef"]
 show_error_codes = true
 strict_optional = false
+
+[tool.pytest.ini_options]
+addopts = "-vv -W error::UserWarning --cov-config=.coveragerc --cov=pipda --cov-report xml:.coverage.xml --cov-report term-missing"
+console_output_style = "progress"
+junit_family = "xunit1"
+
+[tool.black]
+line-length = 80
+target-version = ['py37', 'py38', 'py39']
+include = '\.pyi?$'

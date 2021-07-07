@@ -13,10 +13,12 @@ from abc import ABC, abstractmethod, abstractproperty
 from enum import Enum
 from typing import Any, ClassVar, Union
 
+
 class ContextError(Exception):
     """Any errors related to contexts"""
 
-class ContextBase(ABC): # pragma: no cover
+
+class ContextBase(ABC):  # pragma: no cover
     """The context abstract class, defining how
     the Reference objects are evaluated
 
@@ -37,7 +39,7 @@ class ContextBase(ABC): # pragma: no cover
         """Defines how `f[item]` is evaluated"""
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} @ {hex(id(self))}>'
+        return f"<{self.__class__.__name__} @ {hex(id(self))}>"
 
     @property
     def ref(self) -> "ContextBase":
@@ -60,6 +62,7 @@ class ContextBase(ABC): # pragma: no cover
     def name(self) -> str:
         """The name of the context"""
 
+
 class ContextSelect(ContextBase):
     """Context used in a select context
 
@@ -68,7 +71,8 @@ class ContextSelect(ContextBase):
     - `f[ref]` works as a shortcut of `ref`. However, `ref` is needed to be
         evaluated by a context returned by `getref`
     """
-    name: ClassVar[str] = 'select'
+
+    name: ClassVar[str] = "select"
 
     def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> str:
         """Get the `ref` directly, regardless of `data`"""
@@ -78,13 +82,15 @@ class ContextSelect(ContextBase):
         """Get the `ref` directly, which is already evaluated by `f[ref]`"""
         return ref
 
+
 class ContextEval(ContextBase):
     """Context used in a data-evaluation context
 
     In this kind of context, the expression is evaluated as-is. That is,
     `f.A` is evaluated as `f.A` and `f[item]` is evaluated as `f[item]`
     """
-    name: ClassVar[str] = 'eval'
+
+    name: ClassVar[str] = "eval"
 
     def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> Any:
         """How to evaluate `f.A`"""
@@ -94,27 +100,26 @@ class ContextEval(ContextBase):
         """How to evaluate `f[item]`"""
         return parent[ref]
 
+
 class ContextPending(ContextBase):
     """Pending context"""
-    name: ClassVar[str] = 'pending'
+
+    name: ClassVar[str] = "pending"
 
     def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> str:
         """Get the `ref` directly, regardless of `data`"""
-        raise NotImplementedError(
-            'Pending context cannot be used to evaluate.'
-        )
+        raise NotImplementedError("Pending context cannot be used to evaluate.")
 
     def getitem(self, parent: Any, ref: Any, is_direct: bool = False) -> Any:
         """Get the `ref` directly, which is already evaluated by `f[ref]`"""
-        raise NotImplementedError(
-            'Pending context cannot be used to evaluate.'
-        )
+        raise NotImplementedError("Pending context cannot be used to evaluate.")
 
 
 class ContextMixed(ContextBase):
     """A mixed context, where the `*args` are evaluated with `ContextSelect`
     and `**args` are evaluated with `ContextEval`."""
-    name: ClassVar[str] = 'mixed'
+
+    name: ClassVar[str] = "mixed"
 
     def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> None:
         raise NotImplementedError(
@@ -134,6 +139,7 @@ class ContextMixed(ContextBase):
     def kwargs(self):
         return ContextEval()
 
+
 class Context(Enum):
     """Context to solve f.A and f['A']
 
@@ -146,10 +152,12 @@ class Context(Enum):
         For *args, used select-based;
         for **kwargs, use evaluation-based.
     """
+
     UNSET = None
     PENDING = ContextPending()
     SELECT = ContextSelect()
     EVAL = ContextEval()
     MIXED = ContextMixed()
+
 
 ContextAnnoType = Union[Context, ContextBase]

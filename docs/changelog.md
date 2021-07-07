@@ -1,3 +1,7 @@
+## 0.4.0
+- Improve calling rules for verbs, data functions and non-data functions
+- Remove `evaluate_args()` and `evaluate_kwargs()`, use `evaluate_expr()` instead
+
 ## 0.3.0
 Added:
 - Add a better regular calling strategy and warn for ambiguity
