@@ -2,7 +2,7 @@
 import operator
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable, Mapping, Optional, Tuple
+from typing import Any, Callable, Mapping, Tuple, ClassVar, Type
 
 from .context import ContextAnnoType, ContextBase
 from .function import Function
@@ -24,29 +24,34 @@ class Operator(Function):
         REGISTERED: The registered Operator class. It's this class by default
             Use `register_operator` as a decorator to register a operator class
     """
-    REGISTERED = None
 
-    def __init__(self,
-                 op: str,
-                 args: Tuple[Any],
-                 kwargs: Mapping[str, Any],
-                 datarg: bool = False) -> None:
+    REGISTERED: ClassVar[Type["Operator"]] = None
+
+    def __init__(
+        self,
+        op: str,
+        args: Tuple,
+        kwargs: Mapping[str, Any],
+        datarg: bool = False,
+    ) -> None:
 
         self.op = op
         self.data = None
         # if the function is defined directly, use it.
         # otherwise, get one from `__getattr__`
         op_func = getattr(self, self.op, None)
-        if not op_func and self.op[0] == 'r':
+        if not op_func and self.op[0] == "r":
             left_op = (
-                self.op[1:] if self.op not in ('rand', 'ror')
-                else f'{self.op[1:]}_'
+                self.op[1:]
+                if self.op not in ("rand", "ror")
+                else f"{self.op[1:]}_"
             )
             op_func = getattr(self, left_op, None)
             if not op_func:
                 raise ValueError(
-                    f'No operator function defined for {self.op!r}'
+                    f"No operator function defined for {self.op!r}"
                 )
+
             @wraps(op_func)
             def left_op_func(arg_a, arg_b, *args, **kwargs):
                 return op_func(arg_b, arg_a, *args, **kwargs)
@@ -55,12 +60,12 @@ class Operator(Function):
         elif op_func:
             super().__init__(op_func, args, kwargs, datarg)
         else:
-            raise ValueError(f'No operator function defined for {self.op!r}')
+            raise ValueError(f"No operator function defined for {self.op!r}")
 
     @staticmethod
     def set_context(
-            context: ContextAnnoType,
-            extra_contexts: Optional[Mapping[str, ContextAnnoType]] = None
+        context: ContextAnnoType,
+        extra_contexts: Mapping[str, ContextAnnoType] = None,
     ) -> Callable[[Callable], Callable]:
         """Set custom context for a operator method"""
 
@@ -78,9 +83,7 @@ class Operator(Function):
         return wrapper
 
     def _pipda_eval(
-            self,
-            data: Any,
-            context: Optional[ContextBase] = None
+        self, data: Any, context: ContextBase = None
     ) -> Any:
         """Evaluate the operator
 

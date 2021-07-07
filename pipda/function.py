@@ -1,15 +1,14 @@
 """Provides register_func to register functions"""
-from typing import (
-    Any, Callable, Mapping, Optional, Tuple, Type, Union
-)
+from typing import Any, Callable, Mapping, Tuple, Type, Union
 from .utils import (
-    Expression,
+    NULL,
+    InaccessibleToNULLException,
     bind_arguments,
-    evaluate_args,
     evaluate_expr,
-    evaluate_kwargs
 )
-from .context import ContextBase
+from .expression import Expression
+from .context import ContextBase, ContextError
+
 
 class Function(Expression):
     """The Function class, defining how the function should be executed
@@ -26,12 +25,13 @@ class Function(Expression):
         kwargs: The keyword arguments of the function
         dataarg: Whether the function has data as the first argument
     """
+
     def __init__(
-            self,
-            func: Union[Callable, Expression],
-            args: Tuple[Any],
-            kwargs: Mapping[str, Any],
-            dataarg: bool = True
+        self,
+        func: Union[Callable, Expression],
+        args: Tuple,
+        kwargs: Mapping[str, Any],
+        dataarg: bool = True,
     ) -> None:
 
         self.func = func
@@ -41,14 +41,12 @@ class Function(Expression):
 
     def __repr__(self) -> str:
         return (
-            f'{self.__class__.__name__}'
-            f'(func={self.func.__qualname__!r}, dataarg={self.dataarg})'
+            f"{self.__class__.__name__}"
+            f"(func={self.func.__qualname__!r}, dataarg={self.dataarg})"
         )
 
     def _pipda_eval(
-            self,
-            data: Any,
-            context: Optional[ContextBase] = None
+        self, data: Any, context: ContextBase = None
     ) -> Any:
         """Execute the function with the data
 
@@ -62,9 +60,9 @@ class Function(Expression):
         if isinstance(func, Expression):
             func = evaluate_expr(func, data, context)
 
-        dispatcher = _get_dispatcher(func, type(data))
-        func_context = getattr(dispatcher, 'context', None)
-        func_extra_contexts = getattr(dispatcher, 'extra_contexts', None)
+        dispatcher = _get_dispatcher(func, type(data))  # type: ignore
+        func_context = getattr(dispatcher, "context", None)
+        func_extra_contexts = getattr(dispatcher, "extra_contexts", None)
 
         context = func_context or context
         args = (data, *self.args) if self.dataarg else self.args
@@ -73,35 +71,46 @@ class Function(Expression):
             # evaluate some specfic args
             for key, ctx in func_extra_contexts.items():
                 if key not in bondargs.arguments:
-                    raise KeyError(f'No such argument: {key!r}')
+                    raise KeyError(
+                        f"[{dispatcher.__qualname__}] No such argument: {key!r}"
+                    )
                 bondargs.arguments[key] = evaluate_expr(
                     bondargs.arguments[key], data, ctx
                 )
 
-        if '_context' in bondargs.arguments:
-            bondargs.arguments['_context'] = context
+        if "_context" in bondargs.arguments:
+            bondargs.arguments["_context"] = context
 
-        if context and context.name == 'pending':
+        if context and context.name == "pending":
             # leave args/kwargs for the child
             # verb/function/operator to evaluate
-            return func(*bondargs.args, **bondargs.kwargs)
+            return func(*bondargs.args, **bondargs.kwargs)  # type: ignore
 
-        args = evaluate_args(
-            bondargs.args,
-            data,
-            context.args if context else context
+        args = evaluate_expr(
+            bondargs.args, data, context.args if context else context
         )
-        kwargs = evaluate_kwargs(
-            bondargs.kwargs,
-            data,
-            context.kwargs if context else context
+        kwargs = evaluate_expr(
+            bondargs.kwargs, data, context.kwargs if context else context
         )
-        return func(*args, **kwargs)
+        return func(*args, **kwargs)  # type: ignore
+
+
+class FastEvalFunction(Function):
+    """Fast evaluation function"""
+
+    def _pipda_fast_eval(self):
+        """Evaluate this function"""
+        try:
+            return self._pipda_eval(NULL)
+        except (ContextError, InaccessibleToNULLException, NotImplementedError):
+            return self
+
 
 # Helper functions --------------------------------
 
+
 def _get_dispatcher(func: Callable, typ: Type) -> Callable:
-    dispatch = getattr(func, 'dispatch', None)
+    dispatch = getattr(func, "dispatch", None)
     if dispatch is None:
         return func
 

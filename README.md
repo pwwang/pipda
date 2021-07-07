@@ -290,6 +290,50 @@ df >> mutate_mycontext(m=f[f.y][:1].values[0])
 # 3  3  three  9     0    1    2      3  24
 ```
 
+### Calling rules
+
+#### Verb calling rules
+
+1. `data >> verb(...)`\
+    [PIPING_VERB]\
+    First argument should not be passed, using the data
+2. `data >> other_verb(verb(...))`\
+   `other_verb(data, verb(...))`\
+   `registered_func(verb(...))`\
+    [PIPING]\
+    Try using the first argument to evaluate (FastEvalVerb), if first argument
+    is data. Otherwise, if it is Expression object, works as a non-data
+    Function.
+3. `verb(...)`\
+    Called independently. The verb will be called regularly anyway.
+    The first argument will be used as data to evaluate the arguments
+    if there are any Expression objects
+4. `verb(...)` with DataEnv\
+    First argument should not be passed in, will use the DataEnv's data
+    to evaluate the arguments
+
+#### Data function calling rules
+
+Functions that require first argument as data argument.
+
+1. `data >> verb(func(...))` or `verb(data, func(...))`\
+    First argument is not used. Will use data
+2. `func(...)`\
+    Called independently. The function will be called regularly anyway.
+    Similar as Verb calling rule, but first argument will not be used for
+    evaluation
+3. `func(...)` with DataEnv\
+    First argument not used, passed implicitly with DataEnv.
+
+### Non-data function calling rules:
+
+1. `data >> verb(func(...))` or `verb(data, func(...))`\
+    Return a Function object waiting for evaluation
+2. `func(...)`\
+    Called regularly anyway
+3. `func(...) with DataEnv`\
+    Evaluate with DataEnv. For example: mean(f.x)
+
 ### Caveats
 
 - You have to use and_ and or_ for bitwise and/or (`&`/`|`) operators, as and and or are python keywords.
@@ -297,63 +341,6 @@ df >> mutate_mycontext(m=f[f.y][:1].values[0])
 - Limitations:
 
     Any limitations apply to `executing` to detect the AST node will apply to `pipda`. It may not work in some circumstances where other AST magics apply.
-
-- Calling registered verbs/functions regularly:
-
-    The piping syntax (`>>`) is recommended with `pipda`. Because everything is determined with this syntax.
-
-    However, `pipda` tries to support regular calling. The ambiguity can come from the situations where the arguments passed in can shift one position right (such that they fit the piping calling), and first value passed in can also be dispatched and fit in the second argument.
-
-    For example:
-
-    ```python
-    @register_verb(int)
-    def add(a: int, b: int = 1):
-        return a + b
-    ```
-
-    If you call it like this `add(2)`, then we have no idea if this is calling `add(2, b=1)`, or `add(b=2)` and it's waiting for the data (`a`) to be piped in. In such a case, the function is called in the former way, but a warning will be showing.
-
-    To avoid this, as it states in the warning message, according to the reasons of the ambiguity, we should make sure that the values passed in cannot be shifted one position right (given values for all arguments would do it):
-
-    ```python
-    add(2, 1) # or add(2, b=1)
-    ```
-
-    or try not to use optional arguments while defining the function;
-
-    or make sure the first value cannot be dispatched:
-
-    ```python
-    @register_verb(int)
-    def add(a: int, b: float = 1.0):
-        return a + b
-
-    add(2.0)
-    ```
-    In such a case, it is for sure that it is called like `add(b=2.0)` and wait for `a` to be piped in.
-
-    You can even have a different type annotation for the second argument, even the same value can be accepted:
-
-    ```python
-    @register_verb(int)
-    def add(a: int, b: Optional[int] = 1):
-        return a + b
-
-    add(2)
-    ```
-
-    This will force it to call `add(2, b=1)`, but this definitely has some side effects:
-    ```python
-    verb(data, add(2))
-    ```
-    Here `add(2)` is intended to be called like `add(b=2)`, but unexpectedly, it will call like `add(2, b=1)`. Using the piping syntax will perfectly solve this:
-    ```python
-    data >> verb(add(2))
-    ```
-    since we know the function called in a verb is supposed to wait for the data to be piped in.
-
-    See also: [Piping vs regular calling][20]
 
 - Use another piping sign
 
@@ -406,7 +393,7 @@ data >> select(starts_with('a'))
 ```
 to select the columns with names start with `'a'`.
 
-No doubt that we need to defer the execution of the function, too. The trick is that we let the function return a `function` object as well, and evaluate it as the argument of the verb.
+No doubt that we need to defer the execution of the function, too. The trick is that we let the function return a `Function` object as well, and evaluate it as the argument of the verb.
 
 ### The operators
 `pipda` also opens oppotunities to change the behavior of the operators in verb/function arguments. This allows us to mimic something like this:
