@@ -37,30 +37,8 @@ class Operator(Function):
 
         self.op = op
         self.data = None
-        # if the function is defined directly, use it.
-        # otherwise, get one from `__getattr__`
-        op_func = getattr(self, self.op, None)
-        if not op_func and self.op[0] == "r":
-            left_op = (
-                self.op[1:]
-                if self.op not in ("rand", "ror")
-                else f"{self.op[1:]}_"
-            )
-            op_func = getattr(self, left_op, None)
-            if not op_func:
-                raise ValueError(
-                    f"No operator function defined for {self.op!r}"
-                )
-
-            @wraps(op_func)
-            def left_op_func(arg_a, arg_b, *args, **kwargs):
-                return op_func(arg_b, arg_a, *args, **kwargs)
-
-            super().__init__(left_op_func, args, kwargs, datarg)
-        elif op_func:
-            super().__init__(op_func, args, kwargs, datarg)
-        else:
-            raise ValueError(f"No operator function defined for {self.op!r}")
+        op_func = self._get_op_func()
+        super().__init__(op_func, args, kwargs, datarg)
 
     @staticmethod
     def set_context(
@@ -95,7 +73,29 @@ class Operator(Function):
         self.data = data
         return super()._pipda_eval(data, context)
 
-    def __getattr__(self, name: str) -> Any:
-        """Get the function to handle the operator"""
-        # See if standard operator function exists
-        return getattr(operator, name)
+    def _get_op_func(self) -> Callable:
+        """Get the operator function from the operator module by name"""
+        def _opfunc(opname: str) -> Callable:
+            self_op_name = f"_op_{opname}"
+            if hasattr(self.__class__, self_op_name):
+                return getattr(self, self_op_name)
+
+            return getattr(operator, opname, None)
+
+        op_func = _opfunc(self.op)
+        if op_func:
+            return op_func
+
+        if self.op[0] == 'r':
+            # if we get radd, swap left and right operands
+            op_func = _opfunc(self.op[1:])
+            if op_func:
+                @wraps(op_func)
+                def left_op_func(arg_a, arg_b, *args, **kwargs):
+                    return op_func(arg_b, arg_a, *args, **kwargs)
+
+                return left_op_func
+
+        raise ValueError(
+            f"No operator function defined for {self.op!r}"
+        )

@@ -354,6 +354,8 @@ Functions that require first argument as data argument.
 
     Allowed signs are: `+`, `-`, `*`, `@`, `/`, `//`, `%`, `**`, `<<`, `>>`, `&`, `^` and `|`.
 
+    Note that to use the new  piping sign, you have to register the verbs after the new piping sign being registered.
+
 - The context
 
     The context is only applied to the `DirectReference` objects or unary operators, like `-f.A`, `+f.A`, `~f.A`, `f.A`, `f['A']`, `[f.A, f.B]`, etc. Any other `Expression` wrapping those objects or other operators getting involved will turn the context to `Context.EVAL`
