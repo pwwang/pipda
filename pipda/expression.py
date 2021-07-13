@@ -55,11 +55,11 @@ class Expression(ABC):
     __rshift__ = partialmethod(_op_handler, "rshift")
     __rrshift__ = partialmethod(_op_handler, "rrshift")
     __and__ = partialmethod(_op_handler, "and_")
-    __rand__ = partialmethod(_op_handler, "rand")
+    __rand__ = partialmethod(_op_handler, "rand_")
     __xor__ = partialmethod(_op_handler, "xor")
     __rxor__ = partialmethod(_op_handler, "rxor")
     __or__ = partialmethod(_op_handler, "or_")
-    __ror__ = partialmethod(_op_handler, "ror")
+    __ror__ = partialmethod(_op_handler, "ror_")
     __pow__ = partialmethod(_op_handler, "pow")
     __rpow__ = partialmethod(_op_handler, "rpow")
     # __contains__() is forced into bool

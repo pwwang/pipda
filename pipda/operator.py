@@ -79,8 +79,7 @@ class Operator(Function):
             self_op_name = f"_op_{opname}"
             if hasattr(self.__class__, self_op_name):
                 return getattr(self, self_op_name)
-            if opname in ('and', 'or'):
-                opname = f'{opname}_'
+
             return getattr(operator, opname, None)
 
         op_func = _opfunc(self.op)
