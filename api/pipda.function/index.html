@@ -1,0 +1,1186 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.10">
+    
+    
+      
+        <title>pipda.function - pipda</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.1fe995fd.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.f1a3b89f.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/all.css">
+    
+      <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/v4-shims.css">
+    
+      <link rel="stylesheet" href="../../css/mkapi-common.css">
+    
+      <link rel="stylesheet" href="../../style.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pipdafunction" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="pipda" class="md-header__button md-logo" aria-label="pipda" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pipda
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              pipda.function
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="pipda" class="md-nav__button md-logo" aria-label="pipda" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    pipda
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      <label class="md-nav__link" for="__nav_2">
+        API
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="API" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1" type="checkbox" id="__nav_2_1" checked>
+      
+      <label class="md-nav__link" for="__nav_2_1">
+        pipda
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="pipda" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_1">
+          <span class="md-nav__icon md-icon"></span>
+          pipda
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda/" class="md-nav__link">
+        pipda
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.expression/" class="md-nav__link">
+        pipda.expression
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.verb/" class="md-nav__link">
+        pipda.verb
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.operator/" class="md-nav__link">
+        pipda.operator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          pipda.function
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        pipda.function
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipdafunction" class="md-nav__link">
+    function
+  </a>
+  
+    <nav class="md-nav" aria-label="function">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdafunctionfunction" class="md-nav__link">
+    Function
+  </a>
+  
+    <nav class="md-nav" aria-label="Function">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressionhash" class="md-nav__link">
+    hash
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressiongetattr" class="md-nav__link">
+    getattr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressiongetitem" class="md-nav__link">
+    getitem
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressionindex" class="md-nav__link">
+    index
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressioniter" class="md-nav__link">
+    iter
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdafunctionfastevalfunction" class="md-nav__link">
+    FastEvalFunction
+  </a>
+  
+    <nav class="md-nav" aria-label="FastEvalFunction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressionhash_1" class="md-nav__link">
+    hash
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressiongetattr_1" class="md-nav__link">
+    getattr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressiongetitem_1" class="md-nav__link">
+    getitem
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressionindex_1" class="md-nav__link">
+    index
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressioniter_1" class="md-nav__link">
+    iter
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.context/" class="md-nav__link">
+        pipda.context
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.utils/" class="md-nav__link">
+        pipda.utils
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.symbolic/" class="md-nav__link">
+        pipda.symbolic
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.register/" class="md-nav__link">
+        pipda.register
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        Change log
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipdafunction" class="md-nav__link">
+    function
+  </a>
+  
+    <nav class="md-nav" aria-label="function">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdafunctionfunction" class="md-nav__link">
+    Function
+  </a>
+  
+    <nav class="md-nav" aria-label="Function">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressionhash" class="md-nav__link">
+    hash
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressiongetattr" class="md-nav__link">
+    getattr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressiongetitem" class="md-nav__link">
+    getitem
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressionindex" class="md-nav__link">
+    index
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressioniter" class="md-nav__link">
+    iter
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdafunctionfastevalfunction" class="md-nav__link">
+    FastEvalFunction
+  </a>
+  
+    <nav class="md-nav" aria-label="FastEvalFunction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressionhash_1" class="md-nav__link">
+    hash
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressiongetattr_1" class="md-nav__link">
+    getattr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressiongetitem_1" class="md-nav__link">
+    getitem
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressionindex_1" class="md-nav__link">
+    index
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpressionexpressioniter_1" class="md-nav__link">
+    iter
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                  <h1>pipda.function</h1>
+                
+                <div class="mkapi-node" id="pipda.function">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object module plain top">
+    <div class="mkapi-object-kind module top">module</div>
+    <h2 id="pipdafunction" class="mkapi-object-body module top"><span class="mkapi-object-prefix"><a href="../pipda/#pipda">pipda</a>.</span><span class="mkapi-object-name">function</span></h2>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.function/#pipda.function" title="Source for pipda.function">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Provides register_func to register functions</p></div>
+    </div>
+  <div class="mkapi-section classes">
+      <div class="mkapi-section-name classes">
+          <span class="mkapi-section-name-body classes">Classes</span> 
+        </div>
+      <div class="mkapi-section-body classes"><ul class="mkapi-items">
+<li class="class"><code class="mkapi-item-name"><a href="#pipda.function.Function">Function</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The Function class, defining how the function should be executedwhen needed
+<a class="mkapi-src-link" href="../source/pipda.function/#pipda.function.Function" title="Source for pipda.function.Function">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="#pipda.function.FastEvalFunction">FastEvalFunction</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Fast evaluation function<a class="mkapi-src-link" href="../source/pipda.function/#pipda.function.FastEvalFunction" title="Source for pipda.function.FastEvalFunction">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.function.Function">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object class code top">
+    <div class="mkapi-object-kind class top">class</div>
+    <h3 id="pipdafunctionfunction" class="mkapi-object-body class top"><code class="mkapi-object-prefix"><a href="#pipda.function">pipda.function</a>.</code><code class="mkapi-object-name">Function</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">func</code>, <code class="mkapi-object-signature">args</code>, <code class="mkapi-object-signature">kwargs</code>, <code class="mkapi-object-signature">dataarg=True</code><code class="mkapi-object-parenthesis">)</code></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.function/#pipda.function.Function" title="Source for pipda.function.Function">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section bases">
+      <div class="mkapi-section-name bases">
+          <span class="mkapi-section-name-body bases">Bases</span> 
+        </div>
+      <div class="mkapi-section-body bases">
+<span class="mkapi-base"><a href="../pipda.expression/#pipda.expression.Expression">pipda.expression.Expression</a></span>
+</div>
+    </div>
+  <div class="mkapi-section">
+      <div class="mkapi-section-body"><p>The Function class, defining how the function should be executedwhen needed</p>
+</div>
+    </div>
+  <div class="mkapi-section parameters">
+      <div class="mkapi-section-name parameters">
+          <span class="mkapi-section-name-body parameters">Parameters</span> 
+        </div>
+      <div class="mkapi-section-body parameters"><ul class="mkapi-items">
+<li><code class="mkapi-item-name">func</code>
+<span class="mkapi-item-type">(callable or <a href="../pipda.expression/#pipda.expression.Expression">Expression</a>)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The function to execute</span></li>
+
+
+
+
+
+</ul></div>
+    </div>
+  <div class="mkapi-section attributes">
+      <div class="mkapi-section-name attributes">
+          <span class="mkapi-section-name-body attributes">Attributes</span> 
+        </div>
+      <div class="mkapi-section-body attributes"><ul class="mkapi-items">
+<li><code class="mkapi-item-name">args</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The arguments of the function</span></li>
+
+<li><code class="mkapi-item-name">context</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The context</span></li>
+
+<li><code class="mkapi-item-name">dataarg</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Whether the function has data as the first argument</span></li>
+
+<li><code class="mkapi-item-name">func</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The function</span></li>
+
+<li><code class="mkapi-item-name">kwargs</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The keyword arguments of the function</span></li>
+
+
+</ul></div>
+    </div>
+  <div class="mkapi-section methods">
+      <div class="mkapi-section-name methods">
+          <span class="mkapi-section-name-body methods">Methods</span> 
+        </div>
+      <div class="mkapi-section-body methods"><ul class="mkapi-items">
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.expression.Expression.__getattr__">__getattr__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">name</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(<a href="../pipda.expression/#pipda.expression.Expression">Expression</a>)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Whenever <code>expr.attr</code> is encountered,return a ReferenceAttr object
+<a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__getattr__" title="Source for pipda.expression.Expression.__getattr__">&lt;/&gt;</a></span></li>
+
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.expression.Expression.__getitem__">__getitem__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">item</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(<a href="../pipda.expression/#pipda.expression.Expression">Expression</a>)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Whenever <code>expr[item]</code> is encountered,return a ReferenceAttr object
+<a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__getitem__" title="Source for pipda.expression.Expression.__getitem__">&lt;/&gt;</a></span></li>
+
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.expression.Expression.__hash__">__hash__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(int)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Make it hashable<a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__hash__" title="Source for pipda.expression.Expression.__hash__">&lt;/&gt;</a></span></li>
+
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.expression.Expression.__index__">__index__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Allow Expression object to work as indexes<a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__index__" title="Source for pipda.expression.Expression.__index__">&lt;/&gt;</a></span></li>
+
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.expression.Expression.__iter__">__iter__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Forbiden iterating on Expression objects<a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__iter__" title="Source for pipda.expression.Expression.__iter__">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+  <div class="mkapi-members">
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.expression.Expression.__hash__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdaexpressionexpressionhash" class="mkapi-object-body method"><code class="mkapi-object-name"><a href="../pipda.expression/#pipda.expression.Expression.__hash__">__hash__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; int</span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__hash__" title="Source for pipda.expression.Expression.__hash__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Make it hashable</p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.expression.Expression.__getattr__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdaexpressionexpressiongetattr" class="mkapi-object-body method"><code class="mkapi-object-name"><a href="../pipda.expression/#pipda.expression.Expression.__getattr__">__getattr__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">name</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; <a href="../pipda.expression/#pipda.expression.Expression">Expression</a></span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__getattr__" title="Source for pipda.expression.Expression.__getattr__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Whenever <code>expr.attr</code> is encountered,return a ReferenceAttr object</p>
+</div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.expression.Expression.__getitem__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdaexpressionexpressiongetitem" class="mkapi-object-body method"><code class="mkapi-object-name"><a href="../pipda.expression/#pipda.expression.Expression.__getitem__">__getitem__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">item</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; <a href="../pipda.expression/#pipda.expression.Expression">Expression</a></span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__getitem__" title="Source for pipda.expression.Expression.__getitem__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Whenever <code>expr[item]</code> is encountered,return a ReferenceAttr object</p>
+</div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.expression.Expression.__index__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdaexpressionexpressionindex" class="mkapi-object-body method"><code class="mkapi-object-name"><a href="../pipda.expression/#pipda.expression.Expression.__index__">__index__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__index__" title="Source for pipda.expression.Expression.__index__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Allow Expression object to work as indexes</p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.expression.Expression.__iter__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdaexpressionexpressioniter" class="mkapi-object-body method"><code class="mkapi-object-name"><a href="../pipda.expression/#pipda.expression.Expression.__iter__">__iter__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__iter__" title="Source for pipda.expression.Expression.__iter__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Forbiden iterating on Expression objects</p><p>If it is happening, probably wrong usage of functions/verbs</p>
+</div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.function.FastEvalFunction">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object class code top">
+    <div class="mkapi-object-kind class top">class</div>
+    <h3 id="pipdafunctionfastevalfunction" class="mkapi-object-body class top"><code class="mkapi-object-prefix"><a href="#pipda.function">pipda.function</a>.</code><code class="mkapi-object-name">FastEvalFunction</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">func</code>, <code class="mkapi-object-signature">args</code>, <code class="mkapi-object-signature">kwargs</code>, <code class="mkapi-object-signature">dataarg=True</code><code class="mkapi-object-parenthesis">)</code></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.function/#pipda.function.FastEvalFunction" title="Source for pipda.function.FastEvalFunction">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section bases">
+      <div class="mkapi-section-name bases">
+          <span class="mkapi-section-name-body bases">Bases</span> 
+        </div>
+      <div class="mkapi-section-body bases">
+<span class="mkapi-base"><a href="./#pipda.function.Function">pipda.function.Function</a></span>
+
+<span class="mkapi-base"><a href="../pipda.expression/#pipda.expression.Expression">pipda.expression.Expression</a></span>
+</div>
+    </div>
+  <div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Fast evaluation function</p></div>
+    </div>
+  <div class="mkapi-section parameters">
+      <div class="mkapi-section-name parameters">
+          <span class="mkapi-section-name-body parameters">Parameters</span> 
+        </div>
+      <div class="mkapi-section-body parameters"><ul class="mkapi-items">
+<li><code class="mkapi-item-name">func</code>
+<span class="mkapi-item-type">(callable or <a href="../pipda.expression/#pipda.expression.Expression">Expression</a>)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The function to execute</span></li>
+
+
+
+
+
+</ul></div>
+    </div>
+  <div class="mkapi-section attributes">
+      <div class="mkapi-section-name attributes">
+          <span class="mkapi-section-name-body attributes">Attributes</span> 
+        </div>
+      <div class="mkapi-section-body attributes"><ul class="mkapi-items">
+<li><code class="mkapi-item-name">args</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The arguments of the function</span></li>
+
+<li><code class="mkapi-item-name">context</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The context</span></li>
+
+<li><code class="mkapi-item-name">dataarg</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Whether the function has data as the first argument</span></li>
+
+<li><code class="mkapi-item-name">func</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The function</span></li>
+
+<li><code class="mkapi-item-name">kwargs</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The keyword arguments of the function</span></li>
+
+
+</ul></div>
+    </div>
+  <div class="mkapi-section methods">
+      <div class="mkapi-section-name methods">
+          <span class="mkapi-section-name-body methods">Methods</span> 
+        </div>
+      <div class="mkapi-section-body methods"><ul class="mkapi-items">
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.expression.Expression.__getattr__">__getattr__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">name</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(<a href="../pipda.expression/#pipda.expression.Expression">Expression</a>)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Whenever <code>expr.attr</code> is encountered,return a ReferenceAttr object
+<a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__getattr__" title="Source for pipda.expression.Expression.__getattr__">&lt;/&gt;</a></span></li>
+
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.expression.Expression.__getitem__">__getitem__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">item</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(<a href="../pipda.expression/#pipda.expression.Expression">Expression</a>)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Whenever <code>expr[item]</code> is encountered,return a ReferenceAttr object
+<a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__getitem__" title="Source for pipda.expression.Expression.__getitem__">&lt;/&gt;</a></span></li>
+
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.expression.Expression.__hash__">__hash__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(int)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Make it hashable<a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__hash__" title="Source for pipda.expression.Expression.__hash__">&lt;/&gt;</a></span></li>
+
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.expression.Expression.__index__">__index__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Allow Expression object to work as indexes<a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__index__" title="Source for pipda.expression.Expression.__index__">&lt;/&gt;</a></span></li>
+
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.expression.Expression.__iter__">__iter__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Forbiden iterating on Expression objects<a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__iter__" title="Source for pipda.expression.Expression.__iter__">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+  <div class="mkapi-members">
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.expression.Expression.__hash__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdaexpressionexpressionhash_1" class="mkapi-object-body method"><code class="mkapi-object-name"><a href="../pipda.expression/#pipda.expression.Expression.__hash__">__hash__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; int</span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__hash__" title="Source for pipda.expression.Expression.__hash__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Make it hashable</p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.expression.Expression.__getattr__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdaexpressionexpressiongetattr_1" class="mkapi-object-body method"><code class="mkapi-object-name"><a href="../pipda.expression/#pipda.expression.Expression.__getattr__">__getattr__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">name</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; <a href="../pipda.expression/#pipda.expression.Expression">Expression</a></span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__getattr__" title="Source for pipda.expression.Expression.__getattr__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Whenever <code>expr.attr</code> is encountered,return a ReferenceAttr object</p>
+</div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.expression.Expression.__getitem__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdaexpressionexpressiongetitem_1" class="mkapi-object-body method"><code class="mkapi-object-name"><a href="../pipda.expression/#pipda.expression.Expression.__getitem__">__getitem__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">item</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; <a href="../pipda.expression/#pipda.expression.Expression">Expression</a></span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__getitem__" title="Source for pipda.expression.Expression.__getitem__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Whenever <code>expr[item]</code> is encountered,return a ReferenceAttr object</p>
+</div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.expression.Expression.__index__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdaexpressionexpressionindex_1" class="mkapi-object-body method"><code class="mkapi-object-name"><a href="../pipda.expression/#pipda.expression.Expression.__index__">__index__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__index__" title="Source for pipda.expression.Expression.__index__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Allow Expression object to work as indexes</p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.expression.Expression.__iter__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdaexpressionexpressioniter_1" class="mkapi-object-body method"><code class="mkapi-object-name"><a href="../pipda.expression/#pipda.expression.Expression.__iter__">__iter__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression.__iter__" title="Source for pipda.expression.Expression.__iter__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Forbiden iterating on Expression objects</p><p>If it is happening, probably wrong usage of functions/verbs</p>
+</div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+  </div>
+
+</div>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../pipda.operator/" class="md-footer__link md-footer__link--prev" aria-label="Previous: pipda.operator" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              pipda.operator
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../pipda.context/" class="md-footer__link md-footer__link--next" aria-label="Next: pipda.context" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              pipda.context
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.ddd52ceb.min.js"></script>
+      
+        <script src="../../js/mkapi.js"></script>
+      
+    
+  </body>
+</html>

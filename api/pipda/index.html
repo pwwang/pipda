@@ -1,0 +1,1055 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.10">
+    
+    
+      
+        <title>pipda - pipda</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.1fe995fd.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.f1a3b89f.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/all.css">
+    
+      <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/v4-shims.css">
+    
+      <link rel="stylesheet" href="../../css/mkapi-common.css">
+    
+      <link rel="stylesheet" href="../../style.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pipda" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="pipda" class="md-header__button md-logo" aria-label="pipda" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pipda
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              pipda
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="pipda" class="md-nav__button md-logo" aria-label="pipda" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    pipda
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      <label class="md-nav__link" for="__nav_2">
+        API
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="API" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1" type="checkbox" id="__nav_2_1" checked>
+      
+      <label class="md-nav__link" for="__nav_2_1">
+        pipda
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="pipda" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_1">
+          <span class="md-nav__icon md-icon"></span>
+          pipda
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          pipda
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        pipda
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipda" class="md-nav__link">
+    pipda
+  </a>
+  
+    <nav class="md-nav" aria-label="pipda">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpression" class="md-nav__link">
+    expression
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaverb" class="md-nav__link">
+    verb
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaoperator" class="md-nav__link">
+    operator
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdafunction" class="md-nav__link">
+    function
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontext" class="md-nav__link">
+    context
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdautils" class="md-nav__link">
+    utils
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdasymbolic" class="md-nav__link">
+    symbolic
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaregister" class="md-nav__link">
+    register
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.expression/" class="md-nav__link">
+        pipda.expression
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.verb/" class="md-nav__link">
+        pipda.verb
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.operator/" class="md-nav__link">
+        pipda.operator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.function/" class="md-nav__link">
+        pipda.function
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.context/" class="md-nav__link">
+        pipda.context
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.utils/" class="md-nav__link">
+        pipda.utils
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.symbolic/" class="md-nav__link">
+        pipda.symbolic
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.register/" class="md-nav__link">
+        pipda.register
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        Change log
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipda" class="md-nav__link">
+    pipda
+  </a>
+  
+    <nav class="md-nav" aria-label="pipda">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdaexpression" class="md-nav__link">
+    expression
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaverb" class="md-nav__link">
+    verb
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaoperator" class="md-nav__link">
+    operator
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdafunction" class="md-nav__link">
+    function
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontext" class="md-nav__link">
+    context
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdautils" class="md-nav__link">
+    utils
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdasymbolic" class="md-nav__link">
+    symbolic
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdaregister" class="md-nav__link">
+    register
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                  <h1>pipda</h1>
+                
+                <div class="mkapi-node" id="pipda">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object package plain top">
+    <div class="mkapi-object-kind package top">package</div>
+    <h2 id="pipda" class="mkapi-object-body package top"><span class="mkapi-object-name">pipda</span></h2>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda/#pipda" title="Source for pipda">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>A framework for data piping in python</p></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.expression">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object module plain top">
+    <div class="mkapi-object-kind module top">module</div>
+    <h3 id="pipdaexpression" class="mkapi-object-body module top"><span class="mkapi-object-prefix"><a href="#pipda">pipda</a>.</span><span class="mkapi-object-name"><a href="../pipda.expression/#pipda.expression">expression</a></span></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression" title="Source for pipda.expression">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Provides the abstract class Expression</p></div>
+    </div>
+  <div class="mkapi-section classes">
+      <div class="mkapi-section-name classes">
+          <span class="mkapi-section-name-body classes">Classes</span> 
+        </div>
+      <div class="mkapi-section-body classes"><ul class="mkapi-items">
+<li class="abstract-class"><code class="mkapi-item-name"><a href="../pipda.expression#pipda.expression.Expression">Expression</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The abstract Expression class<a class="mkapi-src-link" href="../source/pipda.expression/#pipda.expression.Expression" title="Source for pipda.expression.Expression">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.verb">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object module plain top">
+    <div class="mkapi-object-kind module top">module</div>
+    <h3 id="pipdaverb" class="mkapi-object-body module top"><span class="mkapi-object-prefix"><a href="#pipda">pipda</a>.</span><span class="mkapi-object-name"><a href="../pipda.verb/#pipda.verb">verb</a></span></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.verb/#pipda.verb" title="Source for pipda.verb">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Provide register_verb to register verbs</p></div>
+    </div>
+  <div class="mkapi-section classes">
+      <div class="mkapi-section-name classes">
+          <span class="mkapi-section-name-body classes">Classes</span> 
+        </div>
+      <div class="mkapi-section-body classes"><ul class="mkapi-items">
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.verb#pipda.verb.Verb">Verb</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The verb class<a class="mkapi-src-link" href="../source/pipda.verb/#pipda.verb.Verb" title="Source for pipda.verb.Verb">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.verb#pipda.verb.FastEvalVerb">FastEvalVerb</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Verbs that can use its first argument to evaluate<a class="mkapi-src-link" href="../source/pipda.verb/#pipda.verb.FastEvalVerb" title="Source for pipda.verb.FastEvalVerb">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.operator">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object module plain top">
+    <div class="mkapi-object-kind module top">module</div>
+    <h3 id="pipdaoperator" class="mkapi-object-body module top"><span class="mkapi-object-prefix"><a href="#pipda">pipda</a>.</span><span class="mkapi-object-name"><a href="../pipda.operator/#pipda.operator">operator</a></span></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.operator/#pipda.operator" title="Source for pipda.operator">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Provide the Operator class</p></div>
+    </div>
+  <div class="mkapi-section classes">
+      <div class="mkapi-section-name classes">
+          <span class="mkapi-section-name-body classes">Classes</span> 
+        </div>
+      <div class="mkapi-section-body classes"><ul class="mkapi-items">
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.operator#pipda.operator.Operator">Operator</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Operator class, defining how the operators in verb/function argumentsshould be evaluated
+<a class="mkapi-src-link" href="../source/pipda.operator/#pipda.operator.Operator" title="Source for pipda.operator.Operator">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.function">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object module plain top">
+    <div class="mkapi-object-kind module top">module</div>
+    <h3 id="pipdafunction" class="mkapi-object-body module top"><span class="mkapi-object-prefix"><a href="#pipda">pipda</a>.</span><span class="mkapi-object-name"><a href="../pipda.function/#pipda.function">function</a></span></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.function/#pipda.function" title="Source for pipda.function">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Provides register_func to register functions</p></div>
+    </div>
+  <div class="mkapi-section classes">
+      <div class="mkapi-section-name classes">
+          <span class="mkapi-section-name-body classes">Classes</span> 
+        </div>
+      <div class="mkapi-section-body classes"><ul class="mkapi-items">
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.function#pipda.function.Function">Function</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The Function class, defining how the function should be executedwhen needed
+<a class="mkapi-src-link" href="../source/pipda.function/#pipda.function.Function" title="Source for pipda.function.Function">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.function#pipda.function.FastEvalFunction">FastEvalFunction</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Fast evaluation function<a class="mkapi-src-link" href="../source/pipda.function/#pipda.function.FastEvalFunction" title="Source for pipda.function.FastEvalFunction">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.context">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object module plain top">
+    <div class="mkapi-object-kind module top">module</div>
+    <h3 id="pipdacontext" class="mkapi-object-body module top"><span class="mkapi-object-prefix"><a href="#pipda">pipda</a>.</span><span class="mkapi-object-name"><a href="../pipda.context/#pipda.context">context</a></span></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context" title="Source for pipda.context">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Provides the context to evaluate f.A and f['A']</p><p>By default,
+1. in the context of select, both f.A and f['A'] return 'A'
+2. in the context of evaluation, f.A returns data.A and f['A'] returns data['A']
+3. when context is mixed, meaning <em>args is evaluated with select and
+   </em>*kwargs is evaluated with evaluation.
+4. when it is unset, you will need to evaluate args and kwargs yourself.</p>
+</div>
+    </div>
+  <div class="mkapi-section classes">
+      <div class="mkapi-section-name classes">
+          <span class="mkapi-section-name-body classes">Classes</span> 
+        </div>
+      <div class="mkapi-section-body classes"><ul class="mkapi-items">
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.context#pipda.context.ContextError">ContextError</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Any errors related to contexts<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextError" title="Source for pipda.context.ContextError">&lt;/&gt;</a></span></li>
+
+<li class="abstract-class"><code class="mkapi-item-name"><a href="../pipda.context#pipda.context.ContextBase">ContextBase</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The context abstract class, defining howthe Reference objects are evaluated
+<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextBase" title="Source for pipda.context.ContextBase">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.context#pipda.context.ContextSelect">ContextSelect</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Context used in a select context<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextSelect" title="Source for pipda.context.ContextSelect">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.context#pipda.context.ContextEval">ContextEval</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Context used in a data-evaluation context<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextEval" title="Source for pipda.context.ContextEval">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.context#pipda.context.ContextPending">ContextPending</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Pending context<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextPending" title="Source for pipda.context.ContextPending">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.context#pipda.context.ContextMixed">ContextMixed</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">A mixed context, where the <code>*args</code> are evaluated with <code>ContextSelect</code>and <code>**args</code> are evaluated with <code>ContextEval</code>.
+<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextMixed" title="Source for pipda.context.ContextMixed">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.context#pipda.context.Context">Context</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Context to solve f.A and f['A']<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.Context" title="Source for pipda.context.Context">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.utils">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object module plain top">
+    <div class="mkapi-object-kind module top">module</div>
+    <h3 id="pipdautils" class="mkapi-object-body module top"><span class="mkapi-object-prefix"><a href="#pipda">pipda</a>.</span><span class="mkapi-object-name"><a href="../pipda.utils/#pipda.utils">utils</a></span></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.utils/#pipda.utils" title="Source for pipda.utils">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Provide utilities</p></div>
+    </div>
+  <div class="mkapi-section classes">
+      <div class="mkapi-section-name classes">
+          <span class="mkapi-section-name-body classes">Classes</span> 
+        </div>
+      <div class="mkapi-section-body classes"><ul class="mkapi-items">
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.utils#pipda.utils.InaccessibleToNULLException">InaccessibleToNULLException</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Raises when access to NULLClass object<a class="mkapi-src-link" href="../source/pipda.utils/#pipda.utils.InaccessibleToNULLException" title="Source for pipda.utils.InaccessibleToNULLException">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.utils#pipda.utils.NULLClass">NULLClass</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Sometimes, None is a valid option. In order to distinguish thissituation, NULL is used for a default.
+<a class="mkapi-src-link" href="../source/pipda.utils/#pipda.utils.NULLClass" title="Source for pipda.utils.NULLClass">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.utils#pipda.utils.CallingEnvs">CallingEnvs</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Types of piping/calling envs<a class="mkapi-src-link" href="../source/pipda.utils/#pipda.utils.CallingEnvs" title="Source for pipda.utils.CallingEnvs">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.utils#pipda.utils.DataEnv">DataEnv</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">A data context that can be accessed by the function registered by<code>pipda.register_*</code> so that the data argument doesn't need to
+be passed when called
+<a class="mkapi-src-link" href="../source/pipda.utils/#pipda.utils.DataEnv" title="Source for pipda.utils.DataEnv">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  <div class="mkapi-section functions">
+      <div class="mkapi-section-name functions">
+          <span class="mkapi-section-name-body functions">Functions</span> 
+        </div>
+      <div class="mkapi-section-body functions"><ul class="mkapi-items">
+<li class="function"><code class="mkapi-item-name"><a href="../pipda.utils#pipda.utils.bind_arguments">bind_arguments</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">func</code>, <code class="mkapi-object-signature">args</code>, <code class="mkapi-object-signature">kwargs</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(BoundArguments)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Try to bind arguments, instead of run the function to see if argumentscan fit the function
+<a class="mkapi-src-link" href="../source/pipda.utils/#pipda.utils.bind_arguments" title="Source for pipda.utils.bind_arguments">&lt;/&gt;</a></span></li>
+
+<li class="function"><code class="mkapi-item-name"><a href="../pipda.utils#pipda.utils.calling_env">calling_env</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">warn_astnode_failure</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(any)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Checking how the function is called:<a class="mkapi-src-link" href="../source/pipda.utils/#pipda.utils.calling_env" title="Source for pipda.utils.calling_env">&lt;/&gt;</a></span></li>
+
+<li class="function"><code class="mkapi-item-name"><a href="../pipda.utils#pipda.utils.evaluate_expr">evaluate_expr</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">expr</code>, <code class="mkapi-object-signature">data</code>, <code class="mkapi-object-signature">context</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(any)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Evaluate a mixed expression<a class="mkapi-src-link" href="../source/pipda.utils/#pipda.utils.evaluate_expr" title="Source for pipda.utils.evaluate_expr">&lt;/&gt;</a></span></li>
+
+<li class="function"><code class="mkapi-item-name"><a href="../pipda.utils#pipda.utils.functype">functype</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">func</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(str)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Check the type of the function<a class="mkapi-src-link" href="../source/pipda.utils/#pipda.utils.functype" title="Source for pipda.utils.functype">&lt;/&gt;</a></span></li>
+
+<li class="function"><code class="mkapi-item-name"><a href="../pipda.utils#pipda.utils.get_env_data">get_env_data</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">frame</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(any)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Check and return if there is a data set in the context wherethe verb or function is called
+<a class="mkapi-src-link" href="../source/pipda.utils/#pipda.utils.get_env_data" title="Source for pipda.utils.get_env_data">&lt;/&gt;</a></span></li>
+
+<li class="function"><code class="mkapi-item-name"><a href="../pipda.utils#pipda.utils.has_expr">has_expr</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">expr</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(bool)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Check if expr has any Expression object in it<a class="mkapi-src-link" href="../source/pipda.utils/#pipda.utils.has_expr" title="Source for pipda.utils.has_expr">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.symbolic">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object module plain top">
+    <div class="mkapi-object-kind module top">module</div>
+    <h3 id="pipdasymbolic" class="mkapi-object-body module top"><span class="mkapi-object-prefix"><a href="#pipda">pipda</a>.</span><span class="mkapi-object-name"><a href="../pipda.symbolic/#pipda.symbolic">symbolic</a></span></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.symbolic/#pipda.symbolic" title="Source for pipda.symbolic">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Provides Symbolic and Reference classes</p></div>
+    </div>
+  <div class="mkapi-section classes">
+      <div class="mkapi-section-name classes">
+          <span class="mkapi-section-name-body classes">Classes</span> 
+        </div>
+      <div class="mkapi-section-body classes"><ul class="mkapi-items">
+<li class="abstract-class"><code class="mkapi-item-name"><a href="../pipda.symbolic#pipda.symbolic.Reference">Reference</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The Reference class, used to define how it should be evaluatedaccording to the context for references, for example, <code>f.A</code>, <code>f['A']</code> or
+the references of them (i.e. <code>f.A.B</code>, <code>f.A['b']</code>, etc)
+<a class="mkapi-src-link" href="../source/pipda.symbolic/#pipda.symbolic.Reference" title="Source for pipda.symbolic.Reference">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.symbolic#pipda.symbolic.ReferenceAttr">ReferenceAttr</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Attribute references, for example: <code>f.A</code>, <code>f.A.B</code> etc.<a class="mkapi-src-link" href="../source/pipda.symbolic/#pipda.symbolic.ReferenceAttr" title="Source for pipda.symbolic.ReferenceAttr">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.symbolic#pipda.symbolic.ReferenceItem">ReferenceItem</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Subscript references, for example: <code>f['A']</code>, <code>f.A['B']</code> etc<a class="mkapi-src-link" href="../source/pipda.symbolic/#pipda.symbolic.ReferenceItem" title="Source for pipda.symbolic.ReferenceItem">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.symbolic#pipda.symbolic.DirectRefAttr">DirectRefAttr</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The direct attribute reference, such as <code>f.A</code><a class="mkapi-src-link" href="../source/pipda.symbolic/#pipda.symbolic.DirectRefAttr" title="Source for pipda.symbolic.DirectRefAttr">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.symbolic#pipda.symbolic.DirectRefItem">DirectRefItem</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The direct attribute reference, such as <code>f['A']</code><a class="mkapi-src-link" href="../source/pipda.symbolic/#pipda.symbolic.DirectRefItem" title="Source for pipda.symbolic.DirectRefItem">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.symbolic#pipda.symbolic.Symbolic">Symbolic</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The symbolic class, works as a proxy to represent the data<a class="mkapi-src-link" href="../source/pipda.symbolic/#pipda.symbolic.Symbolic" title="Source for pipda.symbolic.Symbolic">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.register">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object module plain top">
+    <div class="mkapi-object-kind module top">module</div>
+    <h3 id="pipdaregister" class="mkapi-object-body module top"><span class="mkapi-object-prefix"><a href="#pipda">pipda</a>.</span><span class="mkapi-object-name"><a href="../pipda.register/#pipda.register">register</a></span></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.register/#pipda.register" title="Source for pipda.register">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Provide register_* suite</p></div>
+    </div>
+  <div class="mkapi-section classes">
+      <div class="mkapi-section-name classes">
+          <span class="mkapi-section-name-body classes">Classes</span> 
+        </div>
+      <div class="mkapi-section-body classes"><ul class="mkapi-items">
+<li class="class"><code class="mkapi-item-name"><a href="../pipda.register#pipda.register.Sign">Sign</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Sign(method, token)<a class="mkapi-src-link" href="../source/pipda.register/#pipda.register.Sign" title="Source for pipda.register.Sign">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  <div class="mkapi-section functions">
+      <div class="mkapi-section-name functions">
+          <span class="mkapi-section-name-body functions">Functions</span> 
+        </div>
+      <div class="mkapi-section-body functions"><ul class="mkapi-items">
+<li class="function"><code class="mkapi-item-name"><a href="../pipda.register#pipda.register.register_func">register_func</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">types</code>, <code class="mkapi-object-signature">context</code>, <code class="mkapi-object-signature">func</code>, <code class="mkapi-object-signature">verb_arg_only</code>, <code class="mkapi-object-signature">extra_contexts</code>, <code class="mkapi-object-signature">**attrs</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(callable)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Register a function to be used in verb<a class="mkapi-src-link" href="../source/pipda.register/#pipda.register.register_func" title="Source for pipda.register.register_func">&lt;/&gt;</a></span></li>
+
+<li class="function"><code class="mkapi-item-name"><a href="../pipda.register#pipda.register.register_operator">register_operator</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">op_class</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(type of <a href="../pipda.operator/#pipda.operator.Operator">Operator</a>)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Register an Operator class<a class="mkapi-src-link" href="../source/pipda.register/#pipda.register.register_operator" title="Source for pipda.register.register_operator">&lt;/&gt;</a></span></li>
+
+<li class="function"><code class="mkapi-item-name"><a href="../pipda.register#pipda.register.register_piping">register_piping</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">sign</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Register a piping sign for the verbs<a class="mkapi-src-link" href="../source/pipda.register/#pipda.register.register_piping" title="Source for pipda.register.register_piping">&lt;/&gt;</a></span></li>
+
+<li class="function"><code class="mkapi-item-name"><a href="../pipda.register#pipda.register.register_verb">register_verb</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">types</code>, <code class="mkapi-object-signature">context</code>, <code class="mkapi-object-signature">func</code>, <code class="mkapi-object-signature">extra_contexts</code>, <code class="mkapi-object-signature">**attrs</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(callable)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Register a verb with specific types of data<a class="mkapi-src-link" href="../source/pipda.register/#pipda.register.register_verb" title="Source for pipda.register.register_verb">&lt;/&gt;</a></span></li>
+
+<li class="function"><code class="mkapi-item-name"><a href="../pipda.register#pipda.register.unregister">unregister</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">func</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(callable)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Get the original function before register<a class="mkapi-src-link" href="../source/pipda.register/#pipda.register.unregister" title="Source for pipda.register.unregister">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+</div>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../.." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Home
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../pipda.expression/" class="md-footer__link md-footer__link--next" aria-label="Next: pipda.expression" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              pipda.expression
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.ddd52ceb.min.js"></script>
+      
+        <script src="../../js/mkapi.js"></script>
+      
+    
+  </body>
+</html>

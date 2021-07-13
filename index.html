@@ -1,0 +1,1132 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.10">
+    
+    
+      
+        <title>pipda</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.1fe995fd.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.f1a3b89f.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/all.css">
+    
+      <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/v4-shims.css">
+    
+      <link rel="stylesheet" href="css/mkapi-common.css">
+    
+      <link rel="stylesheet" href="style.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    <script>function __prefix(e){return new URL(".",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pipda" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="pipda" class="md-header__button md-logo" aria-label="pipda" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pipda
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Home
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="pipda" class="md-nav__button md-logo" aria-label="pipda" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    pipda
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Home
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        Home
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipda" class="md-nav__link">
+    pipda
+  </a>
+  
+    <nav class="md-nav" aria-label="pipda">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verbs" class="md-nav__link">
+    Verbs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions-used-in-verb-arguments" class="md-nav__link">
+    Functions used in verb arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operators" class="md-nav__link">
+    Operators
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    Context
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calling-rules" class="md-nav__link">
+    Calling rules
+  </a>
+  
+    <nav class="md-nav" aria-label="Calling rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verb-calling-rules" class="md-nav__link">
+    Verb calling rules
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-function-calling-rules" class="md-nav__link">
+    Data function calling rules
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-data-function-calling-rules" class="md-nav__link">
+    Non-data function calling rules:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caveats" class="md-nav__link">
+    Caveats
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    How it works
+  </a>
+  
+    <nav class="md-nav" aria-label="How it works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-verbs" class="md-nav__link">
+    The verbs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-functions" class="md-nav__link">
+    The functions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-operators" class="md-nav__link">
+    The operators
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      <label class="md-nav__link" for="__nav_2">
+        API
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="API" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1" type="checkbox" id="__nav_2_1" >
+      
+      <label class="md-nav__link" for="__nav_2_1">
+        pipda
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="pipda" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_1">
+          <span class="md-nav__icon md-icon"></span>
+          pipda
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/pipda/" class="md-nav__link">
+        pipda
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/pipda.expression/" class="md-nav__link">
+        pipda.expression
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/pipda.verb/" class="md-nav__link">
+        pipda.verb
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/pipda.operator/" class="md-nav__link">
+        pipda.operator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/pipda.function/" class="md-nav__link">
+        pipda.function
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/pipda.context/" class="md-nav__link">
+        pipda.context
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/pipda.utils/" class="md-nav__link">
+        pipda.utils
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/pipda.symbolic/" class="md-nav__link">
+        pipda.symbolic
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/pipda.register/" class="md-nav__link">
+        pipda.register
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="changelog/" class="md-nav__link">
+        Change log
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipda" class="md-nav__link">
+    pipda
+  </a>
+  
+    <nav class="md-nav" aria-label="pipda">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verbs" class="md-nav__link">
+    Verbs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions-used-in-verb-arguments" class="md-nav__link">
+    Functions used in verb arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operators" class="md-nav__link">
+    Operators
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    Context
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calling-rules" class="md-nav__link">
+    Calling rules
+  </a>
+  
+    <nav class="md-nav" aria-label="Calling rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verb-calling-rules" class="md-nav__link">
+    Verb calling rules
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-function-calling-rules" class="md-nav__link">
+    Data function calling rules
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-data-function-calling-rules" class="md-nav__link">
+    Non-data function calling rules:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caveats" class="md-nav__link">
+    Caveats
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    How it works
+  </a>
+  
+    <nav class="md-nav" aria-label="How it works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-verbs" class="md-nav__link">
+    The verbs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-functions" class="md-nav__link">
+    The functions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-operators" class="md-nav__link">
+    The operators
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                  <h1>Home</h1>
+                
+                <h2 id="pipda">pipda</h2>
+<p><a href="https://pypi.org/project/pipda/"><img alt="Pypi" src="https://img.shields.io/pypi/v/pipda?style=flat-square" /></a> <a href="https://github.com/pwwang/pipda"><img alt="Github" src="https://img.shields.io/github/v/tag/pwwang/pipda?style=flat-square" /></a> <a href="https://pypi.org/project/pipda/"><img alt="PythonVers" src="https://img.shields.io/pypi/pyversions/pipda?style=flat-square" /></a> <a href="https://app.codacy.com/gh/pwwang/pipda/dashboard"><img alt="Codacy" src="https://img.shields.io/codacy/grade/75d312da24c94bdda5923627fc311a99?style=flat-square" /></a> <a href="https://app.codacy.com/gh/pwwang/pipda/dashboard"><img alt="Codacy coverage" src="https://img.shields.io/codacy/coverage/75d312da24c94bdda5923627fc311a99?style=flat-square" /></a> <img alt="Docs building" src="https://img.shields.io/github/workflow/status/pwwang/pipda/Build%20Docs?style=flat-square" /> <img alt="Building" src="https://img.shields.io/github/workflow/status/pwwang/pipda/Build%20and%20Deploy?style=flat-square" /></p>
+<p>A framework for data piping in python</p>
+<p>Inspired by <a href="https://github.com/machow/siuba">siuba</a>, <a href="https://github.com/kieferk/dfply">dfply</a>, <a href="https://github.com/has2k1/plydata">plydata</a> and <a href="https://github.com/dodger487/dplython">dplython</a>, but with simple yet powerful APIs to mimic the <code>dplyr</code> and <code>tidyr</code> packages in python</p>
+<p><a href="https://pwwang.github.io/pipda/api/pipda/">API</a> | <a href="https://pwwang.github.io/pipda/changelog/">Change Log</a> | <a href="https://mybinder.org/v2/gh/pwwang/pipda/master?filepath=README.ipynb">Playground</a></p>
+<h3 id="installation">Installation</h3>
+<div class="highlight"><pre><span></span><code>pip install -U pipda
+</code></pre></div>
+<h3 id="usage">Usage</h3>
+<p>Checkout <a href="https://github.com/pwwang/datar">datar</a> for more detailed usages.</p>
+<h4 id="verbs">Verbs</h4>
+<p>Verbs are functions next to the piping sign (<code>&gt;&gt;</code>) receiving the data directly.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pipda</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">register_verb</span><span class="p">,</span>
+    <span class="n">register_func</span><span class="p">,</span>
+    <span class="n">register_operator</span><span class="p">,</span>
+    <span class="n">evaluate_expr</span><span class="p">,</span>
+    <span class="n">Operator</span><span class="p">,</span>
+    <span class="n">Symbolic</span><span class="p">,</span>
+    <span class="n">Context</span>
+<span class="p">)</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">Symbolic</span><span class="p">()</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;zero&#39;</span><span class="p">,</span> <span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="s1">&#39;two&#39;</span><span class="p">,</span> <span class="s1">&#39;three&#39;</span><span class="p">]</span>
+<span class="p">})</span>
+
+<span class="n">df</span>
+
+<span class="c1">#      x    y</span>
+<span class="c1"># 0    0    zero</span>
+<span class="c1"># 1    1    one</span>
+<span class="c1"># 2    2    two</span>
+<span class="c1"># 3    3    three</span>
+
+<span class="nd">@register_verb</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">head</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1">#      x    y</span>
+<span class="c1"># 0    0    zero</span>
+<span class="c1"># 1    1    one</span>
+
+<span class="nd">@register_verb</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">Context</span><span class="o">.</span><span class="n">EVAL</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mutate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+<span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">mutate</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1">#    x      y  z</span>
+<span class="c1"># 0  0   zero  1</span>
+<span class="c1"># 1  1    one  1</span>
+<span class="c1"># 2  2    two  1</span>
+<span class="c1"># 3  3  three  1</span>
+
+<span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">mutate</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="c1">#    x      y  z</span>
+<span class="c1"># 0  0   zero  0</span>
+<span class="c1"># 1  1    one  1</span>
+<span class="c1"># 2  2    two  2</span>
+<span class="c1"># 3  3  three  3</span>
+
+<span class="c1"># Verbs that don&#39;t compile f.a to data, but just the column name</span>
+<span class="nd">@register_verb</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">Context</span><span class="o">.</span><span class="n">SELECT</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">columns</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">columns</span><span class="p">]</span>
+
+<span class="c1"># f.x won&#39;t be compiled as df.x but just &#39;x&#39;</span>
+<span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">mutate</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">select</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+<span class="c1">#      x    z</span>
+<span class="c1"># 0    0    0</span>
+<span class="c1"># 1    1    2</span>
+<span class="c1"># 2    2    4</span>
+<span class="c1"># 3    3    6</span>
+
+<span class="c1"># Compile the args inside the verb</span>
+<span class="nd">@register_verb</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">Context</span><span class="o">.</span><span class="n">PENDING</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mutate_existing</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="n">column</span> <span class="o">=</span> <span class="n">evaluate_expr</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">Context</span><span class="o">.</span><span class="n">SELECT</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">evaluate_expr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">Context</span><span class="o">.</span><span class="n">EVAL</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+<span class="c1"># First f.x compiled as column name, and second as Series data</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">mutate_existing</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="n">df2</span>
+<span class="c1">#      x    y     z</span>
+<span class="c1"># 0    0    zero  0</span>
+<span class="c1"># 1    10   one   2</span>
+<span class="c1"># 2    20   two   4</span>
+<span class="c1"># 3    30   three 6</span>
+
+<span class="c1"># Evaluate the arguments by yourself</span>
+<span class="nd">@register_verb</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">Context</span><span class="o">.</span><span class="n">PENDING</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mutate_existing2</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="n">column</span> <span class="o">=</span> <span class="n">evaluate_expr</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">Context</span><span class="o">.</span><span class="n">SELECT</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">evaluate_expr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">df2</span><span class="p">,</span> <span class="n">Context</span><span class="o">.</span><span class="n">EVAL</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+<span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">mutate_existing2</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="c1">#      x    y</span>
+<span class="c1"># 0    0    zero</span>
+<span class="c1"># 1    20   one</span>
+<span class="c1"># 2    40   two</span>
+<span class="c1"># 3    60   three</span>
+
+<span class="c1"># register for multiple types</span>
+<span class="nd">@register_verb</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">data</span> <span class="o">+</span> <span class="n">other</span>
+
+<span class="c1"># add is actually a singledispatch generic function</span>
+<span class="nd">@add</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">data</span> <span class="o">*</span> <span class="n">other</span>
+
+<span class="mi">1</span> <span class="o">&gt;&gt;</span> <span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># 2</span>
+<span class="mf">1.1</span> <span class="o">&gt;&gt;</span> <span class="n">add</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="c1"># 1.1</span>
+
+<span class="c1"># As it&#39;s a singledispatch generic function, we can do it for multiple types</span>
+<span class="c1"># with the same logic</span>
+<span class="nd">@register_verb</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">Context</span><span class="o">.</span><span class="n">EVAL</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mul</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span> <span class="c1"># not invalid until types registered</span>
+
+<span class="nd">@mul</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="nd">@mul</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+<span class="c1"># or you could do @mul.register((int, float))</span>
+<span class="c1"># context is also supported</span>
+<span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">data</span> <span class="o">*</span> <span class="n">other</span>
+
+<span class="mi">3</span> <span class="o">&gt;&gt;</span> <span class="n">mul</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1"># 6</span>
+<span class="mf">3.2</span> <span class="o">&gt;&gt;</span> <span class="n">mul</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1"># 6.4</span>
+</code></pre></div>
+<h4 id="functions-used-in-verb-arguments">Functions used in verb arguments</h4>
+<div class="highlight"><pre><span></span><code><span class="nd">@register_func</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">Context</span><span class="o">.</span><span class="n">EVAL</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">if_else</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cond</span><span class="p">,</span> <span class="n">true</span><span class="p">,</span> <span class="n">false</span><span class="p">):</span>
+    <span class="n">cond</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="kc">True</span><span class="p">]),</span> <span class="p">]</span> <span class="o">=</span> <span class="n">true</span>
+    <span class="n">cond</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="kc">False</span><span class="p">]),</span> <span class="p">]</span> <span class="o">=</span> <span class="n">false</span>
+    <span class="k">return</span> <span class="n">cond</span>
+
+<span class="c1"># The function is then also a singledispatch generic function</span>
+
+<span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">mutate</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="n">if_else</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="c1">#    x      y   z</span>
+<span class="c1"># 0  0   zero  10</span>
+<span class="c1"># 1  1    one  10</span>
+<span class="c1"># 2  2    two  20</span>
+<span class="c1"># 3  3  three  20</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># function without data argument</span>
+<span class="nd">@register_func</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="n">strings</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">]</span>
+
+<span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">mutate</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="n">length</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
+
+<span class="c1">#    x     y    z</span>
+<span class="c1"># 0  0  zero    4</span>
+<span class="c1"># 1  1   one    3</span>
+<span class="c1"># 2  2   two    3</span>
+<span class="c1"># 3  3 three    5</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># register existing functions</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">vectorize</span>
+<span class="nb">len</span> <span class="o">=</span> <span class="n">register_func</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">Context</span><span class="o">.</span><span class="n">EVAL</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">vectorize</span><span class="p">(</span><span class="nb">len</span><span class="p">))</span>
+
+<span class="c1"># original function still works</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;abc&#39;</span><span class="p">))</span>
+
+<span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">mutate</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
+
+<span class="c1"># 3</span>
+<span class="c1">#   x     y z</span>
+<span class="c1"># 0 0  zero 4</span>
+<span class="c1"># 1 1   one 3</span>
+<span class="c1"># 2 2   two 3</span>
+<span class="c1"># 3 3 three 5</span>
+</code></pre></div>
+<h4 id="operators">Operators</h4>
+<p>You may also redefine the behavior of the operators
+<div class="highlight"><pre><span></span><code><span class="nd">@register_operator</span>
+<span class="k">class</span> <span class="nc">MyOperators</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">xor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inteprete X ^ Y as pow(X, Y).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="o">**</span> <span class="n">b</span>
+
+<span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">mutate</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">x</span> <span class="o">^</span> <span class="mi">2</span><span class="p">)</span>
+<span class="c1">#      x    y      z</span>
+<span class="c1"># 0    0    zero   0</span>
+<span class="c1"># 1    1    one    1</span>
+<span class="c1"># 2    2    two    4</span>
+<span class="c1"># 3    3    three  9</span>
+</code></pre></div></p>
+<h4 id="context">Context</h4>
+<p>The context defines how a reference (<code>f.A</code>, <code>f['A']</code>, <code>f.A.B</code> is evaluated)</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">pipda</span> <span class="kn">import</span> <span class="n">ContextBase</span>
+
+<span class="k">class</span> <span class="nc">MyContext</span><span class="p">(</span><span class="n">ContextBase</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;my&#39;</span>
+    <span class="k">def</span> <span class="nf">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+        <span class="c1"># double it to distinguish getattr</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">ref</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">parent</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># how we evaluate the ref in f[ref]</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+<span class="nd">@register_verb</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">MyContext</span><span class="p">())</span>
+<span class="k">def</span> <span class="nf">mutate_mycontext</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+<span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">mutate_mycontext</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">])</span>
+
+<span class="c1">#   x     y z</span>
+<span class="c1"># 0 0  zero 0</span>
+<span class="c1"># 1 1   one 3</span>
+<span class="c1"># 2 2   two 6</span>
+<span class="c1"># 3 3 three 9</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># when ref in f[ref] is also needed to be evaluated</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">mutate</span><span class="p">(</span><span class="n">zero</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">one</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">two</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">three</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">df</span>
+
+<span class="c1">#    x      y  z  zero  one  two  three</span>
+<span class="c1"># 0  0   zero  0     0    1    2      3</span>
+<span class="c1"># 1  1    one  3     0    1    2      3</span>
+<span class="c1"># 2  2    two  6     0    1    2      3</span>
+<span class="c1"># 3  3  three  9     0    1    2      3</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">df</span> <span class="o">&gt;&gt;</span> <span class="n">mutate_mycontext</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">f</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">y</span><span class="p">][:</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="c1"># f.y returns [&#39;zero&#39;, &#39;one&#39;, &#39;two&#39;, &#39;three&#39;]</span>
+<span class="c1"># f[f.y] gets [[0, 2, 4, 6], [0, 2, 4, 6], [0, 2, 4, 6], [0, 2, 4, 6]]</span>
+<span class="c1"># f[f.y][:1].values gets [[0, 4, 8, 16]]</span>
+<span class="c1"># f[f.y][:1].values[0] returns [0, 8, 16, 32]</span>
+<span class="c1"># Notes that each subscription ([]) will double the values</span>
+
+<span class="c1">#    x      y  z  zero  one  two  three   m</span>
+<span class="c1"># 0  0   zero  0     0    1    2      3   0</span>
+<span class="c1"># 1  1    one  3     0    1    2      3   8</span>
+<span class="c1"># 2  2    two  6     0    1    2      3  16</span>
+<span class="c1"># 3  3  three  9     0    1    2      3  24</span>
+</code></pre></div>
+<h4 id="calling-rules">Calling rules</h4>
+<h5 id="verb-calling-rules">Verb calling rules</h5>
+<ol>
+<li><code>data &gt;&gt; verb(...)</code>\
+    [PIPING_VERB]\
+    First argument should not be passed, using the data</li>
+<li><code>data &gt;&gt; other_verb(verb(...))</code>\
+   <code>other_verb(data, verb(...))</code>\
+   <code>registered_func(verb(...))</code>\
+    [PIPING]\
+    Try using the first argument to evaluate (FastEvalVerb), if first argument
+    is data. Otherwise, if it is Expression object, works as a non-data
+    Function.</li>
+<li><code>verb(...)</code>\
+    Called independently. The verb will be called regularly anyway.
+    The first argument will be used as data to evaluate the arguments
+    if there are any Expression objects</li>
+<li><code>verb(...)</code> with DataEnv\
+    First argument should not be passed in, will use the DataEnv's data
+    to evaluate the arguments</li>
+</ol>
+<h5 id="data-function-calling-rules">Data function calling rules</h5>
+<p>Functions that require first argument as data argument.</p>
+<ol>
+<li><code>data &gt;&gt; verb(func(...))</code> or <code>verb(data, func(...))</code>\
+    First argument is not used. Will use data</li>
+<li><code>func(...)</code>\
+    Called independently. The function will be called regularly anyway.
+    Similar as Verb calling rule, but first argument will not be used for
+    evaluation</li>
+<li><code>func(...)</code> with DataEnv\
+    First argument not used, passed implicitly with DataEnv.</li>
+</ol>
+<h4 id="non-data-function-calling-rules">Non-data function calling rules:</h4>
+<ol>
+<li><code>data &gt;&gt; verb(func(...))</code> or <code>verb(data, func(...))</code>\
+    Return a Function object waiting for evaluation</li>
+<li><code>func(...)</code>\
+    Called regularly anyway</li>
+<li><code>func(...) with DataEnv</code>\
+    Evaluate with DataEnv. For example: mean(f.x)</li>
+</ol>
+<h4 id="caveats">Caveats</h4>
+<ul>
+<li>
+<p>You have to use and_ and or_ for bitwise and/or (<code>&amp;</code>/<code>|</code>) operators, as and and or are python keywords.</p>
+</li>
+<li>
+<p>Limitations:</p>
+<p>Any limitations apply to <code>executing</code> to detect the AST node will apply to <code>pipda</code>. It may not work in some circumstances where other AST magics apply.</p>
+</li>
+<li>
+<p>Use another piping sign</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">pipda</span> <span class="kn">import</span> <span class="n">register_piping</span>
+<span class="n">register_piping</span><span class="p">(</span><span class="s1">&#39;^&#39;</span><span class="p">)</span>
+
+<span class="c1"># register verbs and functions</span>
+<span class="n">df</span> <span class="o">^</span> <span class="n">verb1</span><span class="p">(</span><span class="o">...</span><span class="p">)</span> <span class="o">^</span> <span class="n">verb2</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+<p>Allowed signs are: <code>+</code>, <code>-</code>, <code>*</code>, <code>@</code>, <code>/</code>, <code>//</code>, <code>%</code>, <code>**</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;</code>, <code>&amp;</code>, <code>^</code> and <code>|</code>.</p>
+<p>Note that to use the new  piping sign, you have to register the verbs after the new piping sign being registered.</p>
+</li>
+<li>
+<p>The context</p>
+<p>The context is only applied to the <code>DirectReference</code> objects or unary operators, like <code>-f.A</code>, <code>+f.A</code>, <code>~f.A</code>, <code>f.A</code>, <code>f['A']</code>, <code>[f.A, f.B]</code>, etc. Any other <code>Expression</code> wrapping those objects or other operators getting involved will turn the context to <code>Context.EVAL</code></p>
+</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<h4 id="the-verbs">The verbs</h4>
+<p><div class="highlight"><pre><span></span><code><span class="n">data</span> <span class="o">%&gt;%</span> <span class="nf">verb</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="kc">...</span><span class="p">,</span> <span class="n">key1</span><span class="o">=</span><span class="n">kwarg1</span><span class="p">,</span> <span class="kc">...</span><span class="p">)</span>
+</code></pre></div>
+The above is a typical <code>dplyr</code>/<code>tidyr</code> data piping syntax.</p>
+<p>The counterpart R syntax we expect is:
+<div class="highlight"><pre><span></span><code><span class="n">data</span> <span class="o">&gt;&gt;</span> <span class="n">verb</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">key1</span><span class="o">=</span><span class="n">kwarg1</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+To implement that, we need to defer the execution of the <code>verb</code> by turning it into a <code>Verb</code> object, which holds all information of the function to be executed later. The <code>Verb</code> object won't be executed until the <code>data</code> is piped in. It all thanks to the <a href="https://github.com/alexmojaki/executing"><code>executing</code></a> package to let us determine the ast nodes where the function is called. So that we are able to determine whether the function is called in a piping mode.</p>
+<p>If an argument is referring to a column of the data and the column will be involved in the later computation, the it also needs to be deferred. For example, with <code>dplyr</code> in <code>R</code>:
+<div class="highlight"><pre><span></span><code><span class="n">data</span> <span class="o">%&gt;%</span> <span class="nf">mutate</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="n">a</span><span class="p">)</span>
+</code></pre></div>
+is trying add a column named <code>z</code> with the data from column <code>a</code>.</p>
+<p>In python, we want to do the same with:
+<div class="highlight"><pre><span></span><code><span class="n">data</span> <span class="o">&gt;&gt;</span> <span class="n">mutate</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+</code></pre></div>
+where <code>f.a</code> is a <code>Reference</code> object that carries the column information without fetching the data while python sees it immmediately.</p>
+<p>Here the trick is <code>f</code>. Like other packages, we introduced the <code>Symbolic</code> object, which will connect the parts in the argument and make the whole argument an <code>Expression</code> object. This object is holding the execution information, which we could use later when the piping is detected.</p>
+<h4 id="the-functions">The functions</h4>
+<p>Then what if we want to use some functions in the arguments of the <code>verb</code>?
+For example:
+<div class="highlight"><pre><span></span><code><span class="n">data</span> <span class="o">&gt;&gt;</span> <span class="n">select</span><span class="p">(</span><span class="n">starts_with</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">))</span>
+</code></pre></div>
+to select the columns with names start with <code>'a'</code>.</p>
+<p>No doubt that we need to defer the execution of the function, too. The trick is that we let the function return a <code>Function</code> object as well, and evaluate it as the argument of the verb.</p>
+<h4 id="the-operators">The operators</h4>
+<p><code>pipda</code> also opens oppotunities to change the behavior of the operators in verb/function arguments. This allows us to mimic something like this:
+<div class="highlight"><pre><span></span><code><span class="n">data</span> <span class="o">&gt;&gt;</span> <span class="n">select</span><span class="p">(</span><span class="o">-</span><span class="n">f</span><span class="o">.</span><span class="n">a</span><span class="p">)</span> <span class="c1"># select all columns but `a`</span>
+</code></pre></div></p>
+<p>To do that, we turn it into an <code>Operator</code> object. Just like a <code>Verb</code> or a <code>Function</code> object, the execution is deferred. By default, the operators we used are from the python standard library <code>operator</code>. <code>operator.neg</code> in the above example.</p>
+<p>You can also define you own by subclassing the <code>Operator</code> class, and then register it to replace the default one by decorating it with <code>register_operator</code>.</p>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+      
+        
+        <a href="api/pipda/" class="md-footer__link md-footer__link--next" aria-label="Next: pipda" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              pipda
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": ".", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.ddd52ceb.min.js"></script>
+      
+        <script src="js/mkapi.js"></script>
+      
+    
+  </body>
+</html>

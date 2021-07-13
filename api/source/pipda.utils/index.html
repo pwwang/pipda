@@ -1,0 +1,840 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.10">
+    
+    
+      
+        <title>pipda.utils - pipda</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.1fe995fd.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.f1a3b89f.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/all.css">
+    
+      <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/v4-shims.css">
+    
+      <link rel="stylesheet" href="../../../css/mkapi-common.css">
+    
+      <link rel="stylesheet" href="../../../style.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    <script>function __prefix(e){return new URL("../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pipdautils" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="pipda" class="md-header__button md-logo" aria-label="pipda" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pipda
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              pipda.utils
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="pipda" class="md-nav__button md-logo" aria-label="pipda" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    pipda
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      <label class="md-nav__link" for="__nav_2">
+        API
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="API" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1" type="checkbox" id="__nav_2_1" >
+      
+      <label class="md-nav__link" for="__nav_2_1">
+        pipda
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="pipda" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_1">
+          <span class="md-nav__icon md-icon"></span>
+          pipda
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipda/" class="md-nav__link">
+        pipda
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipda.expression/" class="md-nav__link">
+        pipda.expression
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipda.verb/" class="md-nav__link">
+        pipda.verb
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipda.operator/" class="md-nav__link">
+        pipda.operator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipda.function/" class="md-nav__link">
+        pipda.function
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipda.context/" class="md-nav__link">
+        pipda.context
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipda.utils/" class="md-nav__link">
+        pipda.utils
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipda.symbolic/" class="md-nav__link">
+        pipda.symbolic
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipda.register/" class="md-nav__link">
+        pipda.register
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../changelog/" class="md-nav__link">
+        Change log
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipdautils" class="md-nav__link">
+    pipda.utils
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <div class="mkapi-node">
+<h1 id="" class="mkapi-object mkapi-object-code plain">
+<span class="mkapi-object-kind mkapi-object-kind-code">SOURCE CODE</span>
+<span class="mkapi-object-prefix">pipda.</span><span class="mkapi-object-name">utils</span>
+<span id="pipda.utils"></span><a class="mkapi-docs-link" href="../../pipda.utils">DOCS</a>
+</h1>
+
+<div class="mkapi-code">
+<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Provide utilities&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span><span class="p">,</span> <span class="n">singledispatch</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">FrameType</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">executing</span> <span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span> <span class="nn">pure_eval</span> <span class="kn">import</span> <span class="n">Evaluator</span><span class="p">,</span> <span class="n">CannotEval</span>
+
+<span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">ContextAnnoType</span>
+
+<span class="n">DATA_CONTEXTVAR_NAME</span> <span class="o">=</span> <span class="s2">&quot;__pipda_context_data__&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">InaccessibleToNULLException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span><span id="pipda.utils.InaccessibleToNULLException"></span><a class="mkapi-docs-link" title="pipda.utils.InaccessibleToNULLException" href="../../pipda.utils/#pipda.utils.InaccessibleToNULLException">DOCS</a>
+    <span class="sd">&quot;&quot;&quot;Raises when access to NULLClass object&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">NULLClass</span><span class="p">:</span><span id="pipda.utils.NULLClass"></span><a class="mkapi-docs-link" title="pipda.utils.NULLClass" href="../../pipda.utils/#pipda.utils.NULLClass">DOCS</a>
+    <span class="sd">&quot;&quot;&quot;Sometimes, None is a valid option. In order to distinguish this</span>
+<span class="sd">    situation, NULL is used for a default.</span>
+
+<span class="sd">    It is also used as data to fast evaluate FastEvalFunction and FastEvalVerb</span>
+<span class="sd">    objects. If failed, InaccessibleToNULLException will be raised.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span><span id="pipda.utils.NULLClass.__repr__"></span><a class="mkapi-docs-link" title="pipda.utils.NULLClass.__repr__" href="../../pipda.utils/#pipda.utils.NULLClass.__repr__">DOCS</a>
+        <span class="sd">&quot;&quot;&quot;String representation&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;NULL&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_inaccessible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InaccessibleToNULLException</span>
+
+    <span class="fm">__bool__</span> <span class="o">=</span> <span class="n">_inaccessible</span>
+    <span class="fm">__len__</span> <span class="o">=</span> <span class="n">_inaccessible</span>
+    <span class="fm">__getitem__</span> <span class="o">=</span> <span class="n">_inaccessible</span>
+    <span class="fm">__getattr__</span> <span class="o">=</span> <span class="n">_inaccessible</span>
+    <span class="c1"># more ?</span>
+
+
+<span class="n">NULL</span> <span class="o">=</span> <span class="n">NULLClass</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">CallingEnvs</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span><span id="pipda.utils.CallingEnvs"></span><a class="mkapi-docs-link" title="pipda.utils.CallingEnvs" href="../../pipda.utils/#pipda.utils.CallingEnvs">DOCS</a>
+    <span class="sd">&quot;&quot;&quot;Types of piping/calling envs&quot;&quot;&quot;</span>
+
+    <span class="c1"># When a function works as an argument of a verb calling</span>
+    <span class="c1"># data &gt;&gt; verb(func())</span>
+    <span class="c1">#              ^^^^^^</span>
+    <span class="c1"># Or</span>
+    <span class="c1"># verb(data, func())</span>
+    <span class="c1">#            ^^^^^^</span>
+    <span class="n">PIPING</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="c1"># When I am the verb in piping syntax</span>
+    <span class="c1"># data &gt;&gt; verb(...)</span>
+    <span class="c1">#         ^^^^^^^^^</span>
+    <span class="n">PIPING_VERB</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="c1"># # When I am an argument of any function not in a piping syntax</span>
+    <span class="c1"># # func(x=func2())</span>
+    <span class="c1"># #        ^^^^^^^</span>
+    <span class="c1"># FUNC_ARG = auto()</span>
+
+
+<span class="k">class</span> <span class="nc">DataEnv</span><span class="p">:</span><span id="pipda.utils.DataEnv"></span><a class="mkapi-docs-link" title="pipda.utils.DataEnv" href="../../pipda.utils/#pipda.utils.DataEnv">DOCS</a>
+    <span class="sd">&quot;&quot;&quot;A data context that can be accessed by the function registered by</span>
+<span class="sd">    `pipda.register_*` so that the data argument doesn&#39;t need to</span>
+<span class="sd">    be passed when called</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: The data to be attached to the context</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DATA_CONTEXTVAR_NAME</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span><span id="pipda.utils.DataEnv.get"></span><a class="mkapi-docs-link" title="pipda.utils.DataEnv.get" href="../../pipda.utils/#pipda.utils.DataEnv.get">DOCS</a>
+        <span class="sd">&quot;&quot;&quot;Get the data&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span><span id="pipda.utils.DataEnv.set"></span><a class="mkapi-docs-link" title="pipda.utils.DataEnv.set" href="../../pipda.utils/#pipda.utils.DataEnv.set">DOCS</a>
+        <span class="sd">&quot;&quot;&quot;Update the data&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span><span id="pipda.utils.DataEnv.delete"></span><a class="mkapi-docs-link" title="pipda.utils.DataEnv.delete" href="../../pipda.utils/#pipda.utils.DataEnv.delete">DOCS</a>
+        <span class="sd">&quot;&quot;&quot;Delete the attached data&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">NULL</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_env_data</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="n">FrameType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span><span id="pipda.utils.get_env_data"></span><a class="mkapi-docs-link" title="pipda.utils.get_env_data" href="../../pipda.utils/#pipda.utils.get_env_data">DOCS</a>
+    <span class="sd">&quot;&quot;&quot;Check and return if there is a data set in the context where</span>
+<span class="sd">    the verb or function is called</span>
+
+<span class="sd">    The data has to be named as `_`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">envdata</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">envdata</span><span class="p">,</span> <span class="n">DataEnv</span><span class="p">)</span> <span class="ow">or</span> <span class="n">envdata</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">DATA_CONTEXTVAR_NAME</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">NULL</span>
+    <span class="k">return</span> <span class="n">envdata</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">calling_env</span><span class="p">(</span><span class="n">warn_astnode_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span><span id="pipda.utils.calling_env"></span><a class="mkapi-docs-link" title="pipda.utils.calling_env" href="../../pipda.utils/#pipda.utils.calling_env">DOCS</a>
+    <span class="sd">&quot;&quot;&quot;Checking how the function is called:</span>
+
+<span class="sd">    1. PIPING_VERB: It is a verb that is piped directed. ie. data &gt;&gt; verb(...)</span>
+<span class="sd">    2. PIPING: It is a function called as (part of) the argument</span>
+<span class="sd">        of a piping verb. ie.:</span>
+
+<span class="sd">        &gt;&gt;&gt; data &gt;&gt; verb(func(...))</span>
+
+<span class="sd">        Note that `func` here could also be a verb. When a function is called</span>
+<span class="sd">        inside a lambda body, it should not be counted in this situation:</span>
+
+<span class="sd">        &gt;&gt;&gt; data &gt;&gt; verb(lambda: func(...))</span>
+
+<span class="sd">        In this case, func should be called as normal function.</span>
+<span class="sd">        This function should return `None`</span>
+<span class="sd">    3. FUNC_ARG: It is an argument of any function call</span>
+<span class="sd">    4. None: None of the above situation fits</span>
+
+<span class="sd">    This function should be only called inside register_*.wrapper</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># frame 1: register_*.wrapper</span>
+    <span class="c1"># frame 2: func(...)</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">my_node</span> <span class="o">=</span> <span class="n">Source</span><span class="o">.</span><span class="n">executing</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span><span class="o">.</span><span class="n">node</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">my_node</span> <span class="ow">and</span> <span class="n">warn_astnode_failure</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Failed to fetch the node calling the function, &quot;</span>
+            <span class="s2">&quot;call it with the original function.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">piping_verb_node</span> <span class="o">=</span> <span class="n">_get_piping_verb_node</span><span class="p">(</span><span class="n">my_node</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">piping_verb_node</span> <span class="ow">is</span> <span class="n">my_node</span> <span class="ow">and</span> <span class="n">piping_verb_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CallingEnvs</span><span class="o">.</span><span class="n">PIPING_VERB</span>
+
+    <span class="k">if</span> <span class="n">_is_piping_verb_argument_node</span><span class="p">(</span><span class="n">my_node</span><span class="p">,</span> <span class="n">piping_verb_node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">CallingEnvs</span><span class="o">.</span><span class="n">PIPING</span>
+
+    <span class="n">parent_call_node</span> <span class="o">=</span> <span class="n">_argument_node_of</span><span class="p">(</span><span class="n">my_node</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parent_call_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># check if parent call node is a function registered by</span>
+    <span class="c1"># register_verb/register_func</span>
+    <span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="o">.</span><span class="n">from_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">evaluator</span><span class="p">[</span><span class="n">parent_call_node</span><span class="o">.</span><span class="n">func</span><span class="p">]</span>
+    <span class="k">except</span> <span class="n">CannotEval</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">functype</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;plain&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CallingEnvs</span><span class="o">.</span><span class="n">PIPING</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">evaluate_expr</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">ContextAnnoType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span><span id="pipda.utils.evaluate_expr"></span><a class="mkapi-docs-link" title="pipda.utils.evaluate_expr" href="../../pipda.utils/#pipda.utils.evaluate_expr">DOCS</a>
+    <span class="sd">&quot;&quot;&quot;Evaluate a mixed expression&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="s2">&quot;_pipda_eval&quot;</span><span class="p">):</span>
+        <span class="c1"># Not only for Expression objects, but also</span>
+        <span class="c1"># allow customized classes</span>
+        <span class="k">return</span> <span class="n">expr</span><span class="o">.</span><span class="n">_pipda_eval</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
+        <span class="c1"># In case it&#39;s subclass</span>
+        <span class="k">return</span> <span class="n">expr</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">evaluate_expr</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">expr</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span>
+            <span class="n">evaluate_expr</span><span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">),</span>
+            <span class="n">evaluate_expr</span><span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">),</span>
+            <span class="n">evaluate_expr</span><span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">step</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">expr</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">key</span><span class="p">:</span> <span class="n">evaluate_expr</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">expr</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">expr</span>
+
+
+<span class="nd">@singledispatch</span><span id="pipda.utils.has_expr"></span><a class="mkapi-docs-link" title="pipda.utils.has_expr" href="../../pipda.utils/#pipda.utils.has_expr">DOCS</a>
+<span class="k">def</span> <span class="nf">has_expr</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Check if expr has any Expression object in it&quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">.expression</span> <span class="kn">import</span> <span class="n">Expression</span>
+
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span>
+
+
+<span class="nd">@has_expr</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>
+<span class="nd">@has_expr</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+<span class="nd">@has_expr</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">has_expr</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">expr</span><span class="p">)</span>
+
+
+<span class="nd">@has_expr</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">slice</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">has_expr</span><span class="p">((</span><span class="n">expr</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">expr</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">expr</span><span class="o">.</span><span class="n">step</span><span class="p">))</span>
+
+
+<span class="nd">@has_expr</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">has_expr</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">expr</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">functype</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span><span id="pipda.utils.functype"></span><a class="mkapi-docs-link" title="pipda.utils.functype" href="../../pipda.utils/#pipda.utils.functype">DOCS</a>
+    <span class="sd">&quot;&quot;&quot;Check the type of the function</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        func: A function</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The type of the function</span>
+<span class="sd">        - verb: A verb that is registered by `register_verb`</span>
+<span class="sd">        - func: A function that is registered by `register_func`, with</span>
+<span class="sd">            data as the first argument</span>
+<span class="sd">        - plain-func: A function that is registered by `register_func`,</span>
+<span class="sd">            without data as the first argument</span>
+<span class="sd">        - plain: A plain python function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pipda_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">&quot;__pipda__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pipda_type</span> <span class="o">==</span> <span class="s2">&quot;Verb&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;verb&quot;</span>
+    <span class="k">if</span> <span class="n">pipda_type</span> <span class="o">==</span> <span class="s2">&quot;Function&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;func&quot;</span>
+    <span class="k">if</span> <span class="n">pipda_type</span> <span class="o">==</span> <span class="s2">&quot;PlainFunction&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;plain-func&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;plain&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">bind_arguments</span><span class="p">(</span><span id="pipda.utils.bind_arguments"></span><a class="mkapi-docs-link" title="pipda.utils.bind_arguments" href="../../pipda.utils/#pipda.utils.bind_arguments">DOCS</a>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">args</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">,</span>
+    <span class="n">kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="c1"># type_check: bool = False,</span>
+    <span class="c1"># ignore_first: bool = False,</span>
+    <span class="c1"># ignore_types: Tuple[Type] = (Expression, )</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">inspect</span><span class="o">.</span><span class="n">BoundArguments</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Try to bind arguments, instead of run the function to see if arguments</span>
+<span class="sd">    can fit the function</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        func: The function</span>
+<span class="sd">        args: The positional arguments to bind to the function</span>
+<span class="sd">        kwargs: The keyword arguments to bind to the function</span>
+<span class="sd">        type_check: Whether do the type check for the values</span>
+<span class="sd">        ignore_first: Whether ignore type check for the first argument</span>
+<span class="sd">        ignore_types: Types to be ignored (always return True for any values)</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TypeError: When arguments failed to bind or types of values</span>
+<span class="sd">            don&#39;t match argument type annotations if `type_check` is True.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        inspect.BoundArguments</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">signature</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">boundargs</span> <span class="o">=</span> <span class="n">signature</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">terr</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">terr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+    <span class="c1"># if len(boundargs.arguments) &gt; 0 and type_check:</span>
+    <span class="c1">#     # some arguments bound</span>
+    <span class="c1">#     firstarg = list(signature.parameters)[0]</span>
+    <span class="c1">#     for key, val in boundargs.arguments.items():</span>
+    <span class="c1">#         if ignore_first and key == firstarg:</span>
+    <span class="c1">#             continue</span>
+
+    <span class="c1">#         annotation = signature.parameters[key].annotation</span>
+    <span class="c1">#         if annotation is inspect._empty:</span>
+    <span class="c1">#             continue</span>
+
+    <span class="c1">#         if not instanceof(val, annotation, ignore=ignore_types):</span>
+    <span class="c1">#             raise TypeError(</span>
+    <span class="c1">#                 f&quot;[{func.__qualname__}] Argument `{key}` expect a value &quot;</span>
+    <span class="c1">#                 f&quot;of {annotation}, got {val}&quot;</span>
+    <span class="c1">#             )</span>
+
+    <span class="n">boundargs</span><span class="o">.</span><span class="n">apply_defaults</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">boundargs</span>
+
+
+<span class="c1"># Helper functions -----------------------------</span>
+
+
+<span class="nd">@lru_cache</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">_get_piping_verb_node</span><span class="p">(</span><span class="n">calling_node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Get the ast node that is ensured the piping verb call</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        calling_node: Current Call node</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The verb call node if found, otherwise None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">.verb</span> <span class="kn">import</span> <span class="n">Verb</span>
+    <span class="kn">from</span> <span class="nn">.register</span> <span class="kn">import</span> <span class="n">PIPING_SIGNS</span>
+
+    <span class="c1"># check if we have the piping node (i.e. &gt;&gt;)</span>
+    <span class="n">child</span> <span class="o">=</span> <span class="n">calling_node</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="s2">&quot;parent&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">PIPING_SIGNS</span><span class="p">[</span><span class="n">Verb</span><span class="o">.</span><span class="n">CURRENT_SIGN</span><span class="p">]</span><span class="o">.</span><span class="n">token</span>
+    <span class="k">while</span> <span class="n">parent</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="c1"># data &gt;&gt; verb(...)</span>
+            <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">)</span> <span class="ow">and</span> <span class="n">parent</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="n">child</span><span class="p">)</span>
+            <span class="ow">or</span>
+            <span class="c1"># data &gt;&gt;= verb(...)</span>
+            <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">AugAssign</span><span class="p">)</span> <span class="ow">and</span> <span class="n">parent</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="n">child</span><span class="p">)</span>
+        <span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">child</span>
+
+        <span class="n">child</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;parent&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="nd">@lru_cache</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">_is_piping_verb_argument_node</span><span class="p">(</span>
+    <span class="n">sub_node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">,</span> <span class="n">verb_node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Check if node func() is an argument of verb() (i.e. verb(func()))&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">verb_node</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">sub_node</span>
+    <span class="k">while</span> <span class="n">parent</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="n">parent</span> <span class="ow">is</span> <span class="n">verb_node</span> <span class="ow">or</span> <span class="n">_argument_node_of</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="ow">is</span> <span class="n">verb_node</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Lambda</span><span class="p">):</span>
+            <span class="c1"># function inside lambda is not in a piping environment</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;parent&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="c1"># when verb_node is ensured, we can anyway retrieve it as the parent of</span>
+    <span class="c1"># sub_node</span>
+    <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># pragma: no cover</span>
+
+
+<span class="nd">@lru_cache</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">_argument_node_of</span><span class="p">(</span><span class="n">sub_node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Get the Call node of a argument subnode&quot;&quot;&quot;</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_node</span><span class="p">,</span> <span class="s2">&quot;parent&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">parent</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="n">sub_node</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">args</span> <span class="ow">or</span> <span class="n">sub_node</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">keywords</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">parent</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Lambda</span><span class="p">):</span>
+            <span class="c1"># function inside lambda is not in a piping environment</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">sub_node</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;parent&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+</div>
+</div>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.ddd52ceb.min.js"></script>
+      
+        <script src="../../../js/mkapi.js"></script>
+      
+    
+  </body>
+</html>
