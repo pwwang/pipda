@@ -1,3 +1,6 @@
+## 0.4.1
+- Fix `getattr()` failure for operator-connected expressions (pwwang/datar#38)
+
 ## 0.4.0
 - Improve calling rules for verbs, data functions and non-data functions
 - Remove `evaluate_args()` and `evaluate_kwargs()`, use `evaluate_expr()` instead
