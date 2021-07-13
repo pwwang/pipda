@@ -7,17 +7,17 @@ from . import f, iden2
 
 
 class MyOperator(Operator):
-    def add(self, a, b):
+    def _op_add(self, a, b):
         return a - b
 
     @Operator.set_context(context=Context.EVAL)
-    def mul(self, a, b):
+    def _op_mul(self, a, b):
         return a * b
 
     @Operator.set_context(
         context=Context.EVAL, extra_contexts={"a": Context.SELECT}
     )
-    def sub(self, a, b):
+    def _op_sub(self, a, b):
         return a * b
 
 
@@ -40,6 +40,10 @@ def test_operator(f, iden2):
     x = op._pipda_eval(d, Context.EVAL.value)  # not affected
     assert x == 3
 
+def test_operator_getattr(f, iden2):
+    d = {"a": "1", "b": "2"}
+    ret = d >> iden2((f["a"] + f["b"]).__len__())
+    assert ret[1] == 2
 
 def test_operator_nosuch():
     with pytest.raises(ValueError):
