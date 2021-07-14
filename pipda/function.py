@@ -34,15 +34,16 @@ class Function(Expression):
         dataarg: bool = True,
     ) -> None:
 
-        self.func = func
-        self.args = args
-        self.kwargs = kwargs
-        self.dataarg = dataarg
+        self._pipda_func = func
+        self._pipda_args = args
+        self._pipda_kwargs = kwargs
+        self._pipda_dataarg = dataarg
 
     def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}"
-            f"(func={self.func.__qualname__!r}, dataarg={self.dataarg})"
+            f"(func={self._pipda_func.__qualname__!r}, "
+            f"dataarg={self._pipda_dataarg})"
         )
 
     def _pipda_eval(
@@ -56,7 +57,7 @@ class Function(Expression):
         """
         # don't change at 2nd evaluation
         # in case we have f.col.mean()
-        func = self.func
+        func = self._pipda_func
         if isinstance(func, Expression):
             func = evaluate_expr(func, data, context)
 
@@ -65,8 +66,12 @@ class Function(Expression):
         func_extra_contexts = getattr(dispatcher, "extra_contexts", None)
 
         context = func_context or context
-        args = (data, *self.args) if self.dataarg else self.args
-        bondargs = bind_arguments(dispatcher, args, self.kwargs)
+        args = (
+            (data, *self._pipda_args)
+            if self._pipda_dataarg
+            else self._pipda_args
+        )
+        bondargs = bind_arguments(dispatcher, args, self._pipda_kwargs)
         if func_extra_contexts:
             # evaluate some specfic args
             for key, ctx in func_extra_contexts.items():

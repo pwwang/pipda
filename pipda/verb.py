@@ -17,17 +17,21 @@ class FastEvalVerb(Function):
 
     def _pipda_fast_eval(self):
         """Evaluate this verb function using the first argument"""
-        if not self.args:
+        if not self._pipda_args:
             return self
 
-        firstarg, args = self.args[0], self.args[1:]
+        firstarg, args = self._pipda_args[0], self._pipda_args[1:]
         if isinstance(firstarg, FastEvalVerb):
             firstarg = firstarg._pipda_fast_eval()
 
         if has_expr(firstarg):
             # if first argument is not data
             # copy self?
-            self.dataarg = False
+            self._pipda_dataarg = False
             return self
 
-        return Function(self.func, args, self.kwargs)._pipda_eval(firstarg)
+        return Function(
+            self._pipda_func,
+            args,
+            self._pipda_kwargs
+        )._pipda_eval(firstarg)
