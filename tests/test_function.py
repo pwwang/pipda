@@ -10,7 +10,7 @@ from . import f, identity, identity2, iden, iden2
 def test_function_repr(identity):
     fun = Function(identity, (), {})
     assert (
-        repr(fun) == "Function(func='identity.<locals>.<lambda>', dataarg=True)"
+        repr(fun) == "Function(func=identity.<locals>.<lambda>, dataarg=True)"
     )
 
 

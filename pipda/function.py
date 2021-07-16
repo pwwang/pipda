@@ -40,10 +40,14 @@ class Function(Expression):
         self._pipda_dataarg = dataarg
 
     def __repr__(self) -> str:
+        if isinstance(self._pipda_func, Expression):
+            func = repr(self._pipda_func)
+        else:
+            func = self._pipda_func.__qualname__
+
         return (
             f"{self.__class__.__name__}"
-            f"(func={self._pipda_func.__qualname__!r}, "
-            f"dataarg={self._pipda_dataarg})"
+            f"(func={func}, dataarg={self._pipda_dataarg})"
         )
 
     def _pipda_eval(
