@@ -10,12 +10,21 @@ try:
 except ImportError:
     from distutils.core import setup
 
+
+import os.path
+
 readme = ''
+here = os.path.abspath(os.path.dirname(__file__))
+readme_path = os.path.join(here, 'README.rst')
+if os.path.exists(readme_path):
+    with open(readme_path, 'rb') as stream:
+        readme = stream.read().decode('utf8')
+
 
 setup(
     long_description=readme,
     name='pipda',
-    version='0.4.1',
+    version='0.4.2',
     description='A framework for data piping in python',
     python_requires='==3.*,>=3.7.0',
     author='pwwang',

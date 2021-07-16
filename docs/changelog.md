@@ -1,3 +1,7 @@
+## 0.4.2
+- Make Function property private thus accessiable to `getattr()` (otherwise returns an `Expression` object)
+- Give better repr for Function when func is an Expression object.
+
 ## 0.4.1
 - Fix `getattr()` failure for operator-connected expressions (pwwang/datar#38)
 
