@@ -24,7 +24,7 @@ if os.path.exists(readme_path):
 setup(
     long_description=readme,
     name='pipda',
-    version='0.4.2',
+    version='0.4.3',
     description='A framework for data piping in python',
     python_requires='==3.*,>=3.7.0',
     author='pwwang',

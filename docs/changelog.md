@@ -1,3 +1,6 @@
+## 0.4.3
+- Avoid raising exception for `varname()` to get the name of `Symbolic` object.
+
 ## 0.4.2
 - Make Function property private thus accessiable to `getattr()` (otherwise returns an `Expression` object)
 - Give better repr for Function when func is an Expression object.
