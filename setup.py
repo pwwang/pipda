@@ -33,6 +33,6 @@ setup(
     packages=['pipda'],
     package_dir={"": "."},
     package_data={},
-    install_requires=['executing', 'pure-eval==0.*', 'varname'],
+    install_requires=['diot', 'executing', 'pure-eval==0.*', 'varname'],
     extras_require={"dev": ["pytest", "pytest-cov"]},
 )

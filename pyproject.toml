@@ -10,6 +10,7 @@ license = "MIT"
 python = "^3.7"
 varname = "*"
 executing = "*"
+diot = "*"
 pure_eval = "0.*"
 
 [tool.poetry.dev-dependencies]

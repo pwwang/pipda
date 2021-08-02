@@ -9,12 +9,17 @@ from types import FrameType
 from typing import Any, Callable, Mapping, Tuple
 
 from executing import Source
+from diot import Diot
 from pure_eval import Evaluator, CannotEval
 
 from .context import ContextAnnoType
 
 DATA_CONTEXTVAR_NAME = "__pipda_context_data__"
 
+options = Diot(
+    # Warn about failure to get ast node
+    warn_astnode_failure=True,
+)
 
 class InaccessibleToNULLException(Exception):
     """Raises when access to NULLClass object"""
@@ -103,7 +108,7 @@ def get_env_data(frame: FrameType) -> Any:
     return envdata.get()
 
 
-def calling_env(warn_astnode_failure: bool = True) -> Any:
+def calling_env() -> Any:
     """Checking how the function is called:
 
     1. PIPING_VERB: It is a verb that is piped directed. ie. data >> verb(...)
@@ -128,7 +133,7 @@ def calling_env(warn_astnode_failure: bool = True) -> Any:
     # frame 2: func(...)
     frame = sys._getframe(2)
     my_node = Source.executing(frame).node
-    if not my_node and warn_astnode_failure:
+    if not my_node and options.warn_astnode_failure:
         warnings.warn(
             "Failed to fetch the node calling the function, "
             "call it with the original function."
