@@ -121,7 +121,7 @@ def test_calling_env(iden_func, iden2, identity):
         assert iden_func(1)
 
     def piping_verb():
-        return calling_env()
+        return calling_env('Verb')
 
     out = 1 >> iden2(piping_verb())
     assert out[1] is CallingEnvs.PIPING
@@ -131,3 +131,14 @@ def test_calling_env(iden_func, iden2, identity):
 
     out = identity(piping_verb())
     assert out is None
+
+def test_assume_all_piping(f, add2, iden_func):
+    with options_context(assume_all_piping=True):
+        out = 1 >> add2(2)
+    assert out == 3
+
+    out = iden_func(3)
+    assert isinstance(out, int)
+    assert out == 3
+
+
