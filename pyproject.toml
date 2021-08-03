@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pipda"
-version = "0.4.3"
+version = "0.4.4"
 readme = "README.md"
 description = "A framework for data piping in python"
 authors = ["pwwang <pwwang@pwwang.com>"]
@@ -10,6 +10,7 @@ license = "MIT"
 python = "^3.7"
 varname = "*"
 executing = "*"
+diot = "*"
 pure_eval = "0.*"
 
 [tool.poetry.dev-dependencies]

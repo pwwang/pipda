@@ -375,9 +375,7 @@ def _wrapping_verb(generic: Callable) -> Callable:
             __envdata: The environment data for evaluating the Expression
                 object
         """
-        call_env = __calling_env or calling_env(
-            register_verb.warn_astnode_failure
-        )
+        call_env = __calling_env or calling_env('Verb')
 
         envdata = NULL
         if call_env is CallingEnvs.PIPING_VERB:
@@ -430,9 +428,7 @@ def _wrapping_dfunc(
             __envdata: The environment data for evaluating the Expression
                 object
         """
-        call_env = __calling_env or calling_env(
-            register_func.warn_astnode_failure
-        )
+        call_env = __calling_env or calling_env('Function')
 
         if call_env is CallingEnvs.PIPING:
             calling_rule = dfunc_calling_rule1
@@ -470,9 +466,7 @@ def _wrapping_ndfunc(
         __envdata: Any = NULL,  # could be None
         **kwargs: Any,
     ) -> Any:
-        call_env = __calling_env or calling_env(
-            register_func.warn_astnode_failure
-        )
+        call_env = __calling_env or calling_env('PlainFunction')
 
         # As argument of a verb
         if call_env is CallingEnvs.PIPING:
@@ -544,5 +538,3 @@ def _register_dfunc(
 
 register_piping(">>")
 register_operator(Operator)
-register_verb.warn_astnode_failure = True
-register_func.warn_astnode_failure = True

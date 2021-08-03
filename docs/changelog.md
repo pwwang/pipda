@@ -1,3 +1,8 @@
+## 0.4.4
+- Add `options` and `options_context`.
+- Move `warn_astnode_failure` to options
+- Add `assume_all_piping` mode
+
 ## 0.4.3
 - Avoid raising exception for `varname()` to get the name of `Symbolic` object.
 

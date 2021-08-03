@@ -4,7 +4,7 @@ from .context import Context, ContextBase
 from .expression import Expression
 from .operator import Operator
 from .symbolic import Symbolic
-from .utils import DataEnv, evaluate_expr, functype
+from .utils import DataEnv, evaluate_expr, functype, options, options_context
 from .register import (
     register_func,
     register_operator,
@@ -13,4 +13,4 @@ from .register import (
     unregister,
 )
 
-__version__ = "0.4.3"
+__version__ = "0.4.4"

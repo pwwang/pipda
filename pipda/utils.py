@@ -3,18 +3,38 @@ import ast
 import inspect
 import sys
 import warnings
+from contextlib import contextmanager
 from enum import Enum, auto
 from functools import lru_cache, singledispatch
 from types import FrameType
-from typing import Any, Callable, Mapping, Tuple
+from typing import Any, Callable, Generator, Mapping, Tuple
 
+from diot import Diot
 from executing import Source
-from pure_eval import Evaluator, CannotEval
+from pure_eval import CannotEval, Evaluator
 
 from .context import ContextAnnoType
 
 DATA_CONTEXTVAR_NAME = "__pipda_context_data__"
 
+options = Diot(
+    # Warn about failure to get ast node
+    warn_astnode_failure=True,
+    # All piping mode:
+    # - Assume all verbs are using PIPING_VERB env
+    # - Assume all data functions are using PIPING env
+    # - Assume all non-data functions are using PIPING verbs
+    # This is useful when source code is not available.
+    assume_all_piping=False,
+)
+
+@contextmanager
+def options_context(**kwargs: Mapping[str, Any]) -> Generator:
+    """A context manager to execute code with temporary options"""
+    tmp_opts = options.copy()
+    options.update(**kwargs)
+    yield
+    options.update(tmp_opts)
 
 class InaccessibleToNULLException(Exception):
     """Raises when access to NULLClass object"""
@@ -103,7 +123,7 @@ def get_env_data(frame: FrameType) -> Any:
     return envdata.get()
 
 
-def calling_env(warn_astnode_failure: bool = True) -> Any:
+def calling_env(funtype: str) -> Any:
     """Checking how the function is called:
 
     1. PIPING_VERB: It is a verb that is piped directed. ie. data >> verb(...)
@@ -124,11 +144,18 @@ def calling_env(warn_astnode_failure: bool = True) -> Any:
 
     This function should be only called inside register_*.wrapper
     """
+    if options.assume_all_piping:
+        return (
+            CallingEnvs.PIPING_VERB
+            if funtype == 'Verb'
+            else CallingEnvs.PIPING
+        )
+
     # frame 1: register_*.wrapper
     # frame 2: func(...)
     frame = sys._getframe(2)
     my_node = Source.executing(frame).node
-    if not my_node and warn_astnode_failure:
+    if not my_node and options.warn_astnode_failure:
         warnings.warn(
             "Failed to fetch the node calling the function, "
             "call it with the original function."
@@ -309,8 +336,8 @@ def _get_piping_verb_node(calling_node: ast.Call) -> ast.Call:
     Returns:
         The verb call node if found, otherwise None
     """
-    from .verb import Verb
     from .register import PIPING_SIGNS
+    from .verb import Verb
 
     # check if we have the piping node (i.e. >>)
     child = calling_node

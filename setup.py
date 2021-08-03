@@ -24,7 +24,7 @@ if os.path.exists(readme_path):
 setup(
     long_description=readme,
     name='pipda',
-    version='0.4.3',
+    version='0.4.4',
     description='A framework for data piping in python',
     python_requires='==3.*,>=3.7.0',
     author='pwwang',
@@ -33,6 +33,6 @@ setup(
     packages=['pipda'],
     package_dir={"": "."},
     package_data={},
-    install_requires=['executing', 'pure-eval==0.*', 'varname'],
+    install_requires=['diot', 'executing', 'pure-eval==0.*', 'varname'],
     extras_require={"dev": ["pytest", "pytest-cov"]},
 )
