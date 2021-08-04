@@ -1,3 +1,6 @@
+## 0.4.5
+- Add `CallingEnvs.REGULAR`
+
 ## 0.4.4
 - Add `options` and `options_context`.
 - Move `warn_astnode_failure` to options
