@@ -83,6 +83,8 @@ class CallingEnvs(Enum):
     # # func(x=func2())
     # #        ^^^^^^^
     # FUNC_ARG = auto()
+    # Used to pass to the functions manually
+    REGULAR = auto()
 
 
 class DataEnv:
