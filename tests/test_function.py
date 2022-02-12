@@ -3,7 +3,7 @@ import pytest
 from pipda import register_verb, register_func
 from pipda.function import *
 from pipda.context import Context, ContextEval
-from pipda.symbolic import DirectRefAttr, ReferenceAttr, Symbolic
+from pipda.symbolic import ReferenceAttr, Symbolic
 
 from . import f, identity, identity2, iden, iden2
 
@@ -13,16 +13,18 @@ def test_function_repr(identity):
     assert (
         repr(fun) == "Function(func=identity.<locals>.<lambda>, dataarg=True)"
     )
+    assert str(fun) == 'identity(<data>)'
     fun = Function(
-        ReferenceAttr(DirectRefAttr(Symbolic("f"), "x"), "mean"),
-        (),
-        {},
+        ReferenceAttr(ReferenceAttr(Symbolic("f"), "x"), "mean"),
+        (1,),
+        {"a": 2},
         dataarg=False,
     )
     assert (
         repr(fun)
-        == "Function(func=ReferenceAttr(parent=DirectRefAttr(parent=<Symbolic:f>, ref='x'), ref='mean'), dataarg=False)"
+        == "Function(func=ReferenceAttr(parent=ReferenceAttr(parent=<Symbolic:f>, ref='x'), ref='mean'), dataarg=False)"
     )
+    assert str(fun) == 'f.x.mean(1, a=2)'
 
 
 def test_function_eval(f, identity):

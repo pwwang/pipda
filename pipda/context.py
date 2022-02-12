@@ -9,7 +9,7 @@ By default,
 
 """
 
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, ClassVar, Union
 
@@ -31,11 +31,11 @@ class ContextBase(ABC):  # pragma: no cover
     """
 
     @abstractmethod
-    def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> Any:
+    def getattr(self, parent: Any, ref: str) -> Any:
         """Defines how `f.A` is evaluated"""
 
     @abstractmethod
-    def getitem(self, parent: Any, ref: Any, is_direct: bool = False) -> Any:
+    def getitem(self, parent: Any, ref: Any) -> Any:
         """Defines how `f[item]` is evaluated"""
 
     def __repr__(self) -> str:
@@ -58,7 +58,8 @@ class ContextBase(ABC):  # pragma: no cover
         """The context to evaluate `**kwargs` passed to a function"""
         return self
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def name(self) -> str:
         """The name of the context"""
 
@@ -74,11 +75,11 @@ class ContextSelect(ContextBase):
 
     name: ClassVar[str] = "select"
 
-    def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> str:
+    def getattr(self, parent: Any, ref: str) -> str:
         """Get the `ref` directly, regardless of `data`"""
         return ref
 
-    def getitem(self, parent: Any, ref: Any, is_direct: bool = False) -> Any:
+    def getitem(self, parent: Any, ref: Any) -> Any:
         """Get the `ref` directly, which is already evaluated by `f[ref]`"""
         return ref
 
@@ -92,11 +93,11 @@ class ContextEval(ContextBase):
 
     name: ClassVar[str] = "eval"
 
-    def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> Any:
+    def getattr(self, parent: Any, ref: str) -> Any:
         """How to evaluate `f.A`"""
         return getattr(parent, ref)
 
-    def getitem(self, parent: Any, ref: Any, is_direct: bool = False) -> Any:
+    def getitem(self, parent: Any, ref: Any) -> Any:
         """How to evaluate `f[item]`"""
         return parent[ref]
 
@@ -106,11 +107,11 @@ class ContextPending(ContextBase):
 
     name: ClassVar[str] = "pending"
 
-    def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> str:
+    def getattr(self, parent: Any, ref: str) -> str:
         """Get the `ref` directly, regardless of `data`"""
         raise NotImplementedError("Pending context cannot be used to evaluate.")
 
-    def getitem(self, parent: Any, ref: Any, is_direct: bool = False) -> Any:
+    def getitem(self, parent: Any, ref: Any) -> Any:
         """Get the `ref` directly, which is already evaluated by `f[ref]`"""
         raise NotImplementedError("Pending context cannot be used to evaluate.")
 
@@ -121,12 +122,12 @@ class ContextMixed(ContextBase):
 
     name: ClassVar[str] = "mixed"
 
-    def getattr(self, parent: Any, ref: str, is_direct: bool = False) -> None:
+    def getattr(self, parent: Any, ref: str) -> None:
         raise NotImplementedError(
             "Mixed context should be used via `.args` or `.kwargs`"
         )
 
-    def getitem(self, parent: Any, ref: Any, is_direct: bool = False) -> None:
+    def getitem(self, parent: Any, ref: Any) -> None:
         raise NotImplementedError(
             "Mixed context should be used via `.args` or `.kwargs`"
         )

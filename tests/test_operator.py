@@ -36,6 +36,13 @@ def test_operator(f, iden2):
 
     op = f["a"] + f["b"]
     assert isinstance(op, Operator)
+    assert str(op) == 'f[a] + f[b]'
+
+    op2 = -f.a
+    assert str(op2) == '-f.a'
+
+    op3 = 1 + f.a
+    assert str(op3) == '1 + f.a'
 
     x = op._pipda_eval(d, Context.EVAL.value)  # not affected
     assert x == 3
