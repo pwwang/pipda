@@ -43,8 +43,6 @@ from typing import Any, Callable
 from .function import FastEvalFunction, Function
 from .verb import Verb, FastEvalVerb
 
-# pylint: disable=unused-argument
-
 
 def verb_calling_rule1(
     generic: Callable,

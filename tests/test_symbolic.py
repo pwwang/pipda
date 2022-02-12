@@ -20,8 +20,18 @@ def test_reference_item():
 def test_symbolic():
     f = Symbolic()
     assert repr(f) == '<Symbolic:f>'
+    assert str(f) == 'f'
 
-    assert isinstance(f.a, DirectRefAttr)
-    assert isinstance(f['a'], DirectRefItem)
+    assert isinstance(f.a, ReferenceAttr)
+    assert f.a._pipda_level == 1
+    assert f.a.b._pipda_level == 2
+    assert str(f.a) == 'f.a'
+    assert str(f.a.b) == 'f.a.b'
+
+    assert isinstance(f['a'], ReferenceItem)
+    assert f['a']._pipda_level == 1
+    assert f['a'].b._pipda_level == 2
+    assert str(f['a']) == "f[a]"
+    assert str(f['a'].b) == "f[a].b"
 
     assert f._pipda_eval([1, 2], Context.EVAL.value) == [1, 2]

@@ -28,6 +28,7 @@ options = Diot(
     assume_all_piping=False,
 )
 
+
 @contextmanager
 def options_context(**kwargs: Mapping[str, Any]) -> Generator:
     """A context manager to execute code with temporary options"""
@@ -35,6 +36,7 @@ def options_context(**kwargs: Mapping[str, Any]) -> Generator:
     options.update(**kwargs)
     yield
     options.update(tmp_opts)
+
 
 class InaccessibleToNULLException(Exception):
     """Raises when access to NULLClass object"""
@@ -349,9 +351,8 @@ def _get_piping_verb_node(calling_node: ast.Call) -> ast.Call:
         if (
             # data >> verb(...)
             (isinstance(parent, ast.BinOp) and parent.right is child)
-            or
             # data >>= verb(...)
-            (isinstance(parent, ast.AugAssign) and parent.value is child)
+            or (isinstance(parent, ast.AugAssign) and parent.value is child)
         ) and isinstance(parent.op, token):
             return child
 

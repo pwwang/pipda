@@ -1,3 +1,20 @@
+## 0.5.0
+- Stringify `Expression` objects reasonably
+  ```
+  f.a -> "f.a"
+  f['a'] -> "f[a]"
+  mean(f.a) -> "mean(f.a)"
+  f.a + 1 -> "f.a + 1"
+  ```
+- Deprecate `DirectRefAttr` and `DirectRefItem`. Use `ref._pipda_level` instead.
+  ```
+  f -> f._pipda_level == 0
+  f.a -> f._pipda_level == 1
+  f.a.b -> f._pipda_level == 2
+  ```
+- Household
+  Use `flake8` instead of `pylint` for linting.
+
 ## 0.4.5
 - Add `CallingEnvs.REGULAR`
 

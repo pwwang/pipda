@@ -57,7 +57,9 @@ def iden_func():
 @pytest.fixture
 def identity():
     """An identity function"""
-    return lambda x: x
+    fun = lambda x: x
+    fun.__name__ = 'identity'
+    return fun
 
 @pytest.fixture
 def identity2():

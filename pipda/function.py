@@ -50,9 +50,24 @@ class Function(Expression):
             f"(func={func}, dataarg={self._pipda_dataarg})"
         )
 
-    def _pipda_eval(
-        self, data: Any, context: ContextBase = None
-    ) -> Any:
+    def __str__(self) -> str:
+        strargs = []
+        funname = (
+            str(self._pipda_func)
+            if isinstance(self._pipda_func, Expression)
+            else self._pipda_func.__name__
+        )
+        if self._pipda_dataarg:
+            strargs.append("<data>")
+        if self._pipda_args:
+            strargs.extend((str(arg) for arg in self._pipda_args))
+        if self._pipda_kwargs:
+            strargs.extend(
+                f"{key}={val}" for key, val in self._pipda_kwargs.items()
+            )
+        return f"{funname}({', '.join(strargs)})"
+
+    def _pipda_eval(self, data: Any, context: ContextBase = None) -> Any:
         """Execute the function with the data
 
         The context will be determined by the function itself, so
@@ -111,7 +126,11 @@ class FastEvalFunction(Function):
         """Evaluate this function"""
         try:
             return self._pipda_eval(NULL)
-        except (ContextError, InaccessibleToNULLException, NotImplementedError):
+        except (
+            ContextError,
+            InaccessibleToNULLException,
+            NotImplementedError,
+        ):
             return self
 
 

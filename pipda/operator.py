@@ -1,11 +1,54 @@
 """Provide the Operator class"""
 import operator
 from enum import Enum
+from collections import namedtuple
 from functools import wraps
 from typing import Any, Callable, Mapping, Tuple, ClassVar, Type
 
 from .context import ContextAnnoType, ContextBase
 from .function import Function
+
+
+OperatorAttrs = namedtuple("OperatorAttrs", ["sign", "unary", "right"])
+
+
+OPERATOR_MAPS = {
+    "add": OperatorAttrs("+", False, False),
+    "radd": OperatorAttrs("+", False, True),
+    "sub": OperatorAttrs("-", False, False),
+    "rsub": OperatorAttrs("-", False, True),
+    "mul": OperatorAttrs("*", False, False),
+    "rmul": OperatorAttrs("*", False, True),
+    "matmul": OperatorAttrs("@", False, False),
+    "rmatmul": OperatorAttrs("@", False, True),
+    "truediv": OperatorAttrs("/", False, False),
+    "rtruediv": OperatorAttrs("/", False, True),
+    "floordiv": OperatorAttrs("//", False, False),
+    "rfloordiv": OperatorAttrs("//", False, True),
+    "mod": OperatorAttrs("%", False, False),
+    "rmod": OperatorAttrs("%", False, True),
+    "lshift": OperatorAttrs("<<", False, False),
+    "rlshift": OperatorAttrs("<<", False, True),
+    "rshift": OperatorAttrs(">>", False, False),
+    "rrshift": OperatorAttrs(">>", False, True),
+    "and_": OperatorAttrs("&", False, False),
+    "rand_": OperatorAttrs("&", False, True),
+    "xor": OperatorAttrs("^", False, False),
+    "rxor": OperatorAttrs("^", False, True),
+    "or_": OperatorAttrs("|", False, False),
+    "ror_": OperatorAttrs("|", False, True),
+    "pow": OperatorAttrs("**", False, False),
+    "rpow": OperatorAttrs("**", False, True),
+    "lt": OperatorAttrs("<", False, False),
+    "le": OperatorAttrs("<=", False, False),
+    "eq": OperatorAttrs("==", False, False),
+    "ne": OperatorAttrs("!=", False, False),
+    "gt": OperatorAttrs(">", False, False),
+    "ge": OperatorAttrs(">=", False, False),
+    "neg": OperatorAttrs("-", True, False),
+    "pos": OperatorAttrs("+", True, False),
+    "invert": OperatorAttrs("~", True, False),
+}
 
 
 class Operator(Function):
@@ -59,6 +102,14 @@ class Operator(Function):
             return func
 
         return wrapper
+
+    def __str__(self) -> str:
+        sign = OPERATOR_MAPS[self.op].sign
+        if OPERATOR_MAPS[self.op].unary:
+            return f"{sign}{self._pipda_args[0]}"
+        if not OPERATOR_MAPS[self.op].right:
+            return f"{self._pipda_args[0]} {sign} {self._pipda_args[1]}"
+        return f"{self._pipda_args[1]} {sign} {self._pipda_args[0]}"
 
     def _pipda_eval(
         self, data: Any, context: ContextBase = None
