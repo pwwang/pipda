@@ -1,6 +1,0 @@
-diot
-executing
-pure-eval==0.*
-pytest
-pytest-cov
-varname

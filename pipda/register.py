@@ -1,7 +1,6 @@
 """Provide register_* suite"""
 import ast
 import sys
-import typing
 from collections import namedtuple
 from enum import Enum
 from functools import singledispatch, wraps
@@ -33,9 +32,6 @@ from ._calling import (
     ndfunc_calling_rule2,
     ndfunc_calling_rule3,
 )
-
-if typing.TYPE_CHECKING:  # pragma: no cover
-    import inspect
 
 # The Sign tuple
 Sign = namedtuple("Sign", ["method", "token"])

@@ -1,9 +1,8 @@
 """A framework for data piping in python"""
-# pylint: disable=unused-import
 from .context import Context, ContextBase
 from .expression import Expression
 from .operator import Operator
-from .symbolic import Symbolic
+from .symbolic import Symbolic, ReferenceAttr, ReferenceItem
 from .utils import DataEnv, evaluate_expr, functype, options, options_context
 from .register import (
     register_func,
@@ -13,4 +12,4 @@ from .register import (
     unregister,
 )
 
-__version__ = "0.4.5"
+__version__ = "0.5.0"
