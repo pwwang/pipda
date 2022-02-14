@@ -29,6 +29,7 @@ class ContextBase(ABC):  # pragma: no cover
     - `ref` here defines how the reference/item in `f.item` is evaluated.
         Since we could do `f[f.A]`.
     """
+
     def __init__(self, meta: Mapping[str, Any] = None):
         """Meta data is carring down"""
         self.meta = meta or {}
@@ -44,7 +45,13 @@ class ContextBase(ABC):  # pragma: no cover
     def update_meta_from(self, other_context: "ContextBase") -> None:
         """Update meta data from other context"""
         if other_context is not None:
-            self.meta.update(other_context.meta)
+            self.meta.update(
+                {
+                    key: mval
+                    for key, mval in other_context.meta.items()
+                    if key not in self.meta
+                }
+            )
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} @ {hex(id(self))}>"
@@ -106,11 +113,15 @@ class ContextPending(ContextBase):
 
     def getattr(self, parent: Any, ref: str) -> str:
         """Get the `ref` directly, regardless of `data`"""
-        raise NotImplementedError("Pending context cannot be used to evaluate.")
+        raise NotImplementedError(
+            "Pending context cannot be used to evaluate."
+        )
 
     def getitem(self, parent: Any, ref: Any) -> Any:
         """Get the `ref` directly, which is already evaluated by `f[ref]`"""
-        raise NotImplementedError("Pending context cannot be used to evaluate.")
+        raise NotImplementedError(
+            "Pending context cannot be used to evaluate."
+        )
 
 
 class ContextMixed(ContextBase):
