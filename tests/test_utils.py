@@ -1,9 +1,10 @@
-from pipda.context import Context
+from pipda.context import Context, ContextEval, ContextSelect
 import pytest
 
 import sys
 from executing import Source
 from pipda import register_func
+from pipda.function import Function
 from pipda.utils import *
 from pipda.utils import (
     _get_piping_verb_node,
@@ -142,3 +143,15 @@ def test_assume_all_piping(f, add2, iden_func):
     assert out == 3
 
 
+def test_meta_carried_down():
+    from pipda.operator import Operator
+    print(Operator.REGISTERED)
+    context = ContextEval({"a": 1})
+
+    @register_func(None, context=None)
+    def get_context(_context=None):
+        return _context.meta["a"]
+
+    expr = Function(get_context, (), {}, False)
+    out = evaluate_expr(expr + 2, None, context)
+    assert out == 3

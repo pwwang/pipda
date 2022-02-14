@@ -23,9 +23,10 @@ class MyOperator(Operator):
 
 @pytest.fixture
 def install_operator():
+    print('Register myoperator')
     register_operator(MyOperator)
     yield
-    Operator.OPERATOR = Operator
+    Operator.REGISTERED = Operator
 
 
 def test_operator(f, iden2):

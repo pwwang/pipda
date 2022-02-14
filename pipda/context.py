@@ -11,7 +11,7 @@ By default,
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, ClassVar, Union
+from typing import Any, Mapping, Union
 
 
 class ContextError(Exception):
@@ -29,6 +29,9 @@ class ContextBase(ABC):  # pragma: no cover
     - `ref` here defines how the reference/item in `f.item` is evaluated.
         Since we could do `f[f.A]`.
     """
+    def __init__(self, meta: Mapping[str, Any] = None):
+        """Meta data is carring down"""
+        self.meta = meta or {}
 
     @abstractmethod
     def getattr(self, parent: Any, ref: str) -> Any:
@@ -37,6 +40,11 @@ class ContextBase(ABC):  # pragma: no cover
     @abstractmethod
     def getitem(self, parent: Any, ref: Any) -> Any:
         """Defines how `f[item]` is evaluated"""
+
+    def update_meta_from(self, other_context: "ContextBase") -> None:
+        """Update meta data from other context"""
+        if other_context is not None:
+            self.meta.update(other_context.meta)
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} @ {hex(id(self))}>"
@@ -58,11 +66,6 @@ class ContextBase(ABC):  # pragma: no cover
         """The context to evaluate `**kwargs` passed to a function"""
         return self
 
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        """The name of the context"""
-
 
 class ContextSelect(ContextBase):
     """Context used in a select context
@@ -72,8 +75,6 @@ class ContextSelect(ContextBase):
     - `f[ref]` works as a shortcut of `ref`. However, `ref` is needed to be
         evaluated by a context returned by `getref`
     """
-
-    name: ClassVar[str] = "select"
 
     def getattr(self, parent: Any, ref: str) -> str:
         """Get the `ref` directly, regardless of `data`"""
@@ -91,8 +92,6 @@ class ContextEval(ContextBase):
     `f.A` is evaluated as `f.A` and `f[item]` is evaluated as `f[item]`
     """
 
-    name: ClassVar[str] = "eval"
-
     def getattr(self, parent: Any, ref: str) -> Any:
         """How to evaluate `f.A`"""
         return getattr(parent, ref)
@@ -104,8 +103,6 @@ class ContextEval(ContextBase):
 
 class ContextPending(ContextBase):
     """Pending context"""
-
-    name: ClassVar[str] = "pending"
 
     def getattr(self, parent: Any, ref: str) -> str:
         """Get the `ref` directly, regardless of `data`"""
@@ -119,8 +116,6 @@ class ContextPending(ContextBase):
 class ContextMixed(ContextBase):
     """A mixed context, where the `*args` are evaluated with `ContextSelect`
     and `**args` are evaluated with `ContextEval`."""
-
-    name: ClassVar[str] = "mixed"
 
     def getattr(self, parent: Any, ref: str) -> None:
         raise NotImplementedError(

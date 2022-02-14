@@ -7,7 +7,7 @@ from .utils import (
     evaluate_expr,
 )
 from .expression import Expression
-from .context import ContextBase, ContextError
+from .context import ContextBase, ContextError, ContextPending
 
 
 class Function(Expression):
@@ -84,7 +84,10 @@ class Function(Expression):
         func_context = getattr(dispatcher, "context", None)
         func_extra_contexts = getattr(dispatcher, "extra_contexts", None)
 
-        context = func_context or context
+        if func_context:
+            func_context.update_meta_from(context)
+            context = func_context
+
         args = (
             (data, *self._pipda_args)
             if self._pipda_dataarg
@@ -98,6 +101,7 @@ class Function(Expression):
                     raise KeyError(
                         f"[{dispatcher.__qualname__}] No such argument: {key!r}"
                     )
+                ctx.update_meta_from(context)
                 bondargs.arguments[key] = evaluate_expr(
                     bondargs.arguments[key], data, ctx
                 )
@@ -105,17 +109,19 @@ class Function(Expression):
         if "_context" in bondargs.arguments:
             bondargs.arguments["_context"] = context
 
-        if context and context.name == "pending":
+        if isinstance(context, ContextPending):
             # leave args/kwargs for the child
             # verb/function/operator to evaluate
             return func(*bondargs.args, **bondargs.kwargs)  # type: ignore
 
-        args = evaluate_expr(
-            bondargs.args, data, context.args if context else context
-        )
-        kwargs = evaluate_expr(
-            bondargs.kwargs, data, context.kwargs if context else context
-        )
+        if context is not None:
+            context.args.update_meta_from(context)
+            context.kwargs.update_meta_from(context)
+            args = evaluate_expr(bondargs.args, data, context.args)
+            kwargs = evaluate_expr(bondargs.kwargs, data, context.kwargs)
+        else:
+            args = evaluate_expr(bondargs.args, data, None)
+            kwargs = evaluate_expr(bondargs.kwargs, data, None)
         return func(*args, **kwargs)  # type: ignore
 
 
