@@ -4,20 +4,17 @@ from pipda.context import *
 
 def test_context_select():
     cs = ContextSelect()
-    assert cs.name == 'select'
     assert cs.getattr(None, 'a') == 'a'
     assert cs.getitem(None, 1) == 1
 
 def test_context_eval():
     ce = ContextEval()
     l = []
-    assert ce.name == 'eval'
     assert ce.getattr(l, '__len__') == l.__len__
     assert ce.getitem([1 ,2], 0) == 1
 
 def test_context_pending():
     cp = ContextPending()
-    assert cp.name == 'pending'
     with pytest.raises(NotImplementedError):
         cp.getattr(None, 'a')
     with pytest.raises(NotImplementedError):
@@ -25,7 +22,6 @@ def test_context_pending():
 
 def test_context_mixed():
     cm = ContextMixed()
-    assert cm.name == 'mixed'
     with pytest.raises(NotImplementedError):
         cm.getattr(None, 'a')
     with pytest.raises(NotImplementedError):

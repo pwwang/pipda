@@ -1,3 +1,31 @@
+## 0.5.1
+
+- Remove abstract property `name` from contexts (`name` is no longer a required property to subclass `ContextBase`)
+- Allow meta data of context to be passed down
+  ```python
+  from pipda import Symbolic, register_func, register_verb, evaluate_expr
+  from pipda.context import Context, ContextEval
+
+  f = Symbolic()
+
+  @register_func(None, context=Context.SELECT)
+  def wrapper(x):
+    return x
+
+  @register_func(None, context=Context.EVAL)
+  def times_meta(x, _context=None):
+    return x * _context.meta["val"]
+
+  @register_verb(dict, context=ContextEval({"val": 10}))
+  def add(x, y):
+    return x["a"] + y
+
+  # metadata passed down to times_meta
+  {"a": 1} >> add(wrapper(use_meta(f["a"])))
+  # 12
+  ```
+
+
 ## 0.5.0
 - Stringify `Expression` objects reasonably
   ```
