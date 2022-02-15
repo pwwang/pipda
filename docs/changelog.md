@@ -1,3 +1,8 @@
+## 0.5.2
+
+- Add `level` argument to context.getitem()/getattr() so that the expression level can be used in evaluation;
+- Add `eval_symbolic()` to context to allow evaluate Symbolic objects in different ways.
+
 ## 0.5.1
 
 - Remove abstract property `name` from contexts (`name` is no longer a required property to subclass `ContextBase`)
