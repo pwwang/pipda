@@ -34,12 +34,15 @@ class ContextBase(ABC):  # pragma: no cover
         """Meta data is carring down"""
         self.meta = meta or {}
 
+    def eval_symbolic(self, data: Any) -> Any:
+        return data
+
     @abstractmethod
-    def getattr(self, parent: Any, ref: str) -> Any:
+    def getattr(self, parent: Any, ref: str, level: int) -> Any:
         """Defines how `f.A` is evaluated"""
 
     @abstractmethod
-    def getitem(self, parent: Any, ref: Any) -> Any:
+    def getitem(self, parent: Any, ref: Any, level: int) -> Any:
         """Defines how `f[item]` is evaluated"""
 
     def update_meta_from(self, other_context: "ContextBase") -> None:
@@ -83,11 +86,11 @@ class ContextSelect(ContextBase):
         evaluated by a context returned by `getref`
     """
 
-    def getattr(self, parent: Any, ref: str) -> str:
+    def getattr(self, parent: Any, ref: str, level: int) -> str:
         """Get the `ref` directly, regardless of `data`"""
         return ref
 
-    def getitem(self, parent: Any, ref: Any) -> Any:
+    def getitem(self, parent: Any, ref: Any, level: int) -> Any:
         """Get the `ref` directly, which is already evaluated by `f[ref]`"""
         return ref
 
@@ -99,11 +102,11 @@ class ContextEval(ContextBase):
     `f.A` is evaluated as `f.A` and `f[item]` is evaluated as `f[item]`
     """
 
-    def getattr(self, parent: Any, ref: str) -> Any:
+    def getattr(self, parent: Any, ref: str, level: int) -> Any:
         """How to evaluate `f.A`"""
         return getattr(parent, ref)
 
-    def getitem(self, parent: Any, ref: Any) -> Any:
+    def getitem(self, parent: Any, ref: Any, level: int) -> Any:
         """How to evaluate `f[item]`"""
         return parent[ref]
 
@@ -111,13 +114,13 @@ class ContextEval(ContextBase):
 class ContextPending(ContextBase):
     """Pending context"""
 
-    def getattr(self, parent: Any, ref: str) -> str:
+    def getattr(self, parent: Any, ref: str, level: int) -> str:
         """Get the `ref` directly, regardless of `data`"""
         raise NotImplementedError(
             "Pending context cannot be used to evaluate."
         )
 
-    def getitem(self, parent: Any, ref: Any) -> Any:
+    def getitem(self, parent: Any, ref: Any, level: int) -> Any:
         """Get the `ref` directly, which is already evaluated by `f[ref]`"""
         raise NotImplementedError(
             "Pending context cannot be used to evaluate."
@@ -128,12 +131,12 @@ class ContextMixed(ContextBase):
     """A mixed context, where the `*args` are evaluated with `ContextSelect`
     and `**args` are evaluated with `ContextEval`."""
 
-    def getattr(self, parent: Any, ref: str) -> None:
+    def getattr(self, parent: Any, ref: str, level: int) -> None:
         raise NotImplementedError(
             "Mixed context should be used via `.args` or `.kwargs`"
         )
 
-    def getitem(self, parent: Any, ref: Any) -> None:
+    def getitem(self, parent: Any, ref: Any, level: int) -> None:
         raise NotImplementedError(
             "Mixed context should be used via `.args` or `.kwargs`"
         )
