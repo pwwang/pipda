@@ -68,7 +68,7 @@ class ReferenceAttr(Reference):
         super()._pipda_eval(data, context)
         parent = evaluate_expr(self._pipda_parent, data, context)
 
-        return context.getattr(parent, self._pipda_ref)
+        return context.getattr(parent, self._pipda_ref, self._pipda_level)
 
 
 class ReferenceItem(Reference):
@@ -83,7 +83,7 @@ class ReferenceItem(Reference):
         parent = evaluate_expr(self._pipda_parent, data, context)
         ref = evaluate_expr(self._pipda_ref, data, context.ref)
 
-        return context.getitem(parent, ref)
+        return context.getitem(parent, ref, self._pipda_level)
 
 
 class Symbolic(Expression):
@@ -117,4 +117,7 @@ class Symbolic(Expression):
 
     def _pipda_eval(self, data: Any, context: ContextBase = None) -> Any:
         """When evaluated, this should just return the data directly"""
-        return data
+        if context is None:
+            return data
+
+        return context.eval_symbolic(data)
