@@ -59,6 +59,8 @@ class ReferenceAttr(Reference):
     """Attribute references, for example: `f.A`, `f.A.B` etc."""
 
     def __str__(self) -> str:
+        if self._pipda_level == 1:
+            return self._pipda_ref
         return f"{self._pipda_parent}.{self._pipda_ref}"
 
     def _pipda_eval(self, data: Any, context: ContextBase = None) -> Any:
@@ -75,6 +77,8 @@ class ReferenceItem(Reference):
     """Subscript references, for example: `f['A']`, `f.A['B']` etc"""
 
     def __str__(self) -> str:
+        if self._pipda_level == 1:
+            return self._pipda_ref
         return f"{self._pipda_parent}[{self._pipda_ref}]"
 
     def _pipda_eval(self, data: Any, context: ContextBase = None) -> Any:
@@ -108,7 +112,7 @@ class Symbolic(Expression):
         return f"<Symbolic:{self.__name}>"
 
     def __str__(self) -> str:
-        return self.__name
+        return ""
 
     @property
     def _pipda_level(self) -> int:
