@@ -2,6 +2,7 @@
 
 - 🚑 Fix operator func lookup for `Operator`
 
+
 ## 0.5.2
 
 - Add `level` argument to context.getitem()/getattr() so that the expression level can be used in evaluation;
