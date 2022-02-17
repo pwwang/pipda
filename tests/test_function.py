@@ -13,7 +13,7 @@ def test_function_repr(identity):
     assert (
         repr(fun) == "Function(func=identity.<locals>.<lambda>, dataarg=True)"
     )
-    assert str(fun) == 'identity(<data>)'
+    assert str(fun) == 'identity()'
     fun = Function(
         ReferenceAttr(ReferenceAttr(Symbolic("f"), "x"), "mean"),
         (1,),
@@ -24,7 +24,7 @@ def test_function_repr(identity):
         repr(fun)
         == "Function(func=ReferenceAttr(parent=ReferenceAttr(parent=<Symbolic:f>, ref='x'), ref='mean'), dataarg=False)"
     )
-    assert str(fun) == 'f.x.mean(1, a=2)'
+    assert str(fun) == 'x.mean(1, a=2)'
 
 
 def test_function_eval(f, identity):

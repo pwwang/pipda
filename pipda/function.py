@@ -57,8 +57,6 @@ class Function(Expression):
             if isinstance(self._pipda_func, Expression)
             else self._pipda_func.__name__
         )
-        if self._pipda_dataarg:
-            strargs.append("<data>")
         if self._pipda_args:
             strargs.extend((str(arg) for arg in self._pipda_args))
         if self._pipda_kwargs:
