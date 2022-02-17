@@ -1,5 +1,5 @@
 """Provides register_func to register functions"""
-from typing import Any, Callable, Mapping, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Mapping, Tuple, Type, Union
 from .utils import (
     NULL,
     InaccessibleToNULLException,
@@ -8,6 +8,9 @@ from .utils import (
 )
 from .expression import Expression
 from .context import ContextBase, ContextError, ContextPending
+
+if TYPE_CHECKING:
+    from typing import List
 
 
 class Function(Expression):
@@ -51,7 +54,7 @@ class Function(Expression):
         )
 
     def __str__(self) -> str:
-        strargs = []
+        strargs = []  # type: List[str]
         funname = (
             str(self._pipda_func)
             if isinstance(self._pipda_func, Expression)
