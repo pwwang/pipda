@@ -1,6 +1,19 @@
 ## 0.5.3
 
 - 🚑 Fix operator func lookup for `Operator`
+- 🩹 Don't stringify the Symbolic object
+  ```
+  f.a
+  # previously: "f.a", now: "a"
+  f['a']
+  # previously: "f[a]", now: "a"
+  f.a['b']
+  # previously: "f.a[b]", now: "a[b]"
+  mean(f.a)
+  # previously: "mean(f.a)", now: "mean(a)"
+  f.a + 1
+  # previously: "f.a + 1", now: "a + 1"
+  ```
 
 ## 0.5.2
 
