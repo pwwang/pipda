@@ -124,22 +124,28 @@ class Operator(Function):
         self.data = data
         return super()._pipda_eval(data, context)
 
+    def _find_op_func(self, opname: str) -> Callable:
+        """Find the function correspoind to the opname
+
+        Note that there is no prefix to the opname and no right version of it
+        """
+        self_op_name = f"_op_{opname}"
+        # if it is defined with the class
+        if hasattr(self.__class__, self_op_name):
+            return getattr(self, self_op_name)
+
+        # otherwise use standard operator function
+        return getattr(operator, opname, None)
+
     def _get_op_func(self) -> Callable:
         """Get the operator function from the operator module by name"""
-        def _opfunc(opname: str) -> Callable:
-            self_op_name = f"_op_{opname}"
-            if hasattr(self.__class__, self_op_name):
-                return getattr(self, self_op_name)
-
-            return getattr(operator, opname, None)
-
-        op_func = _opfunc(self.op)
+        op_func = self._find_op_func(self.op)
         if op_func:
             return op_func
 
         if self.op[0] == 'r':
             # if we get radd, swap left and right operands
-            op_func = _opfunc(self.op[1:])
+            op_func = self._find_op_func(self.op[1:])
             if op_func:
                 @wraps(op_func)
                 def left_op_func(arg_a, arg_b, *args, **kwargs):

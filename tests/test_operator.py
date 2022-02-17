@@ -20,10 +20,15 @@ class MyOperator(Operator):
     def _op_sub(self, a, b):
         return a * b
 
+    def _find_op_func(self, opname: str) -> Callable:
+        # redirect @ to *
+        if opname == "matmul":
+            return self._op_mul
+        return super()._find_op_func(opname)
+
 
 @pytest.fixture
 def install_operator():
-    print('Register myoperator')
     register_operator(MyOperator)
     yield
     Operator.REGISTERED = Operator
@@ -81,6 +86,9 @@ def test_register(f, iden2, install_operator):
     assert ret[1] == -1
 
     ret = d >> iden2(f["a"] * f["b"])
+    assert ret[1] == 2
+
+    ret = d >> iden2(f["a"] @ f["b"])
     assert ret[1] == 2
 
     ret = d >> iden2(f["a"] - f["b"])
