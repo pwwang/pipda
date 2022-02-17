@@ -15,6 +15,7 @@
   # previously: "f.a + 1", now: "a + 1"
   ```
 
+
 ## 0.5.2
 
 - Add `level` argument to context.getitem()/getattr() so that the expression level can be used in evaluation;
