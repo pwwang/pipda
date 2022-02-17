@@ -1,4 +1,5 @@
 """Provide the Operator class"""
+from contextlib import suppress
 import operator
 from enum import Enum
 from collections import namedtuple
@@ -131,7 +132,7 @@ class Operator(Function):
         """
         self_op_name = f"_op_{opname}"
         # if it is defined with the class
-        if hasattr(self.__class__, self_op_name):
+        if self_op_name in dir(self):
             return getattr(self, self_op_name)
 
         # otherwise use standard operator function
@@ -139,20 +140,23 @@ class Operator(Function):
 
     def _get_op_func(self) -> Callable:
         """Get the operator function from the operator module by name"""
-        op_func = self._find_op_func(self.op)
-        if op_func:
+        if self.op not in OPERATOR_MAPS:
+            raise ValueError(f"Not a valid operator: {self.op!r}")
+
+        if not OPERATOR_MAPS[self.op].right:
+            op_func = self._find_op_func(self.op)
+            with suppress(AttributeError):
+                op_func.__qualname__ = self.op
+
             return op_func
 
-        if self.op[0] == 'r':
-            # if we get radd, swap left and right operands
-            op_func = self._find_op_func(self.op[1:])
-            if op_func:
-                @wraps(op_func)
-                def left_op_func(arg_a, arg_b, *args, **kwargs):
-                    return op_func(arg_b, arg_a, *args, **kwargs)
+        # if self.op[0] == 'r':
+        # if we get radd, swap left and right operands
+        op_func = self._find_op_func(self.op[1:])
 
-                return left_op_func
+        @wraps(op_func)
+        def left_op_func(arg_a, arg_b, *args, **kwargs):
+            return op_func(arg_b, arg_a, *args, **kwargs)
 
-        raise ValueError(
-            f"No operator function defined for {self.op!r}"
-        )
+        left_op_func.__qualname__ = self.op
+        return left_op_func
