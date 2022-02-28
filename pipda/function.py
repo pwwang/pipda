@@ -10,7 +10,7 @@ from .expression import Expression
 from .context import ContextBase, ContextError, ContextPending
 
 if TYPE_CHECKING:
-    from typing import List
+    from typing import List  # pragma: no cover
 
 
 class Function(Expression):
@@ -85,9 +85,8 @@ class Function(Expression):
         func_context = getattr(dispatcher, "context", None)
         func_extra_contexts = getattr(dispatcher, "extra_contexts", None)
 
-        if func_context:
-            func_context.update_meta_from(context)
-            context = func_context
+        meta = context.meta if context else None
+        context = func_context if func_context else context
 
         args = (
             (data, *self._pipda_args)
@@ -102,28 +101,33 @@ class Function(Expression):
                     raise KeyError(
                         f"[{dispatcher.__qualname__}] No such argument: {key!r}"
                     )
-                ctx.update_meta_from(context)
-                bondargs.arguments[key] = evaluate_expr(
-                    bondargs.arguments[key], data, ctx
-                )
+                with ctx.with_meta(meta):
+                    bondargs.arguments[key] = evaluate_expr(
+                        bondargs.arguments[key], data, ctx
+                    )
 
-        if "_context" in bondargs.arguments:
-            bondargs.arguments["_context"] = context
-
-        if isinstance(context, ContextPending):
-            # leave args/kwargs for the child
-            # verb/function/operator to evaluate
-            return func(*bondargs.args, **bondargs.kwargs)  # type: ignore
-
-        if context is not None:
-            context.args.update_meta_from(context)
-            context.kwargs.update_meta_from(context)
-            args = evaluate_expr(bondargs.args, data, context.args)
-            kwargs = evaluate_expr(bondargs.kwargs, data, context.kwargs)
-        else:
+        if not context:
             args = evaluate_expr(bondargs.args, data, None)
             kwargs = evaluate_expr(bondargs.kwargs, data, None)
-        return func(*args, **kwargs)  # type: ignore
+            return func(*args, **kwargs)  # type: ignore
+
+        with context.with_meta(meta):
+            if "_context" in bondargs.arguments:
+                bondargs.arguments["_context"] = context
+
+            if isinstance(context, ContextPending):
+                # leave args/kwargs for the child
+                # verb/function/operator to evaluate
+                return func(*bondargs.args, **bondargs.kwargs)  # type: ignore
+
+            with context.args.with_meta(meta):
+                args = evaluate_expr(bondargs.args, data, context.args)
+            with context.kwargs.with_meta(meta):
+                kwargs = evaluate_expr(
+                    bondargs.kwargs, data, context.kwargs
+                )
+
+            return func(*args, **kwargs)  # type: ignore
 
 
 class FastEvalFunction(Function):

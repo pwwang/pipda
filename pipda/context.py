@@ -12,6 +12,7 @@ By default,
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Mapping, Union
+from contextlib import contextmanager
 
 
 class ContextError(Exception):
@@ -45,19 +46,18 @@ class ContextBase(ABC):  # pragma: no cover
     def getitem(self, parent: Any, ref: Any, level: int) -> Any:
         """Defines how `f[item]` is evaluated"""
 
-    def update_meta_from(self, other_context: "ContextBase") -> None:
-        """Update meta data from other context"""
-        if other_context is not None:
-            self.meta.update(
-                {
-                    key: mval
-                    for key, mval in other_context.meta.items()
-                    if key not in self.meta
-                }
-            )
-
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} @ {hex(id(self))}>"
+
+    @contextmanager
+    def with_meta(self, meta: Mapping[str, Any]):
+        if meta is None or meta is self.meta:
+            yield
+        else:
+            self_meta = self.meta.copy()
+            self.meta = meta
+            yield
+            self.meta = self_meta
 
     @property
     def ref(self) -> "ContextBase":
