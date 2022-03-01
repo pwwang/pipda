@@ -77,9 +77,21 @@ class ReferenceItem(Reference):
     """Subscript references, for example: `f['A']`, `f.A['B']` etc"""
 
     def __str__(self) -> str:
+        # stringify slice
+        if isinstance(self._pipda_ref, slice):
+            start = self._pipda_ref.start or ""
+            stop = self._pipda_ref.stop or ""
+            step = self._pipda_ref.step
+            step = "" if step is None else f":{self._pipda_ref.step}"
+            ref = f"{start}:{stop}{step}"
+            if self._pipda_level == 1:
+                ref = f"[{ref}]"
+        else:
+            ref = str(self._pipda_ref)
+
         if self._pipda_level == 1:
-            return self._pipda_ref
-        return f"{self._pipda_parent}[{self._pipda_ref}]"
+            return ref
+        return f"{self._pipda_parent}[{ref}]"
 
     def _pipda_eval(self, data: Any, context: ContextBase = None) -> Any:
         """Evaluate the subscript references"""
