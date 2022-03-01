@@ -1,3 +1,7 @@
+## 0.5.5
+
+- 🚑 Fix stringify slice when it appears as ref of a `ReferenceItem` object
+
 ## 0.5.4
 
 - ✨ Add `with_meta()` for context to evaluate expr temporarily
