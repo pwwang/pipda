@@ -1,3 +1,7 @@
+## 0.5.4
+
+- ✨ Add `with_meta()` for context to evaluate expr temporarily
+
 ## 0.5.3
 
 - 🚑 Fix operator func lookup for `Operator`
