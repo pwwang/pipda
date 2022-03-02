@@ -1,3 +1,7 @@
+## 0.5.6
+
+- 🚑 Fix context meta not recovered when error
+
 ## 0.5.5
 
 - 🚑 Fix stringify slice when it appears as ref of a `ReferenceItem` object
