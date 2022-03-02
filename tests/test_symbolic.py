@@ -34,5 +34,7 @@ def test_symbolic():
     assert str(f['a']) == "a"
     assert str(f['a'].b) == "a.b"
     assert str(f['a']['b']) == "a[b]"
+    assert str(f[1:3]) == "[1:3]"
+    assert str(f['a'][:3]) == "a[:3]"
 
     assert f._pipda_eval([1, 2], Context.EVAL.value) == [1, 2]
