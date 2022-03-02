@@ -120,14 +120,21 @@ class Function(Expression):
                 # verb/function/operator to evaluate
                 return func(*bondargs.args, **bondargs.kwargs)  # type: ignore
 
-            with context.args.with_meta(meta):
-                args = evaluate_expr(bondargs.args, data, context.args)
-            with context.kwargs.with_meta(meta):
-                kwargs = evaluate_expr(
-                    bondargs.kwargs, data, context.kwargs
-                )
+            if context.args is context:
+                args = evaluate_expr(bondargs.args, data, context)
+            else:
+                with context.args.with_meta(meta):
+                    args = evaluate_expr(bondargs.args, data, context.args)
 
-            return func(*args, **kwargs)  # type: ignore
+            if context.kwargs is context:
+                kwargs = evaluate_expr(bondargs.kwargs, data, context)
+            else:
+                with context.kwargs.with_meta(meta):
+                    kwargs = evaluate_expr(
+                        bondargs.kwargs, data, context.kwargs
+                    )
+
+        return func(*args, **kwargs)  # type: ignore
 
 
 class FastEvalFunction(Function):

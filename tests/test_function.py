@@ -36,6 +36,19 @@ def test_function_eval(f, identity):
     assert out == 2
 
 
+def test_eval_with_different_context():
+    class MyContext(ContextEval):
+        args = ContextEval()
+        kwargs = ContextEval()
+
+    @register_verb(context=MyContext())
+    def add_all(data, a, b):
+        return data + a + b
+
+    out = 1 >> add_all(2, 3)
+    assert out == 6
+
+
 def test_extra_contexts(f, identity2):
     iden2 = register_verb(extra_contexts={"y": Context.SELECT})(identity2)
     out = iden2(1, f[2])

@@ -55,9 +55,11 @@ class ContextBase(ABC):  # pragma: no cover
             yield
         else:
             self_meta = self.meta.copy()
-            self.meta = meta
-            yield
-            self.meta = self_meta
+            self.meta.update(meta)
+            try:
+                yield
+            finally:
+                self.meta = self_meta
 
     @property
     def ref(self) -> "ContextBase":
