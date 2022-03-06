@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pipda"
-version = "0.5.6"
+version = "0.5.7"
 readme = "README.md"
 description = "A framework for data piping in python"
 authors = ["pwwang <pwwang@pwwang.com>"]
