@@ -81,6 +81,15 @@ class Function(Expression):
         if isinstance(func, Expression):
             func = evaluate_expr(func, data, context)
 
+        if isinstance(func, Expression):
+            # If it is still an expression
+            # then context must be PENDING, this kind of expression can
+            # not be evaluated: f.x.mean()
+            # Then there is no such thing like dataarg, dispatching and
+            # extra_context
+            # We just pass it down until a context is given
+            return self
+
         dispatcher = _get_dispatcher(func, type(data))  # type: ignore
         func_context = getattr(dispatcher, "context", None)
         func_extra_contexts = getattr(dispatcher, "extra_contexts", None)
