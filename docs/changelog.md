@@ -1,3 +1,8 @@
+## 0.5.7
+
+- 🐛 Fix `f.x.mean()` evaluation in all-piping mode
+
+
 ## 0.5.6
 
 - 🚑 Fix context meta not recovered when error
