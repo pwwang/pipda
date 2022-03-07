@@ -1,8 +1,8 @@
 import pytest
 
 from pipda._calling import *
-from pipda.utils import NULL
-from . import f, identity
+from pipda.utils import NULL, options_context
+from . import f, identity, add2, iden_func
 
 def test_verb_calling_rule1(identity):
     out = verb_calling_rule1(identity, (1, ), {}, NULL)
@@ -63,4 +63,17 @@ def test_ndfunc_calling_rule3(f, identity):
     with pytest.raises(ValueError):
         ndfunc_calling_rule3(identity, (f, ), {}, [1,2], True)
 
+def test_regcall_without_source_works(f, add2, iden_func):
+    # works with source
+    out = add2([1, 2], iden_func(f[:1]))
+    assert out == [1, 2, 1]
 
+    source = "out = add2([1, 2], iden_func(f[:1]))"
+    with options_context(warn_astnode_failure=False):
+        exec(source)
+    assert out == [1, 2, 1]
+
+    source = "out = [1, 2] >> add2(iden_func(f[:1]))"
+    with options_context(warn_astnode_failure=False, assume_all_piping=True):
+        exec(source)
+    assert out == [1, 2, 1]

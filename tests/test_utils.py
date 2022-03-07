@@ -145,7 +145,6 @@ def test_assume_all_piping(f, add2, iden_func):
 
 def test_meta_carried_down():
     from pipda.operator import Operator
-    print(Operator.REGISTERED)
     context = ContextEval({"a": 1})
 
     @register_func(None, context=None)
