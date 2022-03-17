@@ -5,7 +5,7 @@ from pipda.function import *
 from pipda.context import Context, ContextEval
 from pipda.symbolic import ReferenceAttr, Symbolic
 
-from . import f, identity, identity2, iden, iden2
+from . import f, identity, identity2, iden, iden2, add2
 
 
 def test_function_repr(identity):
@@ -75,3 +75,26 @@ def test_eval_with_pending_context(f, iden2):
 
     out = 1 >> iden2(iden(f[2]))
     assert out == (1, 2)
+
+
+def test_expr_func(f):
+    """Test that we can use expr as a function"""
+    class Data:
+        def __init__(self, data) -> None:
+            self.data = data
+
+        @property
+        def attr(self):
+            return self
+
+        def get_data(self):
+            return self.data
+
+    fun = Function(f.attr.get_data, (), {}, False)
+    out = fun._pipda_eval(
+        f, context=Context.EVAL.value
+    )._pipda_eval(
+        Data(3), context=Context.EVAL.value
+    )
+    assert isinstance(out, int)
+    assert out == 3

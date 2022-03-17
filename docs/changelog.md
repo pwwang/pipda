@@ -1,3 +1,7 @@
+## 0.5.8
+
+- 🐛 Fix `f >> verb(...)` as argument of another verb in assume_all_piping mode
+
 ## 0.5.7
 
 - 🐛 Fix `f.x.mean()` evaluation in all-piping mode

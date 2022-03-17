@@ -35,6 +35,20 @@ class Expression(ABC):
 
         return Operator.REGISTERED(op, (self, *args), kwargs)
 
+    def __rshift__(self, other):
+        """Allow to use the right shift operator,"""
+        from .verb import Verb
+
+        if isinstance(other, Verb):
+            return Verb(
+                other._pipda_func,
+                (self, *other._pipda_args),
+                other._pipda_kwargs,
+                dataarg=False,
+            )
+
+        return self._op_handler("rshift", other)
+
     # Make sure the operators connect all expressions into one
     __add__ = partialmethod(_op_handler, "add")
     __radd__ = partialmethod(_op_handler, "radd")
@@ -52,7 +66,7 @@ class Expression(ABC):
     __rmod__ = partialmethod(_op_handler, "rmod")
     __lshift__ = partialmethod(_op_handler, "lshift")
     __rlshift__ = partialmethod(_op_handler, "rlshift")
-    __rshift__ = partialmethod(_op_handler, "rshift")
+    # __rshift__ = partialmethod(_op_handler, "rshift")
     __rrshift__ = partialmethod(_op_handler, "rrshift")
     __and__ = partialmethod(_op_handler, "and_")
     __rand__ = partialmethod(_op_handler, "rand_")

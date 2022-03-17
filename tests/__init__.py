@@ -21,9 +21,10 @@ def add1():
 @pytest.fixture
 def add2():
     """A verb to add 2 integers"""
-    @register_verb(int, context=Context.EVAL)
-    def add(a: int, b: int):
+    @register_verb((list, int), context=Context.EVAL)
+    def add(a, b):
         return a + b
+
     return add
 
 @pytest.fixture
@@ -73,4 +74,3 @@ def data_context():
         yield DataEnv(data)
 
     return data_context_
-

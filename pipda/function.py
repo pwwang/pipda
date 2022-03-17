@@ -1,5 +1,6 @@
 """Provides register_func to register functions"""
 from typing import TYPE_CHECKING, Any, Callable, Mapping, Tuple, Type, Union
+
 from .utils import (
     NULL,
     InaccessibleToNULLException,

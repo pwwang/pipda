@@ -162,7 +162,7 @@ def calling_env(funtype: str) -> Any:
     if not my_node and options.warn_astnode_failure:
         warnings.warn(
             "Failed to fetch the node calling the function, "
-            "call it with the original function."
+            "please call the verbs regularly instead of `data >> verb(...)`."
         )
         return None
 

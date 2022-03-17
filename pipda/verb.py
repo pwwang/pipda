@@ -1,18 +1,21 @@
 """Provide register_verb to register verbs"""
 
-import typing
+from typing import TYPE_CHECKING
 
 from .utils import has_expr
 from .function import Function
+
+if TYPE_CHECKING:  # pragma: no cover
+    from typing import ClassVar
 
 
 class Verb(Function):
     """The verb class"""
 
-    CURRENT_SIGN: typing.ClassVar[str] = ""
+    CURRENT_SIGN: "ClassVar[str]" = ""
 
 
-class FastEvalVerb(Function):
+class FastEvalVerb(Verb):
     """Verbs that can use its first argument to evaluate"""
 
     def _pipda_fast_eval(self):
