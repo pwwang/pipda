@@ -346,7 +346,7 @@ Functions that require first argument as data argument.
 
     `executing` does not work in the case where source code is not available, as there is no way to detect the AST node to check how the functions (verbs, data functions, non-data functions) are called, either they are called as a piping verb (`data >> verb(...)`), or they are called as an argument of a verb (`data >> verb(func(...))`) or even they are called independently/regularly.
 
-    In such a case, you can set the option (`options.assume_all_piping=True` (`pipda` `v0.4.4+`)) to assume that all registered functions are called in piping mode, so that you can do `data >> verb(...)` without any changes.
+    In such a case, you can set the option (`options.mode="piping"`) to assume that all registered functions are called in piping mode, so that you can do `data >> verb(...)` without any changes. Or with `options.mode="regular"`, you can do `verb(data, ...)`
 
     You can also use this option to enhance the performance by skipping detection of the calling environment.
 
