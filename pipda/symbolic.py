@@ -110,7 +110,11 @@ class Symbolic(Expression):
 
     def __init__(self, name: str = None):
         """Construct a Symbolic object"""
-        self.__name = name or varname(raise_exc=False) or 'f'
+        self.__name = name
+        if self.__name is None:
+            self.__name = varname(raise_exc=False)
+        if self.__name is None:
+            self.__name = 'f'
 
     def __getattr__(self, name: str) -> Any:
         """Create a DirectRefAttr object"""
