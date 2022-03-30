@@ -1,3 +1,7 @@
+## 0.5.9
+
+- 🚑 Fix ImproperUseError of varname for Symbolic
+
 ## 0.5.8
 
 - 🐛 Fix `f >> verb(...)` as argument of another verb in assume_all_piping mode
