@@ -372,7 +372,6 @@ def _wrapping_verb(generic: Callable) -> Callable:
                 object
         """
         call_env = __calling_env or calling_env('Verb')
-
         envdata = NULL
         if call_env is CallingEnvs.PIPING_VERB:
             calling_rule = verb_calling_rule1

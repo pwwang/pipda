@@ -40,7 +40,8 @@ class Reference(Expression, ABC):
         """Get the level of the reference
 
         Examples:
-            >>> f._pipda_level -> 0
+
+            f._pipda_level -> 0
             >>> f.a._pipda_level -> 1
         """
         return getattr(self._pipda_parent, "_pipda_level", 0) + 1
@@ -113,7 +114,7 @@ class Symbolic(Expression):
         self.__name = name
         if self.__name is None:
             self.__name = varname(raise_exc=False)
-        if self.__name is None:
+        if self.__name is None:  # pragma: no cover
             self.__name = 'f'
 
     def __getattr__(self, name: str) -> Any:
