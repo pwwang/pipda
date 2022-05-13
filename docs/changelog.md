@@ -1,3 +1,7 @@
+## 0.6.0
+
+- 📌 Pin versions of dependencies
+
 ## 0.5.9
 
 - 🚑 Fix ImproperUseError of varname for Symbolic
