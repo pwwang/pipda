@@ -40,8 +40,7 @@ class Reference(Expression, ABC):
         """Get the level of the reference
 
         Examples:
-            
-            
+
             f._pipda_level -> 0
             >>> f.a._pipda_level -> 1
         """
