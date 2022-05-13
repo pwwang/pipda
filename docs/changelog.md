@@ -1,3 +1,4 @@
+
 ## 0.6.0
 
 - 📌 Pin versions of dependencies
