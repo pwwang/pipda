@@ -8,14 +8,12 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-varname = "*"
-executing = "*"
-diot = "*"
-pure_eval = "0.*"
+varname = "^0.8"
+diot = "^0.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "*"
-pytest-cov = "*"
+pytest = "^7"
+pytest-cov = "^3"
 
 [build-system]
 requires = ["poetry>=0.12"]

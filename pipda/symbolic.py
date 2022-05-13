@@ -113,7 +113,7 @@ class Symbolic(Expression):
         self.__name = name
         if self.__name is None:
             self.__name = varname(raise_exc=False)
-        if self.__name is None:
+        if self.__name is None:  # pragma: no cover
             self.__name = 'f'
 
     def __getattr__(self, name: str) -> Any:
