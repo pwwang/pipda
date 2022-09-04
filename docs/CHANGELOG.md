@@ -1,3 +1,6 @@
+## 0.7.0
+
+- ♻️ Refactor to decrease complexity
 
 ## 0.6.0
 
