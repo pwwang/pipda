@@ -1,66 +1,43 @@
-"""Provides register_func to register functions"""
-from typing import TYPE_CHECKING, Any, Callable, Mapping, Tuple, Type, Union
+"""Provide definition for functions that used as verb arguments"""
+from __future__ import annotations
 
-from .utils import (
-    NULL,
-    InaccessibleToNULLException,
-    bind_arguments,
-    evaluate_expr,
-)
+import inspect
+from abc import ABC, abstractmethod
+from typing import Any, Callable, List, Mapping, TYPE_CHECKING
+from functools import update_wrapper
+
+from .utils import evaluate_expr, has_expr
 from .expression import Expression
-from .context import ContextBase, ContextError, ContextPending
 
 if TYPE_CHECKING:
-    from typing import List  # pragma: no cover
+    from inspect import BoundArguments
+    from .context import ContextType
 
 
-class Function(Expression):
-    """The Function class, defining how the function should be executed
-    when needed
+class FunctionCall(Expression):
+    """A function call object that awaits for evaluation
 
     Args:
-        func: The function to execute
-        context: The context to evaluate the Reference/Operator objects
-
-    Attributes:
-        func: The function
-        context: The context
-        args: The arguments of the function
-        kwargs: The keyword arguments of the function
-        dataarg: Whether the function has data as the first argument
+        func: A registered function by `register_func` or an expression,
+            for example, `f.col.mean`
+        args: and
+        kwargs: The arguments for the function
     """
 
     def __init__(
         self,
-        func: Union[Callable, Expression],
-        args: Tuple,
-        kwargs: Mapping[str, Any],
-        dataarg: bool = True,
+        func: Function | Expression,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
-
         self._pipda_func = func
         self._pipda_args = args
         self._pipda_kwargs = kwargs
-        self._pipda_dataarg = dataarg
-
-    def __repr__(self) -> str:
-        if isinstance(self._pipda_func, Expression):
-            func = repr(self._pipda_func)
-        else:
-            func = self._pipda_func.__qualname__
-
-        return (
-            f"{self.__class__.__name__}"
-            f"(func={func}, dataarg={self._pipda_dataarg})"
-        )
 
     def __str__(self) -> str:
-        strargs = []  # type: List[str]
-        funname = (
-            str(self._pipda_func)
-            if isinstance(self._pipda_func, Expression)
-            else self._pipda_func.__name__
-        )
+        """Representation of the function call"""
+        strargs: List[str] = []
+        funname = str(self._pipda_func)
         if self._pipda_args:
             strargs.extend((str(arg) for arg in self._pipda_args))
         if self._pipda_kwargs:
@@ -69,105 +46,122 @@ class Function(Expression):
             )
         return f"{funname}({', '.join(strargs)})"
 
-    def _pipda_eval(self, data: Any, context: ContextBase = None) -> Any:
-        """Execute the function with the data
-
-        The context will be determined by the function itself, so
-        the context argument will not be used, since it will not override
-        the context of the function
-        """
-        # don't change at 2nd evaluation
-        # in case we have f.col.mean()
+    def _pipda_eval(self, data: Any, context: ContextType = None) -> Any:
+        """Evaluate the function call"""
         func = self._pipda_func
         if isinstance(func, Expression):
+            # f.a(1)
             func = evaluate_expr(func, data, context)
+            # Evaluate the expression using the context passed by
+            return func(
+                *(
+                    evaluate_expr(arg, data, context)
+                    for arg in self._pipda_args
+                ),
+                **{
+                    key: evaluate_expr(val, data, context)
+                    for key, val in self._pipda_kwargs.items()
+                },
+            )
 
-        if isinstance(func, Expression):
-            # If it is still an expression
-            # then context must be PENDING, this kind of expression can
-            # not be evaluated: f.x.mean()
-            # Then there is no such thing like dataarg, dispatching and
-            # extra_context
-            # We just pass it down until a context is given
-            return self
+        boundargs = func.bind_arguments(*self._pipda_args, **self._pipda_kwargs)
+        context = func.context or context
+        args = (evaluate_expr(arg, data, context) for arg in boundargs.args)
+        kwargs = {
+            key: evaluate_expr(
+                val,
+                data,
+                func.extra_contexts.get(key, context)
+            )
+            for key, val in boundargs.kwargs.items()
+        }
 
-        dispatcher = _get_dispatcher(func, type(data))  # type: ignore
-        func_context = getattr(dispatcher, "context", None)
-        func_extra_contexts = getattr(dispatcher, "extra_contexts", None)
+        return func.func(*args, **kwargs)
 
-        meta = context.meta if context else None
-        context = func_context if func_context else context
 
-        args = (
-            (data, *self._pipda_args)
-            if self._pipda_dataarg
-            else self._pipda_args
+class Registered(ABC):
+    """Base function for registered function/verb"""
+
+    def __str__(self):
+        """Used to stringify the whole expression"""
+        return self.func.__name__
+
+    @property
+    def signature(self):
+        # cached property returns None for numpy.vectorize() object
+        if not self._signature:
+            self._signature = inspect.signature(self.func)
+        return self._signature
+
+    def bind_arguments(self, *args, **kwargs: Any) -> BoundArguments:
+        boundargs = self.signature.bind(*args, **kwargs)
+        boundargs.apply_defaults()
+        return boundargs
+
+    @abstractmethod
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        """Call a registered function/verb"""
+
+
+class Function(Registered):
+    """Registered function
+
+    Args:
+        func: The original function
+        context: The context
+        extra_context: The extra context for keyword arguments
+    """
+
+    def __init__(
+        self,
+        func: Callable,
+        context: ContextType,
+        extra_contexts: Mapping[str, ContextType],
+    ) -> None:
+        self.func = func
+        self.context = context
+        self.extra_contexts = extra_contexts
+        self._signature = None
+
+        update_wrapper(self, self.func)
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        """Call a registered function"""
+        # No arguments, call the function directly
+        if not args and not kwargs:
+            return self.func()
+
+        if has_expr(args) or has_expr(kwargs):
+            return FunctionCall(self, *args, **kwargs)
+
+        # No expression arguments, call the function directly
+        return self.func(*args, **kwargs)
+
+
+def register_func(
+    func: Callable = None,
+    *,
+    context: ContextType = None,
+    extra_contexts: Mapping[str, ContextType] = None,
+) -> Function | Callable[[Callable], Function]:
+    """Register a function to be used as a verb argument so that they don't
+    get evaluated immediately
+
+    Args:
+        func: The original function
+        context: The context used to evaluate the arguments
+        extra_contexts: Extra contexts to evaluate keyword arguments
+            Note that the arguments should be defined as keyword-only arguments
+            For example the argument `y` in `def fun(x, *, y): ...`
+
+    Returns:
+        A registered `Function` object, or a decorator if `func` is not given
+    """
+    if func is None:
+        return lambda fun: register_func(
+            fun,
+            context=context,
+            extra_contexts=extra_contexts or {},
         )
-        bondargs = bind_arguments(dispatcher, args, self._pipda_kwargs)
-        if func_extra_contexts:
-            # evaluate some specfic args
-            for key, ctx in func_extra_contexts.items():
-                if key not in bondargs.arguments:
-                    raise KeyError(
-                        f"[{dispatcher.__qualname__}] No such argument: {key!r}"
-                    )
-                with ctx.with_meta(meta):
-                    bondargs.arguments[key] = evaluate_expr(
-                        bondargs.arguments[key], data, ctx
-                    )
 
-        if not context:
-            args = evaluate_expr(bondargs.args, data, None)
-            kwargs = evaluate_expr(bondargs.kwargs, data, None)
-            return func(*args, **kwargs)  # type: ignore
-
-        with context.with_meta(meta):
-            if "_context" in bondargs.arguments:
-                bondargs.arguments["_context"] = context
-
-            if isinstance(context, ContextPending):
-                # leave args/kwargs for the child
-                # verb/function/operator to evaluate
-                return func(*bondargs.args, **bondargs.kwargs)  # type: ignore
-
-            if context.args is context:
-                args = evaluate_expr(bondargs.args, data, context)
-            else:
-                with context.args.with_meta(meta):
-                    args = evaluate_expr(bondargs.args, data, context.args)
-
-            if context.kwargs is context:
-                kwargs = evaluate_expr(bondargs.kwargs, data, context)
-            else:
-                with context.kwargs.with_meta(meta):
-                    kwargs = evaluate_expr(
-                        bondargs.kwargs, data, context.kwargs
-                    )
-
-        return func(*args, **kwargs)  # type: ignore
-
-
-class FastEvalFunction(Function):
-    """Fast evaluation function"""
-
-    def _pipda_fast_eval(self):
-        """Evaluate this function"""
-        try:
-            return self._pipda_eval(NULL)
-        except (
-            ContextError,
-            InaccessibleToNULLException,
-            NotImplementedError,
-        ):
-            return self
-
-
-# Helper functions --------------------------------
-
-
-def _get_dispatcher(func: Callable, typ: Type) -> Callable:
-    dispatch = getattr(func, "dispatch", None)
-    if dispatch is None:
-        return func
-
-    return dispatch(typ)
+    return Function(func, context, extra_contexts or {})
