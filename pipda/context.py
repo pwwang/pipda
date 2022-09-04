@@ -3,23 +3,20 @@
 By default,
 1. in the context of select, both f.A and f['A'] return 'A'
 2. in the context of evaluation, f.A returns data.A and f['A'] returns data['A']
-3. when context is mixed, meaning *args is evaluated with select and
-   **kwargs is evaluated with evaluation.
-4. when it is unset, you will need to evaluate args and kwargs yourself.
-
+3. when it is pending, you will need to evaluate args and kwargs yourself.
 """
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Mapping, Union
-from contextlib import contextmanager
+from typing import Any, Union
 
 
 class ContextError(Exception):
     """Any errors related to contexts"""
 
 
-class ContextBase(ABC):  # pragma: no cover
+class ContextBase(ABC):
     """The context abstract class, defining how
     the Reference objects are evaluated
 
@@ -31,13 +28,6 @@ class ContextBase(ABC):  # pragma: no cover
         Since we could do `f[f.A]`.
     """
 
-    def __init__(self, meta: Mapping[str, Any] = None):
-        """Meta data is carring down"""
-        self.meta = meta or {}
-
-    def eval_symbolic(self, data: Any) -> Any:
-        return data
-
     @abstractmethod
     def getattr(self, parent: Any, ref: str, level: int) -> Any:
         """Defines how `f.A` is evaluated"""
@@ -46,36 +36,11 @@ class ContextBase(ABC):  # pragma: no cover
     def getitem(self, parent: Any, ref: Any, level: int) -> Any:
         """Defines how `f[item]` is evaluated"""
 
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} @ {hex(id(self))}>"
-
-    @contextmanager
-    def with_meta(self, meta: Mapping[str, Any]):
-        if meta is None or meta is self.meta:
-            yield
-        else:
-            self_meta = self.meta.copy()
-            self.meta.update(meta)
-            try:
-                yield
-            finally:
-                self.meta = self_meta
-
     @property
-    def ref(self) -> "ContextBase":
+    def ref(self) -> ContextBase:
         """Defines how `item` in `f[item]` is evaluated.
 
         This function should return a `ContextBase` object."""
-        return self
-
-    @property
-    def args(self) -> "ContextBase":
-        """The context to evaluate `*args` passed to a function"""
-        return self
-
-    @property
-    def kwargs(self) -> "ContextBase":
-        """The context to evaluate `**kwargs` passed to a function"""
         return self
 
 
@@ -114,62 +79,29 @@ class ContextEval(ContextBase):
 
 
 class ContextPending(ContextBase):
-    """Pending context"""
+    """Pending context, don't evaluate the expression,
+    awaiting next avaiable context"""
 
     def getattr(self, parent: Any, ref: str, level: int) -> str:
         """Get the `ref` directly, regardless of `data`"""
-        raise NotImplementedError(
-            "Pending context cannot be used to evaluate."
-        )
+        raise ContextError("Pending context cannot be used for evaluation.")
 
     def getitem(self, parent: Any, ref: Any, level: int) -> Any:
         """Get the `ref` directly, which is already evaluated by `f[ref]`"""
-        raise NotImplementedError(
-            "Pending context cannot be used to evaluate."
-        )
-
-
-class ContextMixed(ContextBase):
-    """A mixed context, where the `*args` are evaluated with `ContextSelect`
-    and `**args` are evaluated with `ContextEval`."""
-
-    def getattr(self, parent: Any, ref: str, level: int) -> None:
-        raise NotImplementedError(
-            "Mixed context should be used via `.args` or `.kwargs`"
-        )
-
-    def getitem(self, parent: Any, ref: Any, level: int) -> None:
-        raise NotImplementedError(
-            "Mixed context should be used via `.args` or `.kwargs`"
-        )
-
-    @property
-    def args(self):
-        return ContextSelect()
-
-    @property
-    def kwargs(self):
-        return ContextEval()
+        raise ContextError("Pending context cannot be used for evaluation.")
 
 
 class Context(Enum):
     """Context to solve f.A and f['A']
 
-    UNSET: The function's evaluation is dependent on it's parents
     PENDING: Context to leave the arguments to be evaluated inside
         the function
     SELECT: It select-based context
     EVAL: It evaluation-based context
-    MIXED: Mixed context.
-        For *args, used select-based;
-        for **kwargs, use evaluation-based.
     """
-
-    UNSET = None
     PENDING = ContextPending()
     SELECT = ContextSelect()
     EVAL = ContextEval()
-    MIXED = ContextMixed()
 
 
-ContextAnnoType = Union[Context, ContextBase]
+ContextType = Union[Context, ContextBase]

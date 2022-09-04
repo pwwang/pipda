@@ -1,96 +1,145 @@
 """Provides the abstract class Expression"""
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from functools import partialmethod
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from .context import ContextBase
+
+if TYPE_CHECKING:
+    from .operator import OperatorCall
+    from .reference import ReferenceAttr, ReferenceItem
+
+OPERATORS = {
+    # op, right
+    "add": ("+", False),
+    "radd": ("+", True),
+    "sub": ("-", False),
+    "rsub": ("-", True),
+    "mul": ("*", False),
+    "rmul": ("*", True),
+    "matmul": ("@", False),
+    "rmatmul": ("@", True),
+    "truediv": ("/", False),
+    "rtruediv": ("/", True),
+    "floordiv": ("//", False),
+    "rfloordiv": ("//", True),
+    "mod": ("%", False),
+    "rmod": ("%", True),
+    "lshift": ("<<", False),
+    "rlshift": ("<<", True),
+    "rshift": (">>", False),
+    "rrshift": (">>", True),
+    "and_": ("&", False),
+    "rand_": ("&", True),
+    "xor": ("^", False),
+    "rxor": ("^", True),
+    "or_": ("|", False),
+    "ror_": ("|", True),
+    "pow": ("**", False),
+    "rpow": ("**", True),
+    "lt": ("<", False),
+    "le": ("<=", False),
+    "eq" : ("==", False),
+    "ne" : ("!=", False),
+    "gt": (">", False),
+    "ge": (">=", False),
+    "neg": ("-", False),
+    "pos": ("+", False),
+    "invert": ("~", False),
+}
 
 
 class Expression(ABC):
     """The abstract Expression class"""
 
+    operator = None
+
     def __hash__(self) -> int:
         """Make it hashable"""
         return hash(id(self))
 
-    def __getattr__(self, name: str) -> "Expression":
+    def __getattr__(self, name: str) -> ReferenceAttr:
         """Whenever `expr.attr` is encountered,
         return a ReferenceAttr object"""
-        # for dispatch
-        from .symbolic import ReferenceAttr
+        if name.startswith("_pipda_"):
+            # Avoid recursion
+            raise AttributeError
 
+        from .reference import ReferenceAttr
         return ReferenceAttr(self, name)
 
-    def __getitem__(self, item: Any) -> "Expression":
+    def __getitem__(self, item: Any) -> ReferenceItem:
         """Whenever `expr[item]` is encountered,
         return a ReferenceAttr object"""
-        from .symbolic import ReferenceItem
-
+        from .reference import ReferenceItem
         return ReferenceItem(self, item)
 
-    def _op_handler(self, op: str, *args: Any, **kwargs: Any) -> "Expression":
+    def _op_method(self, op: str, *operands: Any) -> OperatorCall:
         """Handle the operators"""
-        from .operator import Operator
+        from .operator import Operator, OperatorCall
+        from .verb import VerbCall
+        if Expression.operator is None:
+            Expression.operator = Operator()
 
-        return Operator.REGISTERED(op, (self, *args), kwargs)
+        # Let the verb handle it
+        if (
+            not OPERATORS[op][1]
+            and OPERATORS.get(f"r{op}", [None])[0] == VerbCall.PIPING
+            and isinstance(operands[0], VerbCall)
+        ):
+            return NotImplemented
 
-    def __rshift__(self, other):
-        """Allow to use the right shift operator,"""
-        from .verb import Verb
-
-        if isinstance(other, Verb):
-            return Verb(
-                other._pipda_func,
-                (self, *other._pipda_args),
-                other._pipda_kwargs,
-                dataarg=False,
-            )
-
-        return self._op_handler("rshift", other)
+        op_func = getattr(Expression.operator, op)
+        return OperatorCall(op_func, op, self, *operands)
 
     # Make sure the operators connect all expressions into one
-    __add__ = partialmethod(_op_handler, "add")
-    __radd__ = partialmethod(_op_handler, "radd")
-    __sub__ = partialmethod(_op_handler, "sub")
-    __rsub__ = partialmethod(_op_handler, "rsub")
-    __mul__ = partialmethod(_op_handler, "mul")
-    __rmul__ = partialmethod(_op_handler, "rmul")
-    __matmul__ = partialmethod(_op_handler, "matmul")
-    __rmatmul__ = partialmethod(_op_handler, "rmatmul")
-    __truediv__ = partialmethod(_op_handler, "truediv")
-    __rtruediv__ = partialmethod(_op_handler, "rtruediv")
-    __floordiv__ = partialmethod(_op_handler, "floordiv")
-    __rfloordiv__ = partialmethod(_op_handler, "rfloordiv")
-    __mod__ = partialmethod(_op_handler, "mod")
-    __rmod__ = partialmethod(_op_handler, "rmod")
-    __lshift__ = partialmethod(_op_handler, "lshift")
-    __rlshift__ = partialmethod(_op_handler, "rlshift")
-    # __rshift__ = partialmethod(_op_handler, "rshift")
-    __rrshift__ = partialmethod(_op_handler, "rrshift")
-    __and__ = partialmethod(_op_handler, "and_")
-    __rand__ = partialmethod(_op_handler, "rand_")
-    __xor__ = partialmethod(_op_handler, "xor")
-    __rxor__ = partialmethod(_op_handler, "rxor")
-    __or__ = partialmethod(_op_handler, "or_")
-    __ror__ = partialmethod(_op_handler, "ror_")
-    __pow__ = partialmethod(_op_handler, "pow")
-    __rpow__ = partialmethod(_op_handler, "rpow")
+    __add__ = partialmethod(_op_method, "add")
+    __radd__ = partialmethod(_op_method, "radd")
+    __sub__ = partialmethod(_op_method, "sub")
+    __rsub__ = partialmethod(_op_method, "rsub")
+    __mul__ = partialmethod(_op_method, "mul")
+    __rmul__ = partialmethod(_op_method, "rmul")
+    __matmul__ = partialmethod(_op_method, "matmul")
+    __rmatmul__ = partialmethod(_op_method, "rmatmul")
+    __truediv__ = partialmethod(_op_method, "truediv")
+    __rtruediv__ = partialmethod(_op_method, "rtruediv")
+    __floordiv__ = partialmethod(_op_method, "floordiv")
+    __rfloordiv__ = partialmethod(_op_method, "rfloordiv")
+    __mod__ = partialmethod(_op_method, "mod")
+    __rmod__ = partialmethod(_op_method, "rmod")
+    __lshift__ = partialmethod(_op_method, "lshift")
+    __rlshift__ = partialmethod(_op_method, "rlshift")
+    __rshift__ = partialmethod(_op_method, "rshift")
+    __rrshift__ = partialmethod(_op_method, "rrshift")
+    __and__ = partialmethod(_op_method, "and_")
+    __rand__ = partialmethod(_op_method, "rand_")
+    __xor__ = partialmethod(_op_method, "xor")
+    __rxor__ = partialmethod(_op_method, "rxor")
+    __or__ = partialmethod(_op_method, "or_")
+    __ror__ = partialmethod(_op_method, "ror_")
+    __pow__ = partialmethod(_op_method, "pow")
+    __rpow__ = partialmethod(_op_method, "rpow")
     # __contains__() is forced into bool
-    # __contains__ = partialmethod(_op_handler, 'contains')
+    # __contains__ = partialmethod(_op_method, 'contains')
 
-    __lt__ = partialmethod(_op_handler, "lt")  # type: ignore
-    __le__ = partialmethod(_op_handler, "le")
-    __eq__ = partialmethod(_op_handler, "eq")  # type: ignore
-    __ne__ = partialmethod(_op_handler, "ne")  # type: ignore
-    __gt__ = partialmethod(_op_handler, "gt")
-    __ge__ = partialmethod(_op_handler, "ge")
-    __neg__ = partialmethod(_op_handler, "neg")
-    __pos__ = partialmethod(_op_handler, "pos")
-    __invert__ = partialmethod(_op_handler, "invert")
+    __lt__ = partialmethod(_op_method, "lt")
+    __le__ = partialmethod(_op_method, "le")
+    __eq__ = partialmethod(_op_method, "eq")  # type: ignore
+    __ne__ = partialmethod(_op_method, "ne")  # type: ignore
+    __gt__ = partialmethod(_op_method, "gt")
+    __ge__ = partialmethod(_op_method, "ge")
+    __neg__ = partialmethod(_op_method, "neg")
+    __pos__ = partialmethod(_op_method, "pos")
+    __invert__ = partialmethod(_op_method, "invert")
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        from .function import FunctionCall
+        return FunctionCall(self, *args, **kwargs)
 
     def __index__(self):
-        """Allow Expression object to work as indexes"""
+        """Allow Expression object to work as index or part of slice"""
         return None
 
     def __iter__(self):
@@ -99,11 +148,14 @@ class Expression(ABC):
         If it is happening, probably wrong usage of functions/verbs
         """
         raise TypeError(
-            "Expression object is not iterable.\n"
-            "If you are expecting the evaluated results of the object, try "
-            "using the piping syntax or writing it in a independent statement, "
-            "instead of an argument of a regular function call."
+            "An Expression object is possible to be iterable only after "
+            "it's evaluate. Do you forget to evalute it or you call it in an "
+            "unregistered function?"
         )
+
+    @abstractmethod
+    def __str__(self) -> str:
+        """Used for stringify the whole expression"""
 
     @abstractmethod
     def _pipda_eval(
