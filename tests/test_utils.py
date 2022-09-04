@@ -12,11 +12,11 @@ def test_is_piping_verbcall_normal():
 
     # AST node in pytest's asserts can't be detected
     # fallbacks to normal call
-    with pytest.raises(VerbCallingCheckWarning):
+    with pytest.warns(VerbCallingCheckWarning):
         assert iden(1) == 1 and isinstance(iden(1), int)
 
     # So it doesn't work with piping call
-    with pytest.raises(VerbCallingCheckWarning):
+    with pytest.raises(TypeError), pytest.warns(VerbCallingCheckWarning):
         assert (1 >> iden()) == 1
 
     # AST node can be detected here
