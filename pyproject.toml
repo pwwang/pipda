@@ -26,7 +26,7 @@ show_error_codes = true
 strict_optional = false
 
 [tool.pytest.ini_options]
-addopts = "-vv -W error::UserWarning -p no:asyncio --cov-config=.coveragerc --cov=pipda --cov-report xml:.coverage.xml --cov-report term-missing"
+addopts = "-vv -W error::UserWarning -Werror -p no:asyncio --cov-config=.coveragerc --cov=pipda --cov-report xml:.coverage.xml --cov-report term-missing"
 console_output_style = "progress"
 junit_family = "xunit1"
 

@@ -10,7 +10,6 @@ if TYPE_CHECKING:
 
 class Symbolic(Expression):
     """The symbolic class, works as a proxy to represent the data
-
     In most cases it is used to construct the Reference objects.
     """
     _pipda_level = 0
