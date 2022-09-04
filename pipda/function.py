@@ -143,7 +143,7 @@ def register_func(
     *,
     context: ContextType = None,
     extra_contexts: Mapping[str, ContextType] = None,
-) -> Function | Callable[[Callable], Function]:
+) -> Function | Callable:
     """Register a function to be used as a verb argument so that they don't
     get evaluated immediately
 

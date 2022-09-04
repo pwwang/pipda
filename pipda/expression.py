@@ -126,8 +126,8 @@ class Expression(ABC):
 
     __lt__ = partialmethod(_op_method, "lt")
     __le__ = partialmethod(_op_method, "le")
-    __eq__ = partialmethod(_op_method, "eq")
-    __ne__ = partialmethod(_op_method, "ne")
+    __eq__ = partialmethod(_op_method, "eq")  # type: ignore
+    __ne__ = partialmethod(_op_method, "ne")  # type: ignore
     __gt__ = partialmethod(_op_method, "gt")
     __ge__ = partialmethod(_op_method, "ge")
     __neg__ = partialmethod(_op_method, "neg")

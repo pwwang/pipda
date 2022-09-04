@@ -54,7 +54,11 @@ class ReferenceAttr(Reference):
         super()._pipda_eval(data, context)
         parent = evaluate_expr(self._pipda_parent, data, context)
 
-        return context.getattr(parent, self._pipda_ref, self._pipda_level)
+        return context.getattr(  # type: ignore
+            parent,
+            self._pipda_ref,
+            self._pipda_level,
+        )
 
 
 class ReferenceItem(Reference):
@@ -84,6 +88,6 @@ class ReferenceItem(Reference):
 
         super()._pipda_eval(data, context)
         parent = evaluate_expr(self._pipda_parent, data, context)
-        ref = evaluate_expr(self._pipda_ref, data, context.ref)
+        ref = evaluate_expr(self._pipda_ref, data, context.ref)  # type: ignore
 
-        return context.getitem(parent, ref, self._pipda_level)
+        return context.getitem(parent, ref, self._pipda_level)  # type: ignore
