@@ -1,95 +1,51 @@
 import pytest
 
 from pipda import *
-from pipda.operator import *
-
-from . import f, iden2
 
 
-class MyOperator(Operator):
-    def _op_add(self, a, b):
-        return a - b
+def test_opcall():
 
-    @Operator.set_context(context=Context.EVAL)
-    def _op_mul(self, a, b):
-        return a * b
+    f = Symbolic()
 
-    @Operator.set_context(
-        context=Context.EVAL, extra_contexts={"a": Context.SELECT}
-    )
-    def _op_sub(self, a, b):
-        return a * b
+    op_func = lambda x, y: x + y
 
-    def _find_op_func(self, opname: str) -> Callable:
-        # redirect @ to *
-        if opname == "matmul":
-            return self._op_mul
-        return super()._find_op_func(opname)
+    call = OperatorCall(op_func, "invert", 1)
+    assert str(call) == "~1"
+
+    call = OperatorCall(op_func, "add", 1, 2)
+    assert str(call) == "1 + 2"
+
+    call = OperatorCall(op_func, "radd", 1, f["x"])
+    assert str(call) == "x + 1"
+    assert call._pipda_eval({"x": 2}, Context.EVAL) == 3
 
 
-@pytest.fixture
-def install_operator():
-    register_operator(MyOperator)
-    yield
-    Operator.REGISTERED = Operator
+def test_register_operator():
 
+    f = Symbolic()
 
-def test_operator(f, iden2):
+    @register_operator
+    class MyOperator(Operator):
+        def add(self, x, y):
+            return x * y
 
-    d = {"a": 1, "b": 2}
-    ret = d >> iden2(f["a"] + f["b"])
-    assert ret[1] == 3
+        def invert(self, x):
+            return -x
 
-    op = f["a"] + f["b"]
-    assert isinstance(op, Operator)
-    assert str(op) == 'a + b'
+    expr = f["x"] + 10
+    assert str(expr) == "x + 10"
+    assert expr._pipda_eval({"x": 3}, Context.EVAL) == 30
 
-    op2 = -f.a
-    assert str(op2) == '-a'
+    expr = 10 * f["x"]
+    assert str(expr) == "10 * x"
+    assert expr._pipda_eval({"x": 2}, Context.EVAL) == 20
 
-    op3 = 1 + f.a
-    assert str(op3) == '1 + a'
+    expr = ~f["x"]
+    assert str(expr) == "~x"
+    assert expr._pipda_eval({"x": 2}, Context.EVAL) == -2
 
-    x = op._pipda_eval(d, Context.EVAL.value)  # not affected
-    assert x == 3
+    register_operator(Operator)
 
-def test_operator_getattr(f, iden2):
-    d = {"a": "1", "b": "2"}
-    ret = d >> iden2((f["a"] + f["b"]).__len__())
-    assert ret[1] == 2
-
-def test_operator_nosuch():
-    with pytest.raises(ValueError):
-        Operator("nosuch", None, (1,), {})
-    with pytest.raises(ValueError):
-        Operator("rnosuch", None, (1,), {})
-
-
-def test_register_error():
-    class A:
-        ...
-
-    with pytest.raises(ValueError):
-        register_operator(A)
-
-
-def test_register(f, iden2, install_operator):
-
-    d = {"a": 1, "b": 2}
-    ret = d >> iden2(f["a"] // f["b"])
-    assert ret[1] == 0
-
-    ret = d >> iden2(2 // f["b"])
-    assert ret[1] == 1
-
-    ret = d >> iden2(f["a"] + f["b"])
-    assert ret[1] == -1
-
-    ret = d >> iden2(f["a"] * f["b"])
-    assert ret[1] == 2
-
-    ret = d >> iden2(f["a"] @ f["b"])
-    assert ret[1] == 2
-
-    ret = d >> iden2(f["a"] - f["b"])
-    assert ret[1] == "aa"
+    expr = ~f["x"]
+    assert str(expr) == "~x"
+    assert expr._pipda_eval({"x": 2}, Context.EVAL) == -3 # ~2

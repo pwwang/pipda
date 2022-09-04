@@ -1,4 +1,6 @@
 site_name: pipda
+repo_url: https://github.com/pwwang/pipda
+repo_name: pwwang/pipda
 theme:
     name: 'material'
 markdown_extensions:
@@ -14,5 +16,10 @@ extra_css:
     - style.css
 nav:
     - 'Home': 'index.md'
+    - 'Verbs': 'verbs.md'
+    - 'Functions': 'functions.md'
+    - 'Expressions': 'expressions.md'
+    - 'Operators': 'operators.md'
+    - 'Contexts': 'contexts.md'
     - 'API': mkapi/api/pipda
-    - 'Change log': 'changelog.md'
+    - 'Change log': 'CHANGELOG.md'

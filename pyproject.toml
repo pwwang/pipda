@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pipda"
-version = "0.6.0"
+version = "0.7.0"
 readme = "README.md"
 description = "A framework for data piping in python"
 authors = ["pwwang <pwwang@pwwang.com>"]
@@ -8,8 +8,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-varname = "^0.8"
-diot = "^0.1"
+executing = "^1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7"
@@ -27,7 +26,7 @@ show_error_codes = true
 strict_optional = false
 
 [tool.pytest.ini_options]
-addopts = "-vv -W error::UserWarning --cov-config=.coveragerc --cov=pipda --cov-report xml:.coverage.xml --cov-report term-missing"
+addopts = "-vv -W error::UserWarning -p no:asyncio --cov-config=.coveragerc --cov=pipda --cov-report xml:.coverage.xml --cov-report term-missing"
 console_output_style = "progress"
 junit_family = "xunit1"
 
