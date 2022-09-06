@@ -31,14 +31,14 @@ def test_attr_eval():
     data.x = 10
 
     out = f.x._pipda_eval(data, Context.EVAL)
-    assert out == 10
+    assert out == 10 and isinstance(out, int)
 
 
 def test_item_eval():
     f = Symbolic()
 
     out = f["x"]._pipda_eval({"x": 10}, Context.EVAL)
-    assert out == 10
+    assert out == 10 and isinstance(out, int)
 
     # f[...] can also have expression inside
     class ContextTest(ContextEval):
@@ -47,7 +47,7 @@ def test_item_eval():
             return Context.SELECT.value
 
     out = f[f[0]]._pipda_eval([2, 1, 3], ContextTest())
-    assert out == 2
+    assert out == 2 and isinstance(out, int)
 
     out = f[f[0]]._pipda_eval([2, 1, 3], Context.EVAL)
-    assert out == 3
+    assert out == 3 and isinstance(out, int)

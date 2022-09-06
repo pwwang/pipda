@@ -46,8 +46,9 @@ class VerbCall(Expression):
         self._pipda_kwargs = kwargs
 
     def __str__(self) -> str:
+        strargs: List[str] = []
         if not self._pipda_func.dep:
-            strargs: List[str] = ["."]
+            strargs.append(".")
 
         funname = str(self._pipda_func)
         if self._pipda_args:

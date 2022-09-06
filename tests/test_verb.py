@@ -42,7 +42,7 @@ def test_extra_contexts():
         return subdata[col]
 
     out = {"x": {"a": 1}} >> subset(f["x"], col=f.a)
-    assert out == 1
+    assert out == 1 and isinstance(out, int)
 
 
 def test_unregistered_types():
@@ -51,7 +51,7 @@ def test_unregistered_types():
         return len(data)
 
     out = [1, 2] >> length()
-    assert out == 2
+    assert out == 2 and isinstance(out, int)
 
     with pytest.raises(NotImplementedError):
         (1, 2) >> length()
@@ -67,10 +67,10 @@ def test_register_more_types():
         return len(data) * 10
 
     out = [1, 2] >> length()
-    assert out == 2
+    assert out == 2 and isinstance(out, int)
 
     out = (1, 2) >> length()
-    assert out == 20
+    assert out == 20 and isinstance(out, int)
 
 
 def test_register_more_types_inherit_context():
@@ -99,13 +99,13 @@ def test_register_more_types_inherit_context():
         return select(list(data), indices, plus=plus)
 
     out = [1, 2, 3, 4] >> select([f[0], f[2]], plus=f[0])
-    assert out == [2, 4]
+    assert out == [2, 4] and isinstance(out, list)
 
     out = (1, 2, 3, 4) >> select([f[0], f[2]], plus=f[0])
-    assert out == (2, 4)
+    assert out == (2, 4) and isinstance(out, tuple)
 
     out = MyList([1, 2, 3, 4]) >> select([f[0], f[2]], plus=f[0])
-    assert out == [2, 4]
+    assert out == [2, 4] and isinstance(out, list)
 
 
 def test_dependent_verb():
@@ -130,19 +130,19 @@ def test_dependent_verb():
     assert isinstance(out, VerbCall)
 
     out = length([1, 2])
-    assert out == 2
+    assert isinstance(out, VerbCall)
     out = length2([1, 2])
-    assert out == 2
+    assert out == 2 and isinstance(out, int)
 
     out = [1, 2] >> length()
-    assert out == 2
+    assert out == 2 and isinstance(out, int)
     out = [1, 2] >> length2()
-    assert out == 2
+    assert out == 2 and isinstance(out, int)
 
     out = [1, 2, 3] >> times(length())
-    assert out == [3, 6, 9]
+    assert out == [3, 6, 9] and isinstance(out, list)
     out = [1, 2, 3] >> times(length2(f[:2]))
-    assert out == [2, 4, 6]
+    assert out == [2, 4, 6] and isinstance(out, list)
 
 
 def test_expr_as_data():
@@ -186,17 +186,17 @@ def test_register_piping():
         return x + 1
 
     out = 1 >> incre()
-    assert out == 2
+    assert out == 2 and isinstance(out, int)
 
     register_piping("|")
     with pytest.raises(TypeError):
         1 >> incre()
     out = 1 | incre()
-    assert out == 2
+    assert out == 2 and isinstance(out, int)
 
     register_piping(">>")
     out = 1 >> incre()
-    assert out == 2
+    assert out == 2 and isinstance(out, int)
 
     with pytest.raises(ValueError):
         register_piping("123")
