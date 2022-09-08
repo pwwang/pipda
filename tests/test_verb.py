@@ -38,10 +38,13 @@ def test_extra_contexts():
         context=Context.EVAL,
         extra_contexts={'col': Context.SELECT},
     )
-    def subset(data, subdata, *, col):
+    def subset(data, subdata, col):
         return subdata[col]
 
     out = {"x": {"a": 1}} >> subset(f["x"], col=f.a)
+    assert out == 1 and isinstance(out, int)
+
+    out = {"x": {"a": 1}} >> subset(f["x"], f.a)
     assert out == 1 and isinstance(out, int)
 
 

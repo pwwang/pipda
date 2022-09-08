@@ -6,7 +6,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Callable, List, Mapping, Sequence, Type
 from functools import singledispatch, update_wrapper
 
-from .utils import evaluate_expr, is_piping_verbcall
+from .utils import has_expr, evaluate_expr, is_piping_verbcall
 from .context import ContextPending
 from .expression import Expression
 from .function import Registered, Function
@@ -69,17 +69,17 @@ class VerbCall(Expression):
             return func(data, *self._pipda_args, **self._pipda_kwargs)
 
         extra_contexts = func.extra_contexts or self._pipda_func.extra_contexts
+        bound = self._pipda_func.bind_arguments(
+            data,
+            *self._pipda_args,
+            **self._pipda_kwargs,
+        )
+        for key, val in bound.arguments.items():
+            ctx = extra_contexts.get(key, context)
+            val = evaluate_expr(val, data, ctx)
+            bound.arguments[key] = val
 
-        args = (evaluate_expr(arg, data, context) for arg in self._pipda_args)
-        kwargs = {
-            key: evaluate_expr(
-                val,
-                data,
-                extra_contexts.get(key, context)
-            )
-            for key, val in self._pipda_kwargs.items()
-        }
-        return func(data, *args, **kwargs)
+        return func(*bound.args, **bound.kwargs)
 
 
 class Verb(Registered):
@@ -170,11 +170,13 @@ class Verb(Registered):
             # data >> verb(...)
             return VerbCall(self, *args, **kwargs)
 
-        bound = self.bind_arguments(*args, **kwargs)
-        data, *args = bound.args
+        if len(args) == 0:
+            raise TypeError(f"{self.__name__}() missing at least one argument.")
 
-        call = VerbCall(self, *args, **bound.kwargs)
-        if not isinstance(data, Expression) or not self.expr_as_data:
+        data, *args = args
+
+        call = VerbCall(self, *args, **kwargs)
+        if not has_expr(data) or not self.expr_as_data:
             # Use the registered context
             return call._pipda_eval(data)
 
@@ -203,7 +205,6 @@ def register_verb(
         types: The types of the data allowed to pipe in
         context: The context to evaluate the arguments
         extra_contexts: Extra contexts to evaluate the keyword arguments
-            Those should be keyword-only arguments
         dep: Whether the verb is dependent.
             >>> @register_func([1, 2], context=Context.EVAL, dep=True)
             >>> def length(data):
