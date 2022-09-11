@@ -104,7 +104,7 @@ def add(x, y):
 def sub(x, y):
     return x - y
 
-@register_verb(int, ast_fallback_arg=True)
+@register_verb(int)
 def mul(x, y):
     return x * y
 

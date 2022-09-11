@@ -94,12 +94,10 @@ class Verb(Registered):
         dep: bool,
         expr_as_data: bool,
         ast_fallback: str,
-        ast_fallback_arg: bool,
     ) -> None:
         self.dep = dep
         self.expr_as_data = expr_as_data
         self.ast_fallback = ast_fallback
-        self.ast_fallback_arg = ast_fallback_arg
 
         def fallback(_data, *args, **kwargs):
             raise NotImplementedError(
@@ -161,10 +159,7 @@ class Verb(Registered):
             # Meaning data should never be passed explictly
             return VerbCall(self, *args, **kwargs)
 
-        if self.ast_fallback_arg:
-            ast_fallback = kwargs.pop("__ast_fallback", self.ast_fallback)
-        else:
-            ast_fallback = self.ast_fallback
+        ast_fallback = kwargs.pop("__ast_fallback", self.ast_fallback)
 
         if is_piping_verbcall(self.func.__name__, ast_fallback):
             # data >> verb(...)
@@ -197,7 +192,6 @@ def register_verb(
     dep: bool = False,
     expr_as_data: bool = True,
     ast_fallback: str = "normal_warning",
-    ast_fallback_arg: bool = False,
 ) -> Callable[[Callable], Verb]:
     """Register a verb
 
@@ -222,9 +216,6 @@ def register_verb(
             piping_warning - Suppose piping call, but show a warning
             normal_warning - Suppose normal call, but show a warning
             raise - Raise an error
-        ast_fallback_arg - Whether to use `__ast_fallback` keyword argument
-            to indicate one of the above behaviors
-            If `__ast_fallback` is not provide, use value from `ast_fallback`
     """
     if not isinstance(types, Sequence):
         types = [types]
@@ -237,7 +228,6 @@ def register_verb(
         dep=dep,
         expr_as_data=expr_as_data,
         ast_fallback=ast_fallback,
-        ast_fallback_arg=ast_fallback_arg,
     )
 
 
