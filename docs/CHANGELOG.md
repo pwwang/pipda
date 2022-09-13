@@ -5,6 +5,7 @@
 - 🐛 Allow general keyword arg for extra contexts
 - 🧱 Always enable `ast_fallback_arg`
 - 💥 Change the way verbs used as funcs
+- 🩹 Allow func passed directly to register_verb
 
 ## 0.7.0
 

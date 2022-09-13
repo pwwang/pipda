@@ -186,6 +186,7 @@ def register_verb(
     extra_contexts: Mapping[str, ContextType] = None,
     dep: bool = False,
     ast_fallback: str = "normal_warning",
+    func: Callable = None,
 ) -> Callable[[Callable], Verb]:
     """Register a verb
 
@@ -208,12 +209,23 @@ def register_verb(
             piping_warning - Suppose piping call, but show a warning
             normal_warning - Suppose normal call, but show a warning
             raise - Raise an error
+        func: The function works as a verb.
     """
+    if func is None:
+        return lambda fun: register_verb(
+            types=types,
+            context=context,
+            extra_contexts=extra_contexts or {},
+            dep=dep,
+            ast_fallback=ast_fallback,
+            func=fun,
+        )
+
     if not isinstance(types, Sequence):
         types = [types]
 
-    return lambda fun: Verb(
-        fun,
+    return Verb(
+        func,
         types=types,
         context=context,
         extra_contexts=extra_contexts or {},
