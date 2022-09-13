@@ -12,6 +12,7 @@ from .expression import Expression
 if TYPE_CHECKING:
     from inspect import BoundArguments
     from .context import ContextType
+    from .verb import Verb
 
 
 class FunctionCall(Expression):
@@ -26,7 +27,7 @@ class FunctionCall(Expression):
 
     def __init__(
         self,
-        func: Function | Expression,
+        func: Function | Verb | Expression,
         *args: Any,
         **kwargs: Any,
     ) -> None:
