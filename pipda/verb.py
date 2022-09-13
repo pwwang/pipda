@@ -187,7 +187,7 @@ def register_verb(
     dep: bool = False,
     ast_fallback: str = "normal_warning",
     func: Callable = None,
-) -> Callable[[Callable], Verb]:
+) -> Callable[[Callable], Verb] | Verb:
     """Register a verb
 
     Args:
@@ -212,7 +212,7 @@ def register_verb(
         func: The function works as a verb.
     """
     if func is None:
-        return lambda fun: register_verb(
+        return lambda fun: register_verb(  # type: ignore
             types=types,
             context=context,
             extra_contexts=extra_contexts or {},
