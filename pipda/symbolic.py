@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import Any, Type, TYPE_CHECKING
 
 from .expression import Expression
 
@@ -13,6 +13,15 @@ class Symbolic(Expression):
     In most cases it is used to construct the Reference objects.
     """
     _pipda_level = 0
+    _pipda_instance = None
+
+    def __new__(cls: Type[Symbolic]) -> Symbolic:
+        if cls._pipda_instance is not None:
+            return cls._pipda_instance
+
+        inst = super().__new__(cls)
+        cls._pipda_instance = inst
+        return inst
 
     def __str__(self) -> str:
         return ""

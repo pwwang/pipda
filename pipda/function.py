@@ -12,6 +12,7 @@ from .expression import Expression
 if TYPE_CHECKING:
     from inspect import BoundArguments
     from .context import ContextType
+    from .verb import Verb
 
 
 class FunctionCall(Expression):
@@ -26,7 +27,7 @@ class FunctionCall(Expression):
 
     def __init__(
         self,
-        func: Function | Expression,
+        func: Function | Verb | Expression,
         *args: Any,
         **kwargs: Any,
     ) -> None:
@@ -64,19 +65,14 @@ class FunctionCall(Expression):
                 },
             )
 
-        boundargs = func.bind_arguments(*self._pipda_args, **self._pipda_kwargs)
+        bound = func.bind_arguments(*self._pipda_args, **self._pipda_kwargs)
         context = func.context or context
-        args = (evaluate_expr(arg, data, context) for arg in boundargs.args)
-        kwargs = {
-            key: evaluate_expr(
-                val,
-                data,
-                func.extra_contexts.get(key, context)
-            )
-            for key, val in boundargs.kwargs.items()
-        }
+        for key, val in bound.arguments.items():
+            ctx = func.extra_contexts.get(key, context)
+            val = evaluate_expr(val, data, ctx)
+            bound.arguments[key] = val
 
-        return func.func(*args, **kwargs)
+        return func.func(*bound.args, **bound.kwargs)
 
 
 class Registered(ABC):
@@ -151,8 +147,6 @@ def register_func(
         func: The original function
         context: The context used to evaluate the arguments
         extra_contexts: Extra contexts to evaluate keyword arguments
-            Note that the arguments should be defined as keyword-only arguments
-            For example the argument `y` in `def fun(x, *, y): ...`
 
     Returns:
         A registered `Function` object, or a decorator if `func` is not given

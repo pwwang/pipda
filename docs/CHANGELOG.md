@@ -1,3 +1,12 @@
+## 0.7.1
+
+- 🐛 Fix VerbCall `__str__`
+- ⚡️ Make Symbolic a singleton
+- 🐛 Allow general keyword arg for extra contexts
+- 🧱 Always enable `ast_fallback_arg`
+- 💥 Change the way verbs used as funcs
+- 🩹 Allow func passed directly to register_verb
+
 ## 0.7.0
 
 - ♻️ Refactor to decrease complexity

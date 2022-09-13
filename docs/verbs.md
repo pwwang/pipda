@@ -35,9 +35,9 @@ def plus(data, n):
 plus(n=2)  # a VerbCall object awaiting data for evaluation
 ```
 
-## Expression as data
+## Using as functions
 
-Verbs can take `Expression` object when they are used as another verb.
+When the first argument is an `Expression` then the verbs work as functions
 
 ```python
 f = Symbolic()
@@ -50,10 +50,10 @@ def sub(data, n):
 def add(data, n):
     return data + n
 
-# sub: f*2 -> 20, n=f+1=21    -> -1
-# note that second f refers to the data of its verb, which is f*2 = 20
-# add: 10 + -1 = 9
-10 >> add(n=sub(f*2, n=f+1))  # 9
+# sub: f*2 -> 20, n=f+1=11    -> 9
+# note that second f still refers to the parent data, which is 10
+# add: 10 + 9 = 19
+10 >> add(n=sub(f*2, n=f+1))  # 19
 ```
 
 ## Dispatching other types
@@ -104,7 +104,7 @@ def add(x, y):
 def sub(x, y):
     return x - y
 
-@register_verb(int, ast_fallback_arg=True)
+@register_verb(int)
 def mul(x, y):
     return x * y
 

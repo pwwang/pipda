@@ -51,7 +51,7 @@ def test_empty_args():
         return 10
 
     out = fun()
-    assert out == 10
+    assert out == 10 and isinstance(out, int)
 
 
 def test_no_expr_args():
@@ -60,4 +60,4 @@ def test_no_expr_args():
         return x + y
 
     out = add(1, 2)
-    assert out == 3
+    assert out == 3 and isinstance(out, int)

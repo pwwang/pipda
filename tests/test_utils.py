@@ -23,6 +23,12 @@ def test_is_piping_verbcall_normal():
     a = 1 >> iden()
     assert a == 1 and isinstance(a, int)
 
+    @register_verb(int, ast_fallback="normal")
+    def iden2(x):
+        return x
+
+    # no warning
+    assert iden2(1) == 1 and isinstance(iden2(1), int)
 
 def test_is_piping_verbcall_piping():
 
@@ -113,29 +119,29 @@ def test_is_piping_verbcall_raise():
     assert a == 1 and isinstance(a, int)
 
 
-def test_is_piping_verbcall_fallback_arg():
+# def test_is_piping_verbcall_fallback_arg():
 
-    @register_verb(int, ast_fallback="raise", ast_fallback_arg=True)
-    def iden(x):
-        return x
+#     @register_verb(int, ast_fallback="raise")
+#     def iden(x):
+#         return x
 
-    assert iden(1, __ast_fallback="normal") == 1
-    assert isinstance(iden(1, __ast_fallback="normal"), int)
+#     assert iden(1, __ast_fallback="normal") == 1
+#     assert isinstance(iden(1, __ast_fallback="normal"), int)
 
-    assert 1 >> iden(__ast_fallback="piping") == 1
-    assert isinstance(1 >> iden(__ast_fallback="piping"), int)
+#     assert 1 >> iden(__ast_fallback="piping") == 1
+#     assert isinstance(1 >> iden(__ast_fallback="piping"), int)
 
-    with pytest.warns(VerbCallingCheckWarning):
-        assert (
-            iden(1, __ast_fallback="normal_warning") == 1
-            and isinstance(iden(1, __ast_fallback="normal_warning"), int)
-        )
+#     with pytest.warns(VerbCallingCheckWarning):
+#         assert (
+#             iden(1, __ast_fallback="normal_warning") == 1
+#             and isinstance(iden(1, __ast_fallback="normal_warning"), int)
+#         )
 
-    with pytest.warns(VerbCallingCheckWarning), pytest.raises(TypeError):
-        assert (1 >> iden(__ast_fallback="normal_warning")) == 1
+#     with pytest.warns(VerbCallingCheckWarning), pytest.raises(TypeError):
+#         assert (1 >> iden(__ast_fallback="normal_warning")) == 1
 
-    with pytest.raises(VerbCallingCheckError):
-        assert iden()  # fallback to raise
+#     with pytest.raises(VerbCallingCheckError):
+#         assert iden()  # fallback to raise
 
 
 def test_has_expr():

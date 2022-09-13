@@ -25,7 +25,7 @@ def test_user_context():
     ce = MyContext()
     f = Symbolic()
     out = evaluate_expr(f[1], [1, 2], ce)
-    assert out == 4
+    assert out == 4 and isinstance(out, int)
 
 
 def test_context_pending():
