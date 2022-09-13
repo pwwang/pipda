@@ -9,7 +9,7 @@ from functools import singledispatch, update_wrapper
 from .utils import has_expr, evaluate_expr, is_piping_verbcall
 from .context import ContextPending
 from .expression import Expression
-from .function import Registered, Function
+from .function import FunctionCall, Registered
 
 if TYPE_CHECKING:
     from .context import ContextType
@@ -92,11 +92,9 @@ class Verb(Registered):
         context: ContextType,
         extra_contexts: Mapping[str, ContextType],
         dep: bool,
-        expr_as_data: bool,
         ast_fallback: str,
     ) -> None:
         self.dep = dep
-        self.expr_as_data = expr_as_data
         self.ast_fallback = ast_fallback
 
         def fallback(_data, *args, **kwargs):
@@ -104,6 +102,8 @@ class Verb(Registered):
                 f"[{func.__name__}] Type `{type(_data).__name__}` "
                 "is not registered."
             )
+
+        self._fallback = fallback
         # used to check if types are registered
         fallback.context = context
         fallback.extra_contexts = extra_contexts
@@ -143,6 +143,10 @@ class Verb(Registered):
 
         return decor
 
+    def registered(self, cls: Type) -> bool:
+        """Check if a type is registered"""
+        return self.dispatch(cls) is not self._fallback
+
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """How should we call the function
 
@@ -169,19 +173,10 @@ class Verb(Registered):
             raise TypeError(f"{self.__name__}() missing at least one argument.")
 
         data, *args = args
+        if has_expr(data):
+            return FunctionCall(self, data, *args, **kwargs)
 
-        call = VerbCall(self, *args, **kwargs)
-        if not has_expr(data) or not self.expr_as_data:
-            # Use the registered context
-            return call._pipda_eval(data)
-
-        # evaluate the data first so that the symbolics in the arguments
-        # refer to the evaluated data
-        return Function(
-            lambda dat: call._pipda_eval(dat),
-            context=None,
-            extra_contexts={}
-        )(data)
+        return VerbCall(self, *args, **kwargs)._pipda_eval(data)
 
 
 def register_verb(
@@ -190,7 +185,6 @@ def register_verb(
     context: ContextType = None,
     extra_contexts: Mapping[str, ContextType] = None,
     dep: bool = False,
-    expr_as_data: bool = True,
     ast_fallback: str = "normal_warning",
 ) -> Callable[[Callable], Verb]:
     """Register a verb
@@ -207,8 +201,6 @@ def register_verb(
             >>> # length()  -> VerbCall
             >>> # with dep=False
             >>> # length()  -> TypeError, argument data is missing
-        expr_as_data: Whether to allow Expression object as data to pipe in
-            So we could do `data >> bind_rows(head(f), tail(f))`
         ast_fallback: What's the supposed way to call the verb when
             AST node detection fails.
             piping - Suppose this verb is called like `data >> verb(...)`
@@ -226,7 +218,6 @@ def register_verb(
         context=context,
         extra_contexts=extra_contexts or {},
         dep=dep,
-        expr_as_data=expr_as_data,
         ast_fallback=ast_fallback,
     )
 

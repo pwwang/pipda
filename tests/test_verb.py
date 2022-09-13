@@ -148,7 +148,7 @@ def test_dependent_verb():
     assert out == [2, 4, 6] and isinstance(out, list)
 
 
-def test_expr_as_data():
+def test_as_func():
     f = Symbolic()
 
     @register_verb(dict, context=Context.EVAL)
@@ -167,6 +167,14 @@ def test_expr_as_data():
     out = {"a": 1, "b": 2, "c": 3} >> update(
         plus(
             {"a": 2, "b": f["c"]},
+            f["a"],  # 1 instead 2
+        )
+    )
+    assert out == {"a": 3, "b": 4, "c": 3}
+
+    out = {"a": 1, "b": 2, "c": 3} >> update(
+        plus(
+            {"a": 2, "b": 3},
             f["a"],  # 2 instead 1
         )
     )
@@ -203,3 +211,13 @@ def test_register_piping():
 
     with pytest.raises(ValueError):
         register_piping("123")
+
+
+def test_registered():
+
+    @register_verb(int)
+    def incre(x):
+        return x + 1
+
+    assert incre.registered(int)
+    assert not incre.registered(list)
