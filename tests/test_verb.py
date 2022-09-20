@@ -221,3 +221,29 @@ def test_registered():
 
     assert incre.registered(int)
     assert not incre.registered(list)
+
+    @register_verb(None)
+    def sum(x):
+        return 0
+
+    assert not sum.registered(int)
+
+
+def test_types_none():
+
+    @register_verb(None)
+    def sum_(x):
+        """Doc for sum"""
+        return 0
+
+    @sum_.register(list)
+    def _(x):
+        return sum(x)
+
+    assert sum_.__doc__ == "Doc for sum"
+    assert sum_.__name__ == "sum_"
+    assert sum_.registered(list)
+    assert not sum_.registered(object)
+
+    assert sum_("1234") == 0
+    assert sum_([1, 2, 3]) == 6

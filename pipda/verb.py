@@ -97,29 +97,33 @@ class Verb(Registered):
         self.dep = dep
         self.ast_fallback = ast_fallback
 
-        def fallback(_data, *args, **kwargs):
-            raise NotImplementedError(
-                f"[{func.__name__}] Type `{type(_data).__name__}` "
-                "is not registered."
-            )
-
-        self._fallback = fallback
-        # used to check if types are registered
-        fallback.context = context
-        fallback.extra_contexts = extra_contexts
-
-        fallback = singledispatch(fallback)
-        update_wrapper(self, func)
-        update_wrapper(fallback, func)
-
         func.context = context
         func.extra_contexts = extra_contexts
-        for t in types:
-            fallback.register(t, func)
 
-        self.func = fallback
-        self.registry = fallback.registry
-        self.dispatch = fallback.dispatch
+        if types is None:
+            # used to check if types are registered
+            self._generic = func
+        else:
+            def generic(__data, *args, **kwargs):
+                raise NotImplementedError(
+                    f"[{func.__name__}] Type `{type(__data).__name__}` "
+                    "is not registered."
+                )
+            self._generic = generic
+            generic.context = context
+            generic.extra_contexts = extra_contexts
+
+        wrapped = singledispatch(self._generic)
+        update_wrapper(self, func)
+        update_wrapper(wrapped, func)
+
+        if types is not None:
+            for t in types:
+                wrapped.register(t, func)
+
+        self.func = wrapped
+        self.registry = wrapped.registry
+        self.dispatch = wrapped.dispatch
         # default contexts
         self.context = context
         self.extra_contexts = extra_contexts
@@ -145,7 +149,7 @@ class Verb(Registered):
 
     def registered(self, cls: Type) -> bool:
         """Check if a type is registered"""
-        return self.dispatch(cls) is not self._fallback
+        return self.dispatch(cls) is not self._generic
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """How should we call the function
@@ -192,6 +196,8 @@ def register_verb(
 
     Args:
         types: The types of the data allowed to pipe in
+            If `None`, then `func` is a generic function instead of an
+            automatically created one to raise `NotImplementedError` by default
         context: The context to evaluate the arguments
         extra_contexts: Extra contexts to evaluate the keyword arguments
         dep: Whether the verb is dependent.
@@ -221,7 +227,7 @@ def register_verb(
             func=fun,
         )
 
-    if types and not isinstance(types, (list, tuple, set)):
+    if types is not None and not isinstance(types, (list, tuple, set)):
         types = [types]
 
     return Verb(
