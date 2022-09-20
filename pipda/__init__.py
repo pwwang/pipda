@@ -7,4 +7,4 @@ from .symbolic import Symbolic
 from .utils import evaluate_expr
 from .verb import Verb, VerbCall, register_verb, register_piping
 
-__version__ = "0.7.1"
+__version__ = "0.7.2"
