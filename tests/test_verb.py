@@ -245,5 +245,5 @@ def test_types_none():
     assert sum_.registered(list)
     assert not sum_.registered(object)
 
-    assert sum_("1234") == 0
-    assert sum_([1, 2, 3]) == 6
+    assert sum_("1234", __ast_fallback="normal") == 0
+    assert sum_([1, 2, 3], __ast_fallback="normal") == 6
