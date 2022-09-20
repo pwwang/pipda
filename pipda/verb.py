@@ -135,8 +135,9 @@ class Verb(Registered):
         context: ContextType = None,
         extra_contexts: Mapping[str, ContextType] = None,
     ) -> Callable[[Callable], Verb]:
+        """Register for other types"""
         if not isinstance(types, (list, tuple, set)):
-            types = [types]
+            types = [types]  # type: ignore [list-item]
 
         def decor(fun: Callable) -> Verb:
             fun.context = context
@@ -228,7 +229,7 @@ def register_verb(
         )
 
     if types is not None and not isinstance(types, (list, tuple, set)):
-        types = [types]
+        types = [types]  # type: ignore [list-item]
 
     return Verb(
         func,
