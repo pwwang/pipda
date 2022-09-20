@@ -14,6 +14,23 @@ def increment(data):
 1 >> increment()  # 2
 ```
 
+## Registering generic functions
+
+By default, if a type cannot be dispatched, a default generic function is automatically created, which will raise a `NotImplementedError`. But you can register a generic function to customize this behavior by yourself.
+
+```python
+@register_verb(None)
+def increment(data):
+    raise TypeError(f"Unsupported type: {type(data).__name__}")
+
+@increment.register(int)
+def _(data):
+    return data + 1
+
+increment("abc")  # TypeError: Unsupported type: str (instead of NotImplementedError)
+increment(1)  # 2
+```
+
 ## Dependent verb
 
 Dependent verbs are functions can be used in another verb without passing the
