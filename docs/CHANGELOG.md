@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.7.3
+
+- ✨ Make `register` an alias of `register_verb`
+
 ## 0.7.2
 
 - ✨ Allow registering generic verbs
