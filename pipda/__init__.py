@@ -5,6 +5,12 @@ from .operator import Operator, OperatorCall, register_operator
 from .reference import ReferenceAttr, ReferenceItem
 from .symbolic import Symbolic
 from .utils import evaluate_expr
-from .verb import Verb, VerbCall, register_verb, register_piping
+from .verb import (
+    Verb,
+    VerbCall,
+    register_piping,
+    register_verb,
+    register_verb as register,
+)
 
 __version__ = "0.7.2"
