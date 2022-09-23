@@ -228,6 +228,12 @@ def test_registered():
 
     assert not sum.registered(int)
 
+    @register_verb(object)
+    def sum2(x):
+        return 0
+
+    assert sum2.registered(int)
+
 
 def test_types_none():
 
