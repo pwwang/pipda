@@ -12,6 +12,7 @@ from .expression import Expression
 from .function import FunctionCall, Registered
 
 if TYPE_CHECKING:
+    from inspect import Signature
     from .context import ContextType
 
 PIPING_OPS = {
@@ -61,14 +62,21 @@ class VerbCall(Expression):
 
     def _pipda_eval(self, data: Any, context: ContextType = None) -> Any:
         func = self._pipda_func.dispatch(type(data))
-        context = func.context or self._pipda_func.context or context
+        context = (
+            self._pipda_func.contexts.get(func, None)
+            or self._pipda_func.contexts["_"]
+            or context
+        )
 
         if isinstance(context, Enum):
             context = context.value
         if isinstance(context, ContextPending):
             return func(data, *self._pipda_args, **self._pipda_kwargs)
 
-        extra_contexts = func.extra_contexts or self._pipda_func.extra_contexts
+        extra_contexts = (
+            self._pipda_func.extra_contexts.get(func, None)
+            or self._pipda_func.extra_contexts["_"]
+        )
         bound = self._pipda_func.bind_arguments(
             data,
             *self._pipda_args,
@@ -91,14 +99,15 @@ class Verb(Registered):
         types: Type | Sequence[Type],
         context: ContextType,
         extra_contexts: Mapping[str, ContextType],
+        signature: Signature,
         dep: bool,
         ast_fallback: str,
     ) -> None:
         self.dep = dep
         self.ast_fallback = ast_fallback
 
-        func.context = context
-        func.extra_contexts = extra_contexts
+        self.contexts = {"_": context}
+        self.extra_contexts = {"_": extra_contexts}
 
         if types is None:
             # used to check if types are registered
@@ -110,8 +119,6 @@ class Verb(Registered):
                     "is not registered."
                 )
             self._generic = generic
-            generic.context = context
-            generic.extra_contexts = extra_contexts
 
         wrapped = singledispatch(self._generic)
         update_wrapper(self, func)
@@ -124,10 +131,7 @@ class Verb(Registered):
         self.func = wrapped
         self.registry = wrapped.registry
         self.dispatch = wrapped.dispatch
-        # default contexts
-        self.context = context
-        self.extra_contexts = extra_contexts
-        self._signature = None
+        self._signature = signature
 
     def register(
         self,
@@ -140,8 +144,8 @@ class Verb(Registered):
             types = [types]  # type: ignore [list-item]
 
         def decor(fun: Callable) -> Verb:
-            fun.context = context
-            fun.extra_contexts = extra_contexts or {}
+            self.contexts[fun] = context
+            self.extra_contexts[fun] = extra_contexts or {}
             for t in types:
                 self.func.register(t, fun)
             return self
@@ -189,6 +193,7 @@ def register_verb(
     *,
     context: ContextType = None,
     extra_contexts: Mapping[str, ContextType] = None,
+    signature: Signature = None,
     dep: bool = False,
     ast_fallback: str = "normal_warning",
     func: Callable = None,
@@ -201,6 +206,8 @@ def register_verb(
             automatically created one to raise `NotImplementedError` by default
         context: The context to evaluate the arguments
         extra_contexts: Extra contexts to evaluate the keyword arguments
+        signature: The signature of the function, in case the signature is not
+            available (i.e. numpy ufuncs)
         dep: Whether the verb is dependent.
             >>> @register_func([1, 2], context=Context.EVAL, dep=True)
             >>> def length(data):
@@ -223,6 +230,7 @@ def register_verb(
             types=types,
             context=context,
             extra_contexts=extra_contexts or {},
+            signature=signature,
             dep=dep,
             ast_fallback=ast_fallback,
             func=fun,
@@ -236,6 +244,7 @@ def register_verb(
         types=types,
         context=context,
         extra_contexts=extra_contexts or {},
+        signature=signature,
         dep=dep,
         ast_fallback=ast_fallback,
     )
