@@ -1,3 +1,4 @@
+import inspect
 import pytest
 from pipda.symbolic import Symbolic
 
@@ -88,7 +89,7 @@ def test_register_more_types_inherit_context():
         return [data[i + plus] for i in indices]
 
     @select.register(tuple)
-    def _(data, indices, *, plus):
+    def _1(data, indices, *, plus):
         return tuple(data[i + plus] for i in indices)
 
     class MyList(list): ...
@@ -98,7 +99,7 @@ def test_register_more_types_inherit_context():
         context=Context.EVAL,
         extra_contexts={"plus": Context.SELECT},
     )
-    def _(data, indices, *, plus):
+    def _2(data, indices, *, plus):
         return select(list(data), indices, plus=plus)
 
     out = [1, 2, 3, 4] >> select([f[0], f[2]], plus=f[0])
@@ -109,6 +110,17 @@ def test_register_more_types_inherit_context():
 
     out = MyList([1, 2, 3, 4]) >> select([f[0], f[2]], plus=f[0])
     assert out == [2, 4] and isinstance(out, list)
+
+
+def test_numpy_ufunc():
+    import numpy as np
+
+    fun = register_verb(
+        np.ndarray,
+        func=np.sqrt, signature=inspect.signature(lambda x: None)
+    )
+    out = fun(np.array([1, 4, 9]))
+    assert out == pytest.approx([1, 2, 3])
 
 
 def test_dependent_verb():

@@ -66,9 +66,10 @@ class FunctionCall(Expression):
             )
 
         bound = func.bind_arguments(*self._pipda_args, **self._pipda_kwargs)
-        context = func.context or context
+        context = func.contexts["_"] or context
+        extra_contexts = func.extra_contexts
         for key, val in bound.arguments.items():
-            ctx = func.extra_contexts.get(key, context)
+            ctx = extra_contexts["_"].get(key, context)
             val = evaluate_expr(val, data, ctx)
             bound.arguments[key] = val
 
@@ -113,11 +114,12 @@ class Function(Registered):
         func: Callable,
         context: ContextType,
         extra_contexts: Mapping[str, ContextType],
+        signature: inspect.Signature = None,
     ) -> None:
         self.func = func
-        self.context = context
-        self.extra_contexts = extra_contexts
-        self._signature = None
+        self.contexts = {"_": context}
+        self.extra_contexts = {"_": extra_contexts}
+        self._signature = signature
 
         update_wrapper(self, self.func)
 
@@ -139,6 +141,7 @@ def register_func(
     *,
     context: ContextType = None,
     extra_contexts: Mapping[str, ContextType] = None,
+    signature: inspect.Signature = None,
 ) -> Function | Callable:
     """Register a function to be used as a verb argument so that they don't
     get evaluated immediately
@@ -147,6 +150,8 @@ def register_func(
         func: The original function
         context: The context used to evaluate the arguments
         extra_contexts: Extra contexts to evaluate keyword arguments
+        signature: The signature of the function, in case the signature is not
+            available (i.e. numpy ufuncs)
 
     Returns:
         A registered `Function` object, or a decorator if `func` is not given
@@ -156,6 +161,7 @@ def register_func(
             fun,
             context=context,
             extra_contexts=extra_contexts or {},
+            signature=signature,
         )
 
-    return Function(func, context, extra_contexts or {})
+    return Function(func, context, extra_contexts or {}, signature)
