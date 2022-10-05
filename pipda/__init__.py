@@ -12,4 +12,4 @@ from .verb import (
     register_verb,
 )
 
-__version__ = "0.7.4"
+__version__ = "0.7.5"
