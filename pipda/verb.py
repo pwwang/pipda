@@ -3,7 +3,16 @@ from __future__ import annotations
 
 import ast
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, List, Mapping, Sequence, Type
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Mapping,
+    Sequence,
+    Type,
+)
 from functools import singledispatch, update_wrapper
 
 from .utils import has_expr, evaluate_expr, is_piping_verbcall
@@ -106,8 +115,10 @@ class Verb(Registered):
         self.dep = dep
         self.ast_fallback = ast_fallback
 
-        self.contexts = {"_": context}
-        self.extra_contexts = {"_": extra_contexts}
+        self.contexts: Dict[str | Callable, ContextType] = {"_": context}
+        self.extra_contexts: Dict[str | Callable, Mapping[str, ContextType]] = {
+            "_": extra_contexts
+        }
 
         if types is None:
             # used to check if types are registered
