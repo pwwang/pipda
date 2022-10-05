@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.7.4
+
+- 🐛 Allow numpy.ufuncs to be registered
+
 ## 0.7.3
 
 - ✨ Make `register` an alias of `register_verb`
