@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Callable, List, Mapping, TYPE_CHECKING
 from functools import update_wrapper
 
-from .utils import evaluate_expr, has_expr
+from .utils import evaluate_expr, has_expr, update_user_wrapper
 from .expression import Expression
 
 if TYPE_CHECKING:
@@ -114,6 +114,10 @@ class Function(Registered):
         func: Callable,
         context: ContextType,
         extra_contexts: Mapping[str, ContextType],
+        name: str = None,
+        qualname: str = None,
+        doc: str = None,
+        module: str = None,
         signature: inspect.Signature = None,
     ) -> None:
         self.func = func
@@ -122,6 +126,13 @@ class Function(Registered):
         self._signature = signature
 
         update_wrapper(self, self.func)
+        update_user_wrapper(
+            self,
+            name=name,
+            qualname=qualname,
+            doc=doc,
+            module=module,
+        )
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Call a registered function"""
@@ -141,6 +152,10 @@ def register_func(
     *,
     context: ContextType = None,
     extra_contexts: Mapping[str, ContextType] = None,
+    name: str = None,
+    qualname: str = None,
+    doc: str = None,
+    module: str = None,
     signature: inspect.Signature = None,
 ) -> Function | Callable:
     """Register a function to be used as a verb argument so that they don't
@@ -150,8 +165,12 @@ def register_func(
         func: The original function
         context: The context used to evaluate the arguments
         extra_contexts: Extra contexts to evaluate keyword arguments
-        signature: The signature of the function, in case the signature is not
-            available (i.e. numpy ufuncs)
+        name: and
+        qualname: and
+        doc: and
+        module: and
+        signature: The meta information about the function to overwrite `func`'s
+            or when it's not available from `func`
 
     Returns:
         A registered `Function` object, or a decorator if `func` is not given
@@ -161,7 +180,20 @@ def register_func(
             fun,
             context=context,
             extra_contexts=extra_contexts or {},
+            name=name,
+            qualname=qualname,
+            doc=doc,
+            module=module,
             signature=signature,
         )
 
-    return Function(func, context, extra_contexts or {}, signature)
+    return Function(
+        func,
+        context,
+        extra_contexts or {},
+        name=name,
+        qualname=qualname,
+        doc=doc,
+        module=module,
+        signature=signature,
+    )

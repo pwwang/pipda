@@ -265,3 +265,27 @@ def test_types_none():
 
     assert sum_("1234", __ast_fallback="normal") == 0
     assert sum_([1, 2, 3], __ast_fallback="normal") == 6
+
+
+def test_meta():
+    name = "myfun"
+    qualname = "mypackage.myfun"
+    doc = "my doc"
+    module = "mypackage"
+    signature = inspect.signature(lambda x: None)
+
+    fun = register_verb(
+        object,
+        func=lambda a: None,
+        name=name,
+        qualname=qualname,
+        doc=doc,
+        module=module,
+        signature=signature,
+    )
+
+    assert fun.__name__ == name
+    assert fun.__qualname__ == qualname
+    assert fun.__doc__ == doc
+    assert fun.__module__ == module
+    assert fun.signature == signature

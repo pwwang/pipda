@@ -61,3 +61,26 @@ def test_no_expr_args():
 
     out = add(1, 2)
     assert out == 3 and isinstance(out, int)
+
+
+def test_meta():
+    name = "myfun"
+    qualname = "mypackage.myfun"
+    doc = "my doc"
+    module = "mypackage"
+    signature = inspect.signature(lambda x: None)
+
+    fun = register_func(
+        lambda a: None,
+        name=name,
+        qualname=qualname,
+        doc=doc,
+        module=module,
+        signature=signature,
+    )
+
+    assert fun.__name__ == name
+    assert fun.__qualname__ == qualname
+    assert fun.__doc__ == doc
+    assert fun.__module__ == module
+    assert fun.signature == signature

@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.7.5
+
+- ✨ Allow function meta infor to be overwritten
+
 ## 0.7.4
 
 - 🐛 Allow numpy.ufuncs to be registered

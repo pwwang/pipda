@@ -15,7 +15,12 @@ from typing import (
 )
 from functools import singledispatch, update_wrapper
 
-from .utils import has_expr, evaluate_expr, is_piping_verbcall
+from .utils import (
+    has_expr,
+    evaluate_expr,
+    is_piping_verbcall,
+    update_user_wrapper,
+)
 from .context import ContextPending
 from .expression import Expression
 from .function import FunctionCall, Registered
@@ -108,6 +113,10 @@ class Verb(Registered):
         types: Type | Sequence[Type],
         context: ContextType,
         extra_contexts: Mapping[str, ContextType],
+        name: str,
+        qualname: str,
+        doc: str,
+        module: str,
         signature: Signature,
         dep: bool,
         ast_fallback: str,
@@ -134,6 +143,20 @@ class Verb(Registered):
         wrapped = singledispatch(self._generic)
         update_wrapper(self, func)
         update_wrapper(wrapped, func)
+        update_user_wrapper(
+            self,
+            name=name,
+            qualname=qualname,
+            doc=doc,
+            module=module,
+        )
+        update_user_wrapper(
+            wrapped,
+            name=name,
+            qualname=qualname,
+            doc=doc,
+            module=module,
+        )
 
         if types is not None:
             for t in types:
@@ -204,6 +227,10 @@ def register_verb(
     *,
     context: ContextType = None,
     extra_contexts: Mapping[str, ContextType] = None,
+    name: str = None,
+    qualname: str = None,
+    doc: str = None,
+    module: str = None,
     signature: Signature = None,
     dep: bool = False,
     ast_fallback: str = "normal_warning",
@@ -217,8 +244,12 @@ def register_verb(
             automatically created one to raise `NotImplementedError` by default
         context: The context to evaluate the arguments
         extra_contexts: Extra contexts to evaluate the keyword arguments
-        signature: The signature of the function, in case the signature is not
-            available (i.e. numpy ufuncs)
+        name: and
+        qualname: and
+        doc: and
+        module: and
+        signature: The meta information about the function to overwrite `func`'s
+            or when it's not available from `func`
         dep: Whether the verb is dependent.
             >>> @register_func([1, 2], context=Context.EVAL, dep=True)
             >>> def length(data):
@@ -241,6 +272,10 @@ def register_verb(
             types=types,
             context=context,
             extra_contexts=extra_contexts or {},
+            name=name,
+            qualname=qualname,
+            doc=doc,
+            module=module,
             signature=signature,
             dep=dep,
             ast_fallback=ast_fallback,
@@ -255,6 +290,10 @@ def register_verb(
         types=types,
         context=context,
         extra_contexts=extra_contexts or {},
+        name=name,
+        qualname=qualname,
+        doc=doc,
+        module=module,
         signature=signature,
         dep=dep,
         ast_fallback=ast_fallback,
