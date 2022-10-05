@@ -5,7 +5,7 @@ import ast
 import sys
 from enum import Enum
 from functools import singledispatch
-from typing import Any
+from typing import Any, Callable
 import warnings
 
 from .context import ContextType
@@ -17,6 +17,20 @@ class VerbCallingCheckWarning(Warning):
 
 class VerbCallingCheckError(Exception):
     """Raises when checking verb is called normally or using piping"""
+
+
+def update_user_wrapper(
+    x: Callable, name: str, qualname: str, doc: str, module: str
+) -> None:
+    """Update the wrapper with user specified values"""
+    if name:
+        x.__name__ = name
+    if qualname:
+        x.__qualname__ = qualname
+    if doc:
+        x.__doc__ = doc
+    if module:
+        x.__module__ = module
 
 
 def is_piping_verbcall(verb: str, fallback: str) -> bool:
@@ -54,14 +68,14 @@ def is_piping_verbcall(verb: str, fallback: str) -> bool:
             warnings.warn(
                 f"Failed to detect AST node calling `{verb}`, "
                 "assuming a normal call.",
-                VerbCallingCheckWarning
+                VerbCallingCheckWarning,
             )
             return False
         if fallback == "piping_warning":
             warnings.warn(
                 f"Failed to detect AST node calling `{verb}`, "
                 "assuming a piping call.",
-                VerbCallingCheckWarning
+                VerbCallingCheckWarning,
             )
             return True
 
@@ -76,12 +90,9 @@ def is_piping_verbcall(verb: str, fallback: str) -> bool:
         return False
 
     return (
-        (
-            (isinstance(parent, ast.BinOp) and parent.right is node)
-            or (isinstance(parent, ast.AugAssign) and parent.value is node)
-        )
-        and isinstance(parent.op, PIPING_OPS[VerbCall.PIPING][1])
-    )
+        (isinstance(parent, ast.BinOp) and parent.right is node)
+        or (isinstance(parent, ast.AugAssign) and parent.value is node)
+    ) and isinstance(parent.op, PIPING_OPS[VerbCall.PIPING][1])
 
 
 def evaluate_expr(expr: Any, data: Any, context: ContextType) -> Any:

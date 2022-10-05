@@ -10,7 +10,6 @@ from .verb import (
     VerbCall,
     register_piping,
     register_verb,
-    register_verb as register,
 )
 
 __version__ = "0.7.4"
