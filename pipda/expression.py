@@ -54,7 +54,8 @@ OPERATORS = {
 class Expression(ABC):
     """The abstract Expression class"""
 
-    operator = None
+    _pipda_operator = None
+    __array_ufunc__ = None
 
     def __hash__(self) -> int:
         """Make it hashable"""
@@ -80,8 +81,8 @@ class Expression(ABC):
         """Handle the operators"""
         from .operator import Operator, OperatorCall
         from .verb import VerbCall
-        if Expression.operator is None:
-            Expression.operator = Operator()
+        if Expression._pipda_operator is None:
+            Expression._pipda_operator = Operator()
 
         # Let the verb handle it
         if (
@@ -91,7 +92,7 @@ class Expression(ABC):
         ):
             return NotImplemented
 
-        op_func = getattr(Expression.operator, op)
+        op_func = getattr(Expression._pipda_operator, op)
         return OperatorCall(op_func, op, self, *operands)
 
     # Make sure the operators connect all expressions into one
