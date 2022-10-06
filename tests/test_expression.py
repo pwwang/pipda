@@ -1,5 +1,6 @@
 import pytest
 
+import numpy as np
 from pipda.context import Context
 from pipda.expression import Expression
 from pipda.function import FunctionCall

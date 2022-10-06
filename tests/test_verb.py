@@ -1,7 +1,8 @@
 import inspect
 import pytest
-from pipda.symbolic import Symbolic
 
+import numpy as np
+from pipda.symbolic import Symbolic
 from pipda.context import Context
 from pipda.verb import *
 
@@ -113,7 +114,6 @@ def test_register_more_types_inherit_context():
 
 
 def test_numpy_ufunc():
-    import numpy as np
 
     fun = register_verb(
         np.ndarray,
@@ -289,3 +289,13 @@ def test_meta():
     assert fun.__doc__ == doc
     assert fun.__module__ == module
     assert fun.signature == signature
+
+
+def test_nparray_as_data():
+
+    @register_verb(np.ndarray)
+    def sum_(data):
+        return data.sum()
+
+    s = np.array([1, 2, 3]) >> sum_()
+    assert s == 6
