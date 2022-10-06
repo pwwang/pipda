@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.7.6
+
+- 🐛 Fix `numpy.ndarray` as data argument for verbs
+- 🚚 Rename `Expression.operator` to `Expression._pipda_operator`
+
 ## 0.7.5
 
 - ✨ Allow function meta infor to be overwritten
