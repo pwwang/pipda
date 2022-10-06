@@ -84,5 +84,5 @@ def register_operator(opclass: Type) -> Type:
         The opclass
     """
     from .expression import Expression
-    Expression.operator = opclass()
+    Expression._pipda_operator = opclass()
     return opclass
