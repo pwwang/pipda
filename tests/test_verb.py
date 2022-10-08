@@ -2,6 +2,7 @@ import inspect
 import pytest
 
 import numpy as np
+from pipda.piping import register_piping
 from pipda.symbolic import Symbolic
 from pipda.context import Context
 from pipda.verb import *
@@ -199,30 +200,7 @@ def test_error():
         return len(data)
 
     with pytest.raises(TypeError):
-        length(1, 2)
-
-
-def test_register_piping():
-
-    @register_verb(int)
-    def incre(x):
-        return x + 1
-
-    out = 1 >> incre()
-    assert out == 2 and isinstance(out, int)
-
-    register_piping("|")
-    with pytest.raises(TypeError):
-        1 >> incre()
-    out = 1 | incre()
-    assert out == 2 and isinstance(out, int)
-
-    register_piping(">>")
-    out = 1 >> incre()
-    assert out == 2 and isinstance(out, int)
-
-    with pytest.raises(ValueError):
-        register_piping("123")
+        length([1], 2)
 
 
 def test_registered():
@@ -298,4 +276,18 @@ def test_nparray_as_data():
         return data.sum()
 
     s = np.array([1, 2, 3]) >> sum_()
-    assert s == 6
+    assert s == 6 and isinstance(s, np.integer)
+
+    register_piping("|")
+
+    s = np.array([1, 2, 3]) | sum_()
+    assert s == 6 and isinstance(s, np.integer)
+
+    register_piping(">>")
+
+    @register_verb(np.ndarray)
+    def sum2(data, n):
+        return data.sum() + n
+
+    s = np.array([1, 2, 3]) >> sum2(1)
+    assert s == 7 and isinstance(s, np.integer)

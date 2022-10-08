@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.8.0
+
+- patch classes if they have piping operator method
+- auto register numpy ufuncs
+- pump executing to 1.1.1 to fix pwwang/datar#149
+
 ## 0.7.6
 
 - 🐛 Fix `numpy.ndarray` as data argument for verbs

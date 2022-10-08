@@ -63,6 +63,20 @@ def test_no_expr_args():
     assert out == 3 and isinstance(out, int)
 
 
+def test_extra_contexts():
+
+    @register_func(
+        context=Context.EVAL,
+        extra_contexts={"plus": Context.SELECT},
+    )
+    def add(x, plus):
+        return f"{x} + {plus}"
+
+    f = Symbolic()
+    expr = add(f["a"], f["b"])
+    assert expr._pipda_eval({"a": 1, "b": 2}) == "1 + b"
+
+
 def test_meta():
     name = "myfun"
     qualname = "mypackage.myfun"

@@ -8,8 +8,8 @@ from .utils import evaluate_expr
 from .verb import (
     Verb,
     VerbCall,
-    register_piping,
     register_verb,
 )
+from .piping import register_piping
 
-__version__ = "0.7.6"
+__version__ = "0.8.0"

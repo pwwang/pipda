@@ -53,7 +53,8 @@ def is_piping_verbcall(verb: str, fallback: str) -> bool:
         True if it is a piping verb call, otherwise False
     """
     from executing import Source
-    from .verb import PIPING_OPS, VerbCall
+    from .verb import VerbCall
+    from .piping import PIPING_OPS
 
     frame = sys._getframe(2)
     node = Source.executing(frame).node
