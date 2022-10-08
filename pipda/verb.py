@@ -80,17 +80,28 @@ class VerbCall(Expression):
             self._pipda_func.extra_contexts.get(func, None)
             or self._pipda_func.extra_contexts["_"]
         )
-        bound = self._pipda_func.bind_arguments(
-            data,
-            *self._pipda_args,
-            **self._pipda_kwargs,
-        )
-        for key, val in bound.arguments.items():
-            ctx = extra_contexts.get(key, context)
-            val = evaluate_expr(val, data, ctx)
-            bound.arguments[key] = val
+        if extra_contexts:
+            bound = self._pipda_func.bind_arguments(
+                data,
+                *self._pipda_args,
+                **self._pipda_kwargs,
+            )
+            for key, val in bound.arguments.items():
+                ctx = extra_contexts.get(key, context)
+                val = evaluate_expr(val, data, ctx)
+                bound.arguments[key] = val
 
-        return func(*bound.args, **bound.kwargs)
+            return func(*bound.args, **bound.kwargs)
+
+        # we don't need signature if there is no extra context
+        return func(
+            data,
+            *(evaluate_expr(arg, data, context) for arg in self._pipda_args),
+            **{
+                key: evaluate_expr(val, data, context)
+                for key, val in self._pipda_kwargs.items()
+            },
+        )
 
 
 class Verb(Registered):

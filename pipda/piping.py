@@ -5,14 +5,14 @@ from typing import Type
 from .verb import VerbCall
 
 PIPING_OPS = {
-    # op: (method, ast node)
-    ">>": ("__rrshift__", ast.RShift),
-    "|": ("__ror__", ast.BitOr),
-    "//": ("__rfloordiv__", ast.FloorDiv),
-    "@": ("__rmatmul__", ast.MatMult),
-    "%": ("__rmod__", ast.Mod),
-    "&": ("__rand__", ast.BitAnd),
-    "^": ("__rxor__", ast.BitXor),
+    # op: (method, ast node, numpy ufunc name)
+    ">>": ("__rrshift__", ast.RShift, "right_shift"),
+    "|": ("__ror__", ast.BitOr, "bitwise_or"),
+    "//": ("__rfloordiv__", ast.FloorDiv, "floor_divide"),
+    "@": ("__rmatmul__", ast.MatMult, "matmul"),
+    "%": ("__rmod__", ast.Mod, "remainder"),
+    "&": ("__rand__", ast.BitAnd, "bitwise_and"),
+    "^": ("__rxor__", ast.BitXor, "bitwise_xor"),
 }
 
 PATCHED_CLASSES = {
@@ -115,6 +115,7 @@ def _unpatch_all(op: str) -> None:
 
 def _patch_default_classes() -> None:
     """Patch the default/commonly used classes"""
+
     try:
         import pandas
         patch_classes(

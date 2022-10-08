@@ -3,12 +3,13 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from functools import partialmethod
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable
 
 from .context import ContextBase
 
 if TYPE_CHECKING:
     from .operator import OperatorCall
+    from .function import FunctionCall
     from .reference import ReferenceAttr, ReferenceItem
 
 OPERATORS = {
@@ -55,7 +56,35 @@ class Expression(ABC):
     """The abstract Expression class"""
 
     _pipda_operator = None
-    __array_ufunc__ = None
+
+    def __array_ufunc__(
+        self,
+        ufunc: Callable,
+        method: str,
+        *inputs: Any,
+        **kwargs: Any,
+    ) -> FunctionCall:
+        """Allow numpy ufunc to work on Expression objects"""
+
+        from .piping import PIPING_OPS
+        from .verb import VerbCall
+
+        if (
+            ufunc.__name__ == PIPING_OPS[VerbCall.PIPING][2]
+            and isinstance(inputs[1], VerbCall)
+            and len(inputs) == 2
+            and method == "__call__"
+        ):
+            # We can't patch numpy.ndarray
+            return inputs[1]._pipda_eval(inputs[0])
+
+        from .function import Function, FunctionCall
+
+        if method == "reduce":
+            ufunc = ufunc.reduce
+
+        fun = Function(ufunc, None, {})
+        return FunctionCall(fun, *inputs, **kwargs)
 
     def __hash__(self) -> int:
         """Make it hashable"""

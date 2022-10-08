@@ -90,3 +90,22 @@ def test_test_pipda_attr():
 
     f = Expr()
     assert not hasattr(f, "_pipda_xyz")
+
+
+def test_ufunc():
+    f = Symbolic()
+    x = np.sqrt(f)
+    assert isinstance(x, FunctionCall)
+
+    out = x._pipda_eval(4, Context.EVAL)
+    assert out == 2
+
+    out = x._pipda_eval([1, 4], Context.EVAL)
+    assert out[0] == 1
+    assert out[1] == 2
+
+    x = np.multiply.reduce(f)
+    assert isinstance(x, FunctionCall)
+
+    out = x._pipda_eval([1, 2, 3], Context.EVAL)
+    assert out == 6
