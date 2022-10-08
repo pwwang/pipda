@@ -1,7 +1,6 @@
 """Provide verb definition"""
 from __future__ import annotations
 
-import ast
 from enum import Enum
 from typing import (
     TYPE_CHECKING,
@@ -28,16 +27,6 @@ from .function import FunctionCall, Registered
 if TYPE_CHECKING:
     from inspect import Signature
     from .context import ContextType
-
-PIPING_OPS = {
-    ">>": ("__rrshift__", ast.RShift),
-    "|": ("__ror__", ast.BitOr),
-    "//": ("__rfloordiv__", ast.FloorDiv),
-    "@": ("__rmatmul__", ast.MatMult),
-    "%": ("__rmod__", ast.Mod),
-    "&": ("__rand__", ast.BitAnd),
-    "^": ("__rxor__", ast.BitXor),
-}
 
 
 class VerbCall(Expression):
@@ -298,24 +287,3 @@ def register_verb(
         dep=dep,
         ast_fallback=ast_fallback,
     )
-
-
-def register_piping(op: str) -> None:
-    """Register the piping operator for verbs
-
-    Args:
-        op: The operator used for piping
-            Avaiable:  ">>", "|", "//", "@", "%", "&" and "^"
-    """
-    if op not in PIPING_OPS:
-        raise ValueError(f"Unsupported piping operator: {op}")
-
-    if VerbCall.PIPING:
-        curr_method = PIPING_OPS[VerbCall.PIPING][0]
-        delattr(VerbCall, curr_method)
-
-    VerbCall.PIPING = op
-    setattr(VerbCall, PIPING_OPS[op][0], VerbCall._pipda_eval)
-
-
-register_piping(">>")

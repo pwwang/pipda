@@ -202,29 +202,6 @@ def test_error():
         length(1, 2)
 
 
-def test_register_piping():
-
-    @register_verb(int)
-    def incre(x):
-        return x + 1
-
-    out = 1 >> incre()
-    assert out == 2 and isinstance(out, int)
-
-    register_piping("|")
-    with pytest.raises(TypeError):
-        1 >> incre()
-    out = 1 | incre()
-    assert out == 2 and isinstance(out, int)
-
-    register_piping(">>")
-    out = 1 >> incre()
-    assert out == 2 and isinstance(out, int)
-
-    with pytest.raises(ValueError):
-        register_piping("123")
-
-
 def test_registered():
 
     @register_verb(int)
