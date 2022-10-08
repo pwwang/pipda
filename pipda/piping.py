@@ -1,6 +1,6 @@
 import ast
 import functools
-from typing import Type
+from typing import Type, Dict, Callable
 
 from .verb import VerbCall
 
@@ -15,7 +15,7 @@ PIPING_OPS = {
     "^": ("__rxor__", ast.BitXor, "bitwise_xor"),
 }
 
-PATCHED_CLASSES = {
+PATCHED_CLASSES: Dict[Type, Dict[str, Callable]] = {
     # kls:
     #    {}  # registered but not patched
     #    {"method": <method>, "imethod": <imethod>}  # patched
