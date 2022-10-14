@@ -225,6 +225,12 @@ def test_registered():
     assert sum2.registered(int)
 
 
+def test_register_non_callable():
+
+    fun = register_verb(None, func="none")
+    assert not fun.registered(object)
+
+
 def test_types_none():
 
     @register_verb(None)
