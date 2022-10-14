@@ -141,8 +141,9 @@ class Verb(Registered):
             self._generic = generic
 
         wrapped = singledispatch(self._generic)
-        update_wrapper(self, func)
-        update_wrapper(wrapped, func)
+        if callable(func):
+            update_wrapper(self, func)
+            update_wrapper(wrapped, func)
         update_user_wrapper(
             self,
             name=name,
@@ -160,7 +161,8 @@ class Verb(Registered):
 
         if types is not None:
             for t in types:
-                wrapped.register(t, func)
+                if callable(func):
+                    wrapped.register(t, func)
 
         self.func = wrapped
         self.registry = wrapped.registry
@@ -239,9 +241,22 @@ def register_verb(
     """Register a verb
 
     Args:
+        func: The function works as a verb.
+            If `None`, this function will return a decorator.
+            If non-callable, an auto-generated generic function that
+            raises `NotImplementedError()` will be used. This is useful when
+            you want to register a verb as a placeholder. We may not know
+            which types will come in. We can register the types later using
+            `Verb.register()`.
         types: The types of the data allowed to pipe in
             If `None`, then `func` is a generic function instead of an
             automatically created one to raise `NotImplementedError` by default
+            You can also use `object` to register a function, then any type
+            will be registered.
+            >>> f = register_verb(object, func=lambda x: x)
+            >>> f.registered(int)  # True
+            >>> g = register_verb(None, func=lambda x: x)
+            >>> g.registered(int)  # False
         context: The context to evaluate the arguments
         extra_contexts: Extra contexts to evaluate the keyword arguments
         name: and
@@ -265,7 +280,6 @@ def register_verb(
             piping_warning - Suppose piping call, but show a warning
             normal_warning - Suppose normal call, but show a warning
             raise - Raise an error
-        func: The function works as a verb.
     """
     if func is None:
         return lambda fun: register_verb(  # type: ignore
