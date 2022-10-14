@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.8.1
+
+- ✨ Allow verb to be a placeholder (without any types registered)
+- ✅ Add test for npufuncs to be used in verbs
+
 ## 0.8.0
 
 - patch classes if they have piping operator method
