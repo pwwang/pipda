@@ -17,6 +17,14 @@ repos:
         args: [pipda]
         types: [python]
         language: system
+    -   id: mypy
+        name: Run mypy
+        files: ^pipda/.+$
+        pass_filenames: false
+        entry: mypy
+        args: [-p, pipda]
+        types: [python]
+        language: system
     -   id: versionchecker
         name: Check version agreement in pyproject and __version__
         entry: bash -c

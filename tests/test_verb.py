@@ -297,3 +297,16 @@ def test_nparray_as_data():
 
     s = np.array([1, 2, 3]) >> sum2(1)
     assert s == 7 and isinstance(s, np.integer)
+
+
+def test_npufunc_as_verb_args():
+
+    f = Symbolic()
+
+    @register_verb(np.ndarray, context=Context.EVAL)
+    def add(data, n):
+        return data + n
+
+    out = np.array([1, -2, 3]) >> add(np.abs(f[1]))
+    out = list(out)
+    assert out == [3, 0, 5] and isinstance(out, list)
