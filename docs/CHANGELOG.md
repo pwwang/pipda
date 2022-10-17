@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.8.2
+
+- ✨ Support other numpy ufunc methods
+
 ## 0.8.1
 
 - ✨ Allow verb to be a placeholder (without any types registered)

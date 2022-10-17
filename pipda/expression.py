@@ -83,6 +83,15 @@ class Expression(ABC):
         if method == "reduce":
             ufunc = ufunc.reduce
 
+        elif method == "accumulate":
+            ufunc = ufunc.accumulate
+
+        elif method == "reduceat":
+            ufunc = ufunc.reduceat
+
+        elif method == "outer":
+            ufunc = ufunc.outer
+
         fun = Function(ufunc, None, {})
         return FunctionCall(fun, *inputs, **kwargs)
 

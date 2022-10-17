@@ -101,6 +101,7 @@ def test_ufunc():
     assert out == 2
 
     out = x._pipda_eval([1, 4], Context.EVAL)
+    assert isinstance(out, np.ndarray)
     assert out[0] == 1
     assert out[1] == 2
 
@@ -108,4 +109,37 @@ def test_ufunc():
     assert isinstance(x, FunctionCall)
 
     out = x._pipda_eval([1, 2, 3], Context.EVAL)
-    assert out == 6
+    assert out == 6 and isinstance(out, np.integer)
+
+    x = np.multiply.accumulate(f)
+    assert isinstance(x, FunctionCall)
+
+    out = x._pipda_eval([1, 2, 3], Context.EVAL)
+    assert isinstance(out, np.ndarray)
+    assert out[0] == 1
+    assert out[1] == 2
+    assert out[2] == 6
+
+    x = np.multiply.outer(f, f)
+    assert isinstance(x, FunctionCall)
+
+    out = x._pipda_eval([1, 2, 3], Context.EVAL)
+    assert isinstance(out, np.ndarray)
+    assert out[0, 0] == 1
+    assert out[0, 1] == 2
+    assert out[0, 2] == 3
+    assert out[1, 0] == 2
+    assert out[1, 1] == 4
+    assert out[1, 2] == 6
+    assert out[2, 0] == 3
+    assert out[2, 1] == 6
+    assert out[2, 2] == 9
+
+    x = np.multiply.reduceat(f, [0, 1, 2])
+    assert isinstance(x, FunctionCall)
+
+    out = x._pipda_eval([1, 2, 3], Context.EVAL)
+    assert isinstance(out, np.ndarray)
+    assert out[0] == 1
+    assert out[1] == 2
+    assert out[2] == 3
