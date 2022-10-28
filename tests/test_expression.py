@@ -2,8 +2,8 @@ import pytest
 
 import numpy as np
 from pipda.context import Context
-from pipda.expression import Expression
-from pipda.function import FunctionCall
+from pipda.expression import Expression, register_expr_array_func
+from pipda.function import FunctionCall, Function
 from pipda.reference import ReferenceAttr, ReferenceItem
 from pipda.symbolic import Symbolic
 from pipda.verb import register_verb
@@ -143,3 +143,25 @@ def test_ufunc():
     assert out[0] == 1
     assert out[1] == 2
     assert out[2] == 3
+
+
+def test_register_ufunc():
+    old_ufunc = Expression._pipda_array_func
+
+    @register_expr_array_func
+    def my_ufunc(expr, ufunc, method, *inputs, **kwargs):
+        if method != "__call__":
+            ufunc = getattr(ufunc, method)
+
+        fun = Function(lambda x: ufunc(x) * 2, None, {})
+        return FunctionCall(fun, *inputs, **kwargs)
+
+
+    f = Symbolic()
+    x = np.sqrt(f)
+    assert isinstance(x, FunctionCall)
+
+    out = x._pipda_eval(4, Context.EVAL)
+    assert out == 4
+
+    register_expr_array_func(old_ufunc)
