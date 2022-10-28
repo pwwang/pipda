@@ -21,3 +21,36 @@ f["a"]  # ReferenceItem object
 f.a()  # FunctionCall object
 f.a + f.b  # OperatorCall object
 ```
+
+## numpy ufuncs on Expression objects
+
+```python
+import numpy as np
+from pipda import Symbolic
+
+f = Symbolic()
+
+x = np.sqrt(f)
+
+x._pipda_eval(4)  # 2.0
+```
+
+## Register your own `__array_ufunc__`
+
+```python
+import numpy as np
+from pipda import Symbolic, register_expr_array_ufunc
+
+
+ @register_expr_array_func
+ def my_ufunc(expr, ufunc, method, *inputs, **kwargs):
+     if method != "__call__":
+         ufunc = getattr(ufunc, method)
+     fun = Function(lambda x: ufunc(x) * 2, None, {})
+     return FunctionCall(fun, *inputs, **kwargs)
+
+f = Symbolic()
+x = np.sqrt(f)
+
+x._pipda_eval(4)  # 4.0
+```
