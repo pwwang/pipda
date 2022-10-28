@@ -12,4 +12,4 @@ from .verb import (
 )
 from .piping import register_piping
 
-__version__ = "0.8.2"
+__version__ = "0.9.0"
