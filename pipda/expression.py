@@ -57,6 +57,22 @@ class Expression(ABC):
 
     _pipda_operator = None
 
+    def _pipda_array_func(
+        self,
+        ufunc: Callable,
+        method: str,
+        *inputs: Any,
+        **kwargs: Any,
+    ) -> FunctionCall:
+        """Allow numpy array function to work on Expression objects"""
+        from .function import Function, FunctionCall
+
+        if method != "__call__":
+            ufunc = getattr(ufunc, method)
+
+        fun = Function(ufunc, None, {})
+        return FunctionCall(fun, *inputs, **kwargs)
+
     def __array_ufunc__(
         self,
         ufunc: Callable,
@@ -75,25 +91,13 @@ class Expression(ABC):
             and len(inputs) == 2
             and method == "__call__"
         ):
-            # We can't patch numpy.ndarray
+            # We can't patch numpy.
+            # So make
+            # np.ndarray([1, 2]) >> verb()
+            # work
             return inputs[1]._pipda_eval(inputs[0])
 
-        from .function import Function, FunctionCall
-
-        if method == "reduce":
-            ufunc = ufunc.reduce
-
-        elif method == "accumulate":
-            ufunc = ufunc.accumulate
-
-        elif method == "reduceat":
-            ufunc = ufunc.reduceat
-
-        elif method == "outer":
-            ufunc = ufunc.outer
-
-        fun = Function(ufunc, None, {})
-        return FunctionCall(fun, *inputs, **kwargs)
+        return self._pipda_array_func(ufunc, method, *inputs, **kwargs)
 
     def __hash__(self) -> int:
         """Make it hashable"""
@@ -203,3 +207,9 @@ class Expression(ABC):
         context: ContextBase = None,
     ) -> Any:
         """Evaluate the expression using given data"""
+
+
+def register_expr_array_func(func: Callable) -> Callable:
+    """Register a function to be used as __array_ufunc__ on Expression"""
+    Expression._pipda_array_func = func  # type: ignore
+    return func

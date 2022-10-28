@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.9.0
+
+- ✨ Allow `__array_ufunc__` to be registered on Expression by `register_expr_array_func`
+
 ## 0.8.2
 
 - ✨ Support other numpy ufunc methods
