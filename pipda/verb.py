@@ -235,6 +235,7 @@ def register_verb(
     module: str = None,
     signature: Signature = None,
     dep: bool = False,
+    verbclass: Type[Verb] = Verb,
     ast_fallback: str = "piping_warning",
     func: Callable = None,
 ) -> Callable[[Callable], Verb] | Verb:
@@ -299,7 +300,7 @@ def register_verb(
     if types is not None and not isinstance(types, (list, tuple, set)):
         types = [types]  # type: ignore [list-item]
 
-    return Verb(
+    return verbclass(
         func,
         types=types,
         context=context,
