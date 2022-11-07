@@ -21,6 +21,9 @@ def test_function():
     def arithm(op, x, y):
         return op(x, y)
 
+    with pytest.raises(ValueError):
+        arithm.register(int)
+
     call = arithm(f["add"], 4, 1)
     assert str(call) == "arithm(add, 4, 1)"
     assert call._pipda_eval(data, Context.EVAL) == 5

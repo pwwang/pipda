@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import inspect
 from abc import ABC, abstractmethod
-from typing import Any, Callable, List, TYPE_CHECKING, Set, Type
+from typing import Any, Callable, List, TYPE_CHECKING, Sequence, Set, Type
 from functools import singledispatch, update_wrapper
 
 from .utils import evaluate_expr, has_expr, update_user_wrapper, is_piping
@@ -168,11 +168,28 @@ class Function(Registered):
                 return func(*args, **kwargs)
 
             self.func = _func  # type: ignore
-            self.register = _func.register
             self.registry = _func.registry
             self.dispatch = _func.dispatch
         else:
             self.func = func  # type: ignore
+
+    def register(
+        self,
+        types: Type | Sequence[Type],
+    ) -> Callable[[Callable], Function]:
+        """Register a function for a type"""
+        if not self.dispatchable:
+            raise ValueError("Function is not dispatchable")
+
+        if not isinstance(types, (list, tuple, set)):
+            types = [types]  # type: ignore [list-item]
+
+        def _register(func):
+            for t in types:
+                self.func.register(t, func)
+            return self
+
+        return _register
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Call a registered function"""

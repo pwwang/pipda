@@ -179,14 +179,14 @@ class Verb(Registered):
         if not isinstance(types, (list, tuple, set)):
             types = [types]  # type: ignore [list-item]
 
-        def decor(fun: Callable) -> Verb:
+        def _register(fun: Callable) -> Verb:
             self.contexts[fun] = context
             self.extra_contexts[fun] = extra_contexts or {}
             for t in types:
                 self.func.register(t, fun)
             return self
 
-        return decor
+        return _register
 
     def registered(self, cls: Type) -> bool:
         """Check if a type is registered"""
