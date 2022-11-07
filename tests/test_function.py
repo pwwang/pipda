@@ -108,7 +108,7 @@ def test_meta():
 def test_dispatchable():
     f = Symbolic()
 
-    @register_func(dispatchable={"x", "y"})
+    @register_func(dispatchable=True)
     def add(x, y):
         return x + y
 
@@ -148,7 +148,7 @@ def test_pipeable():
 
 
 def test_dispatchable_and_pipeable():
-    @register_func(dispatchable={"x", "y"}, pipeable=True)
+    @register_func(dispatchable=True, pipeable=True)
     def add(x, y):
         return x + y
 

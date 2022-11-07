@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import inspect
 from abc import ABC, abstractmethod
-from typing import Any, Callable, List, TYPE_CHECKING, Sequence, Set, Type
+from typing import Any, Callable, List, TYPE_CHECKING, Sequence, Type
 from functools import singledispatch, update_wrapper
 
 from .utils import evaluate_expr, has_expr, update_user_wrapper, is_piping
@@ -147,7 +147,7 @@ class Function(Registered):
         doc: str = None,
         module: str = None,
         signature: inspect.Signature = None,
-        dispatchable: str | Set[str] = None,
+        dispatchable: bool = False,
     ) -> None:
         self._signature = signature
         self.dispatchable = dispatchable
@@ -221,7 +221,7 @@ class PipeableFunction(Function):
         module: str = None,
         signature: inspect.Signature = None,
         ast_fallback: str = "normal_warning",
-        dispatchable: str | Set[str] = None,
+        dispatchable: bool = False,
     ) -> None:
         super().__init__(
             func,
@@ -254,7 +254,7 @@ def register_func(
     signature: inspect.Signature = None,
     pipeable: bool = False,
     ast_fallback: str = "normal_warning",
-    dispatchable: str | Set[str] = None,
+    dispatchable: bool = False,
     funclass: Type[Function] = None,
 ) -> Function | Callable:
     """Register a function to be used as a verb argument so that they don't
@@ -270,9 +270,8 @@ def register_func(
             or when it's not available from `func`
         pipeable: Whether the function is pipeable
             If pipeable, `[1, 2, 3] >> sum()` is supported
-        dispatchable: Whether the function is dispatchable, if so, it should
-            be the name/names of the arguments that are used to detect the
-            dispatched type.
+        dispatchable: Whether the function is dispatchable. The type of
+            any argument will be used to dispatch the function.
 
     Returns:
         A registered `Function` object, or a decorator if `func` is not given
