@@ -235,7 +235,7 @@ def register_verb(
     module: str = None,
     signature: Signature = None,
     dep: bool = False,
-    ast_fallback: str = "normal_warning",
+    ast_fallback: str = "piping_warning",
     func: Callable = None,
 ) -> Callable[[Callable], Verb] | Verb:
     """Register a verb

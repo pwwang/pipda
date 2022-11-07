@@ -1,7 +1,7 @@
 import pytest
 
-from pipda import *
-from pipda.utils import *
+from pipda import register_verb, VerbCall, Symbolic, evaluate_expr, Context
+from pipda.utils import VerbCallingCheckWarning, VerbCallingCheckError, has_expr
 
 
 def test_is_piping_verbcall_normal():
@@ -12,11 +12,11 @@ def test_is_piping_verbcall_normal():
     # AST node in pytest's asserts can't be detected
     # fallbacks to normal call
     with pytest.warns(VerbCallingCheckWarning):
-        assert iden(1) == 1 and isinstance(iden(1), int)
+        assert (1 >> iden()) == 1 and isinstance(1 >> iden(), int)
 
     # So it doesn't work with piping call
-    with pytest.raises(TypeError), pytest.warns(VerbCallingCheckWarning):
-        assert (1 >> iden()) == 1
+    with pytest.warns(VerbCallingCheckWarning):
+        assert isinstance(iden(1), VerbCall)
 
     # AST node can be detected here
     a = 1 >> iden()
@@ -94,49 +94,6 @@ def test_is_piping_verbcall_raise():
 
     a = 1 >> iden()
     assert a == 1 and isinstance(a, int)
-
-
-def test_is_piping_verbcall_raise():
-    @register_verb(int, ast_fallback="raise")
-    def iden(x):
-        return x
-
-    with pytest.raises(VerbCallingCheckError):
-        assert iden(1)
-
-    with pytest.raises(VerbCallingCheckError):
-        assert 1 >> iden()
-
-    a = iden(1)
-    assert a == 1 and isinstance(a, int)
-
-    a = 1 >> iden()
-    assert a == 1 and isinstance(a, int)
-
-
-# def test_is_piping_verbcall_fallback_arg():
-
-#     @register_verb(int, ast_fallback="raise")
-#     def iden(x):
-#         return x
-
-#     assert iden(1, __ast_fallback="normal") == 1
-#     assert isinstance(iden(1, __ast_fallback="normal"), int)
-
-#     assert 1 >> iden(__ast_fallback="piping") == 1
-#     assert isinstance(1 >> iden(__ast_fallback="piping"), int)
-
-#     with pytest.warns(VerbCallingCheckWarning):
-#         assert (
-#             iden(1, __ast_fallback="normal_warning") == 1
-#             and isinstance(iden(1, __ast_fallback="normal_warning"), int)
-#         )
-
-#     with pytest.warns(VerbCallingCheckWarning), pytest.raises(TypeError):
-#         assert (1 >> iden(__ast_fallback="normal_warning")) == 1
-
-#     with pytest.raises(VerbCallingCheckError):
-#         assert iden()  # fallback to raise
 
 
 def test_has_expr():
