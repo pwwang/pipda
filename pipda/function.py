@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import inspect
 from abc import ABC, abstractmethod
-from typing import Any, Callable, List, Mapping, TYPE_CHECKING
-from functools import update_wrapper
+from typing import Any, Callable, List, TYPE_CHECKING, Set, Type
+from functools import singledispatch, update_wrapper
 
-from .utils import evaluate_expr, has_expr, update_user_wrapper
+from .utils import evaluate_expr, has_expr, update_user_wrapper, is_piping
 from .expression import Expression
 
 if TYPE_CHECKING:
@@ -50,42 +50,60 @@ class FunctionCall(Expression):
     def _pipda_eval(self, data: Any, context: ContextType = None) -> Any:
         """Evaluate the function call"""
         func = self._pipda_func
+        args = [evaluate_expr(arg, data, context) for arg in self._pipda_args]
+        kwargs = {
+            key: evaluate_expr(val, data, context)
+            for key, val in self._pipda_kwargs.items()
+        }
+
         if isinstance(func, Expression):
             # f.a(1)
             func = evaluate_expr(func, data, context)
-            # Evaluate the expression using the context passed by
-            return func(
-                *(
-                    evaluate_expr(arg, data, context)
-                    for arg in self._pipda_args
-                ),
-                **{
-                    key: evaluate_expr(val, data, context)
-                    for key, val in self._pipda_kwargs.items()
-                },
-            )
 
-        context = func.contexts["_"] or context
-        extra_contexts = func.extra_contexts["_"]
+        if not isinstance(func, Function):
+            return func(*args, **kwargs)
 
-        if extra_contexts:
-            bound = func.bind_arguments(*self._pipda_args, **self._pipda_kwargs)
+        if not args and not kwargs:
+            return func.func()
 
-            for key, val in bound.arguments.items():
-                ctx = extra_contexts.get(key, context)
-                val = evaluate_expr(val, data, ctx)
-                bound.arguments[key] = val
+        if func.dispatchable:
+            for t, fun in reversed(func.registry.items()):
+                if t is object:
+                    continue
+                if (
+                    any(isinstance(arg, t) for arg in args)
+                    or any(isinstance(val, t) for val in kwargs.values())
+                ):
+                    return fun(*args, **kwargs)
 
-            return func.func(*bound.args, **bound.kwargs)
+        return func.func(*args, **kwargs)
 
-        # we don't need signature if there is no extra context
-        return func.func(
-            *(evaluate_expr(arg, data, context) for arg in self._pipda_args),
-            **{
-                key: evaluate_expr(val, data, context)
-                for key, val in self._pipda_kwargs.items()
-            },
-        )
+
+class PipeableFunctionCall(FunctionCall):
+
+    def _pipda_eval(self, data: Any, context: ContextType = None) -> Any:
+        func = self._pipda_func
+        args = [evaluate_expr(arg, data, context) for arg in self._pipda_args]
+        kwargs = {
+            key: evaluate_expr(val, data, context)
+            for key, val in self._pipda_kwargs.items()
+        }
+
+        if not isinstance(func, Function):
+            return func(data, *args, **kwargs)
+
+        if func.dispatchable:
+            for t, fun in reversed(func.registry.items()):
+                if t is object:
+                    continue
+                if (
+                    isinstance(data, t)
+                    or any(isinstance(arg, t) for arg in args)
+                    or any(isinstance(val, t) for val in kwargs.values())
+                ):
+                    return fun(data, *args, **kwargs)
+
+        return func.func(data, *args, **kwargs)
 
 
 class Registered(ABC):
@@ -124,20 +142,17 @@ class Function(Registered):
     def __init__(
         self,
         func: Callable,
-        context: ContextType,
-        extra_contexts: Mapping[str, ContextType],
         name: str = None,
         qualname: str = None,
         doc: str = None,
         module: str = None,
         signature: inspect.Signature = None,
+        dispatchable: str | Set[str] = None,
     ) -> None:
-        self.func = func
-        self.contexts = {"_": context}
-        self.extra_contexts = {"_": extra_contexts}
         self._signature = signature
+        self.dispatchable = dispatchable
 
-        update_wrapper(self, self.func)
+        update_wrapper(self, func)
         update_user_wrapper(
             self,
             name=name,
@@ -146,43 +161,101 @@ class Function(Registered):
             module=module,
         )
 
+        if self.dispatchable:
+
+            @singledispatch
+            def _func(*args, **kwargs):
+                return func(*args, **kwargs)
+
+            self.func = _func  # type: ignore
+            self.register = _func.register
+            self.registry = _func.registry
+            self.dispatch = _func.dispatch
+        else:
+            self.func = func  # type: ignore
+
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Call a registered function"""
-        # No arguments, call the function directly
         if not args and not kwargs:
             return self.func()
 
-        if has_expr(args) or has_expr(kwargs):
-            return FunctionCall(self, *args, **kwargs)
+        if not has_expr(args) and not has_expr(kwargs):
+            if self.dispatchable:
+                for t, fun in reversed(self.registry.items()):
+                    if t is object:
+                        continue
+                    if (
+                        any(isinstance(arg, t) for arg in args)
+                        or any(isinstance(val, t) for val in kwargs.values())
+                    ):
+                        return fun(*args, **kwargs)
+            return self.func(*args, **kwargs)
 
-        # No expression arguments, call the function directly
-        return self.func(*args, **kwargs)
+        return FunctionCall(self, *args, **kwargs)
+
+
+class PipeableFunction(Function):
+    def __init__(
+        self,
+        func: Callable,
+        name: str = None,
+        qualname: str = None,
+        doc: str = None,
+        module: str = None,
+        signature: inspect.Signature = None,
+        ast_fallback: str = "normal_warning",
+        dispatchable: str | Set[str] = None,
+    ) -> None:
+        super().__init__(
+            func,
+            name,
+            qualname,
+            doc,
+            module,
+            signature,
+            dispatchable,
+        )
+        self.ast_fallback = ast_fallback
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        """Call a registered pipeable function"""
+        ast_fallback = kwargs.pop("__ast_fallback", self.ast_fallback)
+
+        if is_piping(self.func.__name__, ast_fallback):
+            return PipeableFunctionCall(self, *args, **kwargs)
+
+        return super().__call__(*args, **kwargs)
 
 
 def register_func(
     func: Callable = None,
     *,
-    context: ContextType = None,
-    extra_contexts: Mapping[str, ContextType] = None,
     name: str = None,
     qualname: str = None,
     doc: str = None,
     module: str = None,
     signature: inspect.Signature = None,
+    pipeable: bool = False,
+    ast_fallback: str = "normal_warning",
+    dispatchable: str | Set[str] = None,
+    funclass: Type[Function] = None,
 ) -> Function | Callable:
     """Register a function to be used as a verb argument so that they don't
     get evaluated immediately
 
     Args:
         func: The original function
-        context: The context used to evaluate the arguments
-        extra_contexts: Extra contexts to evaluate keyword arguments
         name: and
         qualname: and
         doc: and
         module: and
         signature: The meta information about the function to overwrite `func`'s
             or when it's not available from `func`
+        pipeable: Whether the function is pipeable
+            If pipeable, `[1, 2, 3] >> sum()` is supported
+        dispatchable: Whether the function is dispatchable, if so, it should
+            be the name/names of the arguments that are used to detect the
+            dispatched type.
 
     Returns:
         A registered `Function` object, or a decorator if `func` is not given
@@ -190,22 +263,36 @@ def register_func(
     if func is None:
         return lambda fun: register_func(
             fun,
-            context=context,
-            extra_contexts=extra_contexts or {},
             name=name,
             qualname=qualname,
             doc=doc,
             module=module,
             signature=signature,
+            pipeable=pipeable,
+            dispatchable=dispatchable,
+            funclass=funclass,
         )
 
+    if pipeable:
+        funclass = funclass or PipeableFunction
+        return funclass(  # type: ignore
+            func,
+            name=name,
+            qualname=qualname,
+            doc=doc,
+            module=module,
+            signature=signature,
+            ast_fallback=ast_fallback,
+            dispatchable=dispatchable,
+        )
+
+    funclass = funclass or Function
     return Function(
         func,
-        context,
-        extra_contexts or {},
         name=name,
         qualname=qualname,
         doc=doc,
         module=module,
         signature=signature,
+        dispatchable=dispatchable,
     )

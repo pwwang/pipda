@@ -17,11 +17,12 @@ class Expr(Expression):
     def _pipda_eval(self, data, context):
         ...
 
+
 def test_expression():
 
     f = Expr()
     # hashable
-    d = {f: 1}
+    d = {f: 1}  # noqa
     assert isinstance(f.a, ReferenceAttr)
     assert isinstance(f[1], ReferenceItem)
     assert isinstance(f + 1, OperatorCall)
@@ -48,8 +49,8 @@ def test_expression():
     assert isinstance(1 | f, OperatorCall)
     assert isinstance(f ^ 1, OperatorCall)
     assert isinstance(1 ^ f, OperatorCall)
-    assert isinstance(f ** 1, OperatorCall)
-    assert isinstance(1 ** f, OperatorCall)
+    assert isinstance(f**1, OperatorCall)
+    assert isinstance(1**f, OperatorCall)
     assert isinstance(f > 1, OperatorCall)
     assert isinstance(1 > f, OperatorCall)
     assert isinstance(f < 1, OperatorCall)
@@ -82,8 +83,8 @@ def test_op_to_verb():
         return str(data)
 
     a = f.x >> stringify()
-    # assert a == 'x'
-    assert str(f.x) == 'x'
+    assert a == 'x' and isinstance(a, str)
+    assert str(f.x) == "x"
 
 
 def test_test_pipda_attr():
@@ -153,9 +154,8 @@ def test_register_ufunc():
         if method != "__call__":
             ufunc = getattr(ufunc, method)
 
-        fun = Function(lambda x: ufunc(x) * 2, None, {})
+        fun = Function(lambda x: ufunc(x) * 2)
         return FunctionCall(fun, *inputs, **kwargs)
-
 
     f = Symbolic()
     x = np.sqrt(f)

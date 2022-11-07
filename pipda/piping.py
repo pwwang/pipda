@@ -3,6 +3,7 @@ import functools
 from typing import Type, Dict, Callable
 
 from .verb import VerbCall
+from .function import PipeableFunctionCall
 
 PIPING_OPS = {
     # op: (method, ast node, numpy ufunc name)
@@ -139,13 +140,13 @@ def _patch_default_classes() -> None:
         pass
 
     try:  # pragma: no cover
-        import torch
+        import torch  # pyright: ignore
         patch_classes(torch.Tensor)
     except ImportError:
         pass
 
     try:  # pragma: no cover
-        from django.db.models import query
+        from django.db.models import query  # pyright: ignore
         patch_classes(query.QuerySet)
     except ImportError:
         pass
@@ -165,11 +166,28 @@ def register_piping(op: str) -> None:
         orig_method = VerbCall.__orig_opmethod__
         curr_method = PIPING_OPS[VerbCall.PIPING][0]
         setattr(VerbCall, curr_method, orig_method)
+
+        pfc_orig_method = PipeableFunctionCall.__orig_opmethod__
+        pfc_curr_method = PIPING_OPS[VerbCall.PIPING][0]
+        setattr(PipeableFunctionCall, pfc_curr_method, pfc_orig_method)
+
         _unpatch_all(VerbCall.PIPING)
 
     VerbCall.PIPING = op
+
     VerbCall.__orig_opmethod__ = getattr(VerbCall, PIPING_OPS[op][0])
     setattr(VerbCall, PIPING_OPS[op][0], VerbCall._pipda_eval)
+
+    PipeableFunctionCall.__orig_opmethod__ = getattr(
+        PipeableFunctionCall,
+        PIPING_OPS[op][0],
+    )
+    setattr(
+        PipeableFunctionCall,
+        PIPING_OPS[op][0],
+        PipeableFunctionCall._pipda_eval,
+    )
+
     _patch_all(op)
 
 

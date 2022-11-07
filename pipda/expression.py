@@ -70,7 +70,7 @@ class Expression(ABC):
         if method != "__call__":
             ufunc = getattr(ufunc, method)
 
-        fun = Function(ufunc, None, {})
+        fun = Function(ufunc)
         return FunctionCall(fun, *inputs, **kwargs)
 
     def __array_ufunc__(

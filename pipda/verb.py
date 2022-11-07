@@ -17,7 +17,7 @@ from functools import singledispatch, update_wrapper
 from .utils import (
     has_expr,
     evaluate_expr,
-    is_piping_verbcall,
+    is_piping,
     update_user_wrapper,
 )
 from .context import ContextPending
@@ -210,7 +210,7 @@ class Verb(Registered):
 
         ast_fallback = kwargs.pop("__ast_fallback", self.ast_fallback)
 
-        if is_piping_verbcall(self.func.__name__, ast_fallback):
+        if is_piping(self.func.__name__, ast_fallback):
             # data >> verb(...)
             return VerbCall(self, *args, **kwargs)
 

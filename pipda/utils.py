@@ -33,15 +33,15 @@ def update_user_wrapper(
         x.__module__ = module
 
 
-def is_piping_verbcall(verb: str, fallback: str) -> bool:
-    """Check if the verb is called with piping.
+def is_piping(pipeable: str, fallback: str) -> bool:
+    """Check if the pipeable is called with piping.
 
     Example:
         >>> data >> verb(...)
         >>> data >>= verb(...)
 
     Args:
-        verb: The name of the verb, used in warning or exception messaging
+        pipeable: The name of the verb, used in warning or exception messaging
         fallback: What if the AST node fails to retrieve?
             piping - Suppose this verb is called like `data >> verb(...)`
             normal - Suppose this verb is called like `verb(data, ...)`
@@ -67,21 +67,21 @@ def is_piping_verbcall(verb: str, fallback: str) -> bool:
             return True
         if fallback == "normal_warning":
             warnings.warn(
-                f"Failed to detect AST node calling `{verb}`, "
+                f"Failed to detect AST node calling `{pipeable}`, "
                 "assuming a normal call.",
                 VerbCallingCheckWarning,
             )
             return False
         if fallback == "piping_warning":
             warnings.warn(
-                f"Failed to detect AST node calling `{verb}`, "
+                f"Failed to detect AST node calling `{pipeable}`, "
                 "assuming a piping call.",
                 VerbCallingCheckWarning,
             )
             return True
 
         raise VerbCallingCheckError(
-            f"Failed to detect AST node calling `{verb}` "
+            f"Failed to detect AST node calling `{pipeable}` "
             "without a fallback solution."
         )
 
