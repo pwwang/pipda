@@ -83,7 +83,7 @@ def test_op_to_verb():
         return str(data)
 
     a = f.x >> stringify()
-    assert a == 'x' and isinstance(a, str)
+    assert a == "x" and isinstance(a, str)
     assert str(f.x) == "x"
 
 

@@ -15,10 +15,7 @@ from pipda.piping import register_piping
 def test_function():
     f = Symbolic()
 
-    data = {
-        "add": lambda x, y: x + y,
-        "sub": lambda x, y: x - y
-    }
+    data = {"add": lambda x, y: x + y, "sub": lambda x, y: x - y}
 
     @register_func
     def arithm(op, x, y):
@@ -73,7 +70,6 @@ def test_no_expr_args():
 
 # no extra_context supported for function
 def test_extra_contexts():
-
     @register_func()
     def add(x, plus):
         return f"{x} + {plus}"
@@ -109,7 +105,7 @@ def test_meta():
 def test_dispatchable():
     f = Symbolic()
 
-    @register_func(dispatchable={'x', 'y'})
+    @register_func(dispatchable={"x", "y"})
     def add(x, y):
         return x + y
 
@@ -134,7 +130,6 @@ def test_dispatchable():
 
 
 def test_pipeable():
-
     @register_func(pipeable=True)
     def add(x, y):
         return x + y
@@ -150,8 +145,7 @@ def test_pipeable():
 
 
 def test_dispatchable_and_pipeable():
-
-    @register_func(dispatchable={'x', 'y'}, pipeable=True)
+    @register_func(dispatchable={"x", "y"}, pipeable=True)
     def add(x, y):
         return x + y
 
@@ -173,11 +167,10 @@ def test_dispatchable_and_pipeable():
 
 
 def test_register_func_funclass():
-
     class MyFunction(PipeableFunction):
         ...
 
-    @register_func(pipeable={'x', 'y'}, funclass=MyFunction)
+    @register_func(pipeable={"x", "y"}, funclass=MyFunction)
     def add(x, y):
         return x + y
 

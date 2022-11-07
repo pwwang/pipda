@@ -5,22 +5,26 @@ import numpy as np
 from pipda.piping import register_piping
 from pipda.symbolic import Symbolic
 from pipda.context import Context
-from pipda.verb import *
+from pipda.expression import Expression
+from pipda.verb import register_verb, VerbCall
 
 
 def test_str():
     f = Symbolic()
+
     class F:
         dep = False
+
         def __str__(self) -> str:
             return "verb"
+
     verb = F()
 
     call = VerbCall(verb, f.x)
-    assert str(call) == 'verb(., x)'
+    assert str(call) == "verb(., x)"
 
     call = VerbCall(verb, x=f.x)
-    assert str(call) == 'verb(., x=x)'
+    assert str(call) == "verb(., x=x)"
 
 
 def test_pending_context():
@@ -39,7 +43,7 @@ def test_extra_contexts():
     @register_verb(
         dict,
         context=Context.EVAL,
-        extra_contexts={'col': Context.SELECT},
+        extra_contexts={"col": Context.SELECT},
     )
     def subset(data, subdata, col):
         return subdata[col]
@@ -85,7 +89,7 @@ def test_register_more_types_inherit_context():
     @register_verb(
         list,
         context=Context.SELECT,
-        extra_contexts={'plus': Context.EVAL},
+        extra_contexts={"plus": Context.EVAL},
     )
     def select(data, indices, *, plus):
         return [data[i + plus] for i in indices]
@@ -94,7 +98,8 @@ def test_register_more_types_inherit_context():
     def _1(data, indices, *, plus):
         return tuple(data[i + plus] for i in indices)
 
-    class MyList(list): ...
+    class MyList(list):
+        ...
 
     @select.register(
         MyList,
@@ -117,8 +122,7 @@ def test_register_more_types_inherit_context():
 def test_numpy_ufunc():
 
     fun = register_verb(
-        np.ndarray,
-        func=np.sqrt, signature=inspect.signature(lambda x: None)
+        np.ndarray, func=np.sqrt, signature=inspect.signature(lambda x: None)
     )
     out = fun(np.array([1, 4, 9]))
     assert out == pytest.approx([1, 2, 3])
@@ -204,7 +208,6 @@ def test_error():
 
 
 def test_registered():
-
     @register_verb(int)
     def incre(x):
         return x + 1
@@ -232,7 +235,6 @@ def test_register_non_callable():
 
 
 def test_types_none():
-
     @register_verb(None)
     def sum_(x):
         """Doc for sum"""
@@ -276,7 +278,6 @@ def test_meta():
 
 
 def test_nparray_as_data():
-
     @register_verb(np.ndarray)
     def sum_(data):
         return data.sum()

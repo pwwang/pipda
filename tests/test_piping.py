@@ -10,7 +10,6 @@ from pipda.piping import (
 
 
 def test_register_piping():
-
     @register_verb(int)
     def incre(x):
         return x + 1
@@ -33,7 +32,6 @@ def test_register_piping():
 
 
 def test_patching():
-
     class Data:
         def __init__(self, x):
             self.x = x
@@ -111,7 +109,6 @@ def test_patching_pandas():
 
 
 def test_imethod():
-
     @register_verb(int)
     def incre(x):
         return x + 1
@@ -129,7 +126,6 @@ def test_imethod():
 
 
 def test_patch_imethod():
-
     class Data:
         def __init__(self, x):
             self.x = x
