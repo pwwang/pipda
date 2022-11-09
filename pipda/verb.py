@@ -1,10 +1,11 @@
 import warnings
 from enum import Enum
 from types import MappingProxyType
-from typing import Any, Callable, List, Type
+from typing import Any, Callable, Dict, List, Type
 from functools import singledispatch, update_wrapper
 
 from .utils import (
+    DEFAULT_BACKEND,
     MultiImplementationsWarning,
     TypeHolder,
     evaluate_expr,
@@ -143,10 +144,12 @@ def register_verb(
         raise NotImplementedError("Not implemented by the given backend.")
 
     registry = {
-        "_default": singledispatch(
+        DEFAULT_BACKEND: singledispatch(
             func if cls is TypeHolder else _backend_generic
         )
     }
+    # backend => implementation
+    favorables: Dict[str, Callable] = {}
     # # cannot create weak reference to 'numpy.ufunc' object
     # contexts = weakref.WeakKeyDictionary()
     contexts = {}
@@ -170,13 +173,26 @@ def register_verb(
             return dispatched, contexts.get(dispatched, context)
 
         impls = []
+        favored_found = False
         for backend, reg in reversed(registry.items()):
             fun = reg.dispatch(cl)
-            if fun is _backend_generic or (
-                fun is func and cls is TypeHolder and backend == "_default"
+            if (
+                fun is _backend_generic
+                or (
+                    fun is func
+                    and cls is TypeHolder
+                    and backend == DEFAULT_BACKEND
+                )
+                or (
+                    # Non-favored impl after favored impl found
+                    favored_found
+                    and favorables.get(backend) is not fun
+                )
             ):
                 continue
 
+            if favorables.get(backend) is fun:
+                favored_found = True
             impls.append((backend, fun, contexts.get(fun, context)))
 
         if not impls:
@@ -187,18 +203,26 @@ def register_verb(
                 f"Multiple implementations found for `{wrapper.__name__}` "
                 f"by backends: [{', '.join(impl[0] for impl in impls)}], "
                 "register with more specific types, or pass "
-                "`__backend=<backend>` to specify the backend.",
+                "`__backend=<backend>` to specify a backend.",
                 MultiImplementationsWarning,
             )
 
         return impls[0][1:]
 
-    def register(cl, backend="_default", context=None, fun=None):
+    def register(
+        cl,
+        *,
+        backend=DEFAULT_BACKEND,
+        context=None,
+        favored=False,
+        fun=None,
+    ):
         if fun is None:
             return lambda fn: register(
                 cl,
                 backend=backend,
                 context=context,
+                favored=favored,
                 fun=fn,
             )
 
@@ -208,6 +232,8 @@ def register_verb(
         registry[backend].register(cl, fun)
         if context is not None:
             contexts[fun] = context
+        if favored:
+            favorables[backend] = fun
         return fun
 
     def wrapper(*args, **kwargs):
@@ -237,6 +263,7 @@ def register_verb(
     wrapper.registry = MappingProxyType(registry)
     wrapper.dispatch = dispatch
     wrapper.register = register
+    wrapper.favorables = MappingProxyType(favorables)
     wrapper._pipda_functype = "verb"
     update_wrapper(wrapper, func)
     update_user_wrapper(

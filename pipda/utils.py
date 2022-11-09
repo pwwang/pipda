@@ -10,6 +10,8 @@ import warnings
 
 from .context import ContextType
 
+DEFAULT_BACKEND = "_default"
+
 
 class PipeableCallCheckWarning(Warning):
     """Warns when checking verb is called normally or using piping"""

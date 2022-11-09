@@ -269,3 +269,18 @@ def test_multiple_backends():
 
     with pytest.raises(NotImplementedError):
         add(2, 1, __ast_fallback="normal", __backend="not_back")
+
+
+def test_favored():
+
+    @register_verb(int)
+    def add(x, y):
+        return x + y
+
+    @add.register(int, backend="back", favored=True)
+    def _(x, y):
+        return x - y
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        assert add(2, 1, __ast_fallback="normal") == 1

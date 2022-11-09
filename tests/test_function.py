@@ -3,7 +3,6 @@ import warnings
 
 from pipda.function import (
     register_func,
-    register_plain,
     FunctionCall,
     PipeableFunctionCall,
 )
@@ -21,9 +20,6 @@ def test_function():
     @register_func
     def arithm(op, x, y):
         return op(x, y)
-
-    with pytest.raises(AttributeError):
-        arithm.register(int)
 
     call = arithm(f["add"], 4, 1)
     assert str(call) == "arithm(add, 4, 1)"
@@ -113,8 +109,8 @@ def test_dispatchable():
     def mul(x, y):
         return x * y
 
-    @mul.register(str)
-    @mul.register(int)
+    @mul.register(str, backend="back")
+    @mul.register(int, backend="back")
     def _(x, y):
         return f"{x} * {y}"
 
@@ -228,18 +224,22 @@ def test_backends():
 
 
 def test_plain():
-    @register_plain
+    @register_func(plain=True)
     def add0(x, y):
         return x + y
 
     out = add0(1, 2)
     assert out == 3
 
-    @register_plain(is_holder=False)
+    @add0.register(backend="back")
+    def _(x, y):
+        return x * y
+
+    @register_func(plain=True, cls=object)
     def add(x, y):
         return x + y
 
-    @add.register("back")
+    @add.register(backend="back")
     def _(x, y):
         return x * y
 
@@ -247,5 +247,25 @@ def test_plain():
         out = add(1, 2)
         assert out == 2
 
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        out = add(1, 2, __backend="back")
+        assert out == 2
+        out = add(1, 2, __backend="_default")
+        assert out == 3
+
     with pytest.raises(NotImplementedError):
         add(1, 2, __backend="back2")
+
+    @register_func(plain=True, cls=object)
+    def add2(x, y):
+        return x + y
+
+    @add2.register(backend="back", favored=True)
+    def _(x, y):
+        return x * y
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        out = add2(1, 2)
+        assert out == 2

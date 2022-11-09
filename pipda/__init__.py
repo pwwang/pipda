@@ -4,7 +4,6 @@ from .function import (
     FunctionCall,
     PipeableFunctionCall,
     register_func,
-    register_plain,
 )
 from .operator import Operator, OperatorCall, register_operator
 from .reference import ReferenceAttr, ReferenceItem

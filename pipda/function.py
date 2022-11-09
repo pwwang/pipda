@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Any, Callable, List, Type
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Type
 from types import MappingProxyType
 from functools import singledispatch, update_wrapper
 
 from .utils import (
+    DEFAULT_BACKEND,
     MultiImplementationsWarning,
     TypeHolder,
     evaluate_expr,
@@ -73,8 +74,8 @@ class FunctionCall(Expression):
 
         functype = getattr(func, "_pipda_functype", None)
         if functype == "func":
-            func = func._pipda_origfunc
-        elif functype == "dispatchable_func":
+            func = func.dispatch(backend=self._pipda_backend)
+        elif functype == "dispatchable":
             func.dispatch(
                 *(arg.__class__ for arg in args),
                 backend=self._pipda_backend,
@@ -102,8 +103,8 @@ class PipeableFunctionCall(FunctionCall, PipeableCall):
 
         functype = getattr(func, "_pipda_functype", None)
         if functype == "func":
-            func = func._pipda_origfunc  # type: ignore
-        elif functype == "dispatchable_func":
+            func = func.dispatch(backend=self._pipda_backend)  # type: ignore
+        elif functype == "dispatchable":
             func.dispatch(  # type: ignore
                 *(arg.__class__ for arg in args),
                 backend=self._pipda_backend,
@@ -116,6 +117,7 @@ def register_func(
     func: Callable = None,
     cls: Type = TypeHolder,
     *,
+    plain: bool = False,
     name: str = None,
     qualname: str = None,
     doc: str = None,
@@ -143,6 +145,11 @@ def register_func(
         cls: The default type to register for _default backend
             if TypeHolder, it is a generic function, and not counted as a
             real implementation.
+            For plain or non-dispatchable functions, specify a different type
+            than TypeHolder to indicate the func is a real implementation.
+        plain: If True, the function will be registered as a plain function,
+            which means it will be called without any evaluation of the
+            arguments. It doesn't support dispatchable and pipeable.
         name: and
         qualname: and
         doc: and
@@ -165,6 +172,7 @@ def register_func(
         return lambda fun: register_func(
             fun,
             cls=cls,
+            plain=plain,
             name=name,
             qualname=qualname,
             doc=doc,
@@ -175,14 +183,23 @@ def register_func(
             ast_depth=ast_depth,
         )
 
+    if plain:
+        # make sure the flags are correct
+        dispatchable = pipeable = False
+
     def _backend_generic(*args, **kwargs):  # pyright: ignore
         raise NotImplementedError("Not implemented by the given backend.")
 
-    registry = {
-        "_default": singledispatch(
-            func if cls is TypeHolder else _backend_generic
-        )
-    }
+    if dispatchable:
+        registry: Dict[str, Callable] = {
+            DEFAULT_BACKEND: singledispatch(
+                func if cls is TypeHolder else _backend_generic
+            )
+        }
+    else:
+        registry: Dict[str, Callable] = {DEFAULT_BACKEND: func}
+    # backend => implementation
+    favorables: Dict[str, Callable] = {}
 
     def dispatch(*clses, backend=None):
         """generic_func.dispatch(*clses, backend) -> <function impl>
@@ -194,6 +211,13 @@ def register_func(
         the backends in reverse order.
 
         The first cls can be dispatched is used.
+
+        Args:
+            clses: The types to dispatch
+            backend: The backend to dispatch
+
+        Returns:
+            The implementation function
         """
         if not clses:
             clses = (object,)
@@ -204,24 +228,55 @@ def register_func(
             except KeyError:
                 raise NotImplementedError(f"No such backend `{backend}`.")
 
+            if not dispatchable:
+                return reg
+
             for cl in clses:
-                dispatched = reg.dispatch(cl)
+                fun = reg.dispatch(cl)
                 # Any impl found
-                if dispatched is not _backend_generic:
-                    return dispatched
+                if fun is not _backend_generic:
+                    return fun
             return _backend_generic
 
         impls = []
+        favored_found = False
         for backend, reg in reversed(registry.items()):
-            for cl in clses:
-                fun = reg.dispatch(cl)
-                if fun is _backend_generic or (
-                    fun is func and cls is TypeHolder and backend == "_default"
+            impl = None
+            if not dispatchable:
+                if (backend == DEFAULT_BACKEND and cls is TypeHolder) or (
+                    favored_found and favorables.get(backend) is not reg
                 ):
                     continue
 
-                impls.append((backend, fun))
-                break
+                impl = reg
+            else:
+                for cl in clses:
+                    fun = reg.dispatch(cl)
+                    if (
+                        # Not really an impl
+                        fun is _backend_generic
+                        or (
+                            # The generic, supposed to raise NotImplementedError
+                            fun is func
+                            and cls is TypeHolder
+                            and backend == DEFAULT_BACKEND
+                        )
+                        or (
+                            # Non-favored impl after favored impl found
+                            favored_found
+                            and favorables.get(backend) is not fun
+                        )
+                    ):  # pragma: no cover
+                        continue
+
+                    impl = fun
+                    break
+
+            if impl is not None:
+                if favorables.get(backend) is impl:
+                    favored_found = True
+
+                impls.append((backend, impl))
 
         if not impls:
             return func if cls is TypeHolder else _backend_generic
@@ -231,24 +286,50 @@ def register_func(
                 f"Multiple implementations found for `{wrapper.__name__}` "
                 f"by backends: [{', '.join(impl[0] for impl in impls)}], "
                 "register with more specific types, or pass "
-                "`__backend=<backend>` to specify the backend.",
+                "`__backend=<backend>` to specify a backend.",
                 MultiImplementationsWarning,
             )
 
         return impls[0][1]
 
-    def register(cl, backend="_default", fun=None):
+    def register(cl=None, *, backend=DEFAULT_BACKEND, favored=False, fun=None):
+        """generic_func.register(cl, backend, fun, favored) -> fun
 
+        Args:
+            cl: The type to register for the given backend
+            backend: The backend to register for
+            fun: The implementation function
+            favored: Whether this implementation is favored. If so, non-favored
+                implementations will be ignored if this implementation is found.
+
+        Returns:
+            The implementation function
+        """
         if fun is None:
-            return lambda fn: register(cl, backend=backend, fun=fn)
+            return lambda fn: register(
+                cl,
+                backend=backend,
+                favored=favored,
+                fun=fn,
+            )
 
-        if backend not in registry:
-            registry[backend] = singledispatch(_backend_generic)
+        if not dispatchable:
+            registry[backend] = fun
+        else:
+            if backend not in registry:
+                registry[backend] = singledispatch(_backend_generic)
 
-        registry[backend].register(cl, fun)
+            registry[backend].register(cl, fun)
+
+        if favored:
+            favorables[backend] = fun
         return fun
 
     def wrapper(*args, **kwargs):
+        if plain:
+            backend = kwargs.pop("__backend", None)
+            return dispatch(backend=backend)(*args, **kwargs)
+
         if pipeable:
             ast_fb = kwargs.pop("__ast_fallback", ast_fallback)
 
@@ -262,24 +343,26 @@ def register_func(
         # No Expression objects, call directly
         backend = kwargs.pop("__backend", None)
 
-        if not dispatchable:
-            return func(*args, **kwargs)
+        if dispatchable:
+            func = dispatch(*(arg.__class__ for arg in args), backend=backend)
+        else:
+            func = dispatch(backend=backend)
 
-        return dispatch(
-            *(arg.__class__ for arg in args),
-            backend=backend,
-        )(*args, **kwargs)
+        return func(*args, **kwargs)
 
-    if dispatchable:
+    if plain:
+        wrapper._pipda_functype = "plain"
+    elif dispatchable:
         if cls is not TypeHolder:
             register(cls, fun=func)
-        wrapper._pipda_functype = "dispatchable_func"
-        wrapper.registry = MappingProxyType(registry)
-        wrapper.dispatch = dispatch
-        wrapper.register = register
+        wrapper._pipda_functype = "dispatchable"
     else:
         wrapper._pipda_functype = "func"
-        wrapper._pipda_origfunc = func
+
+    wrapper.registry = MappingProxyType(registry)
+    wrapper.dispatch = dispatch
+    wrapper.register = register
+    wrapper.favorables = MappingProxyType(favorables)
 
     update_wrapper(wrapper, func)
     update_user_wrapper(
@@ -289,71 +372,4 @@ def register_func(
         doc=doc,
         module=module,
     )
-    return wrapper
-
-
-def register_plain(
-    func: Callable = None,
-    *,
-    is_holder: bool = True,
-) -> Callable:
-    """Register a plain function, but support multiple backends
-
-    Args:
-        func: The function to register
-        is_holder: Whether this function is a holder, if so, it will be
-            registered as a generic function, and not counted as a real
-            implementation.
-
-    Returns:
-        The registered function or a decorator to register a function
-    """
-    if func is None:
-        return lambda fun: register_plain(fun, is_holder=is_holder)
-
-    registry = {"_default": func}
-
-    def register(backend, fun=None):
-        if fun is None:
-            return lambda fn: register(backend, fun=fn)
-
-        registry[backend] = fun
-        return fun
-
-    def dispatch(backend=None):
-        if backend is not None:
-            try:
-                return registry[backend]
-            except KeyError:
-                raise NotImplementedError(f"No such backend `{backend}`.")
-
-        impls = []
-        for backend, fun in reversed(registry.items()):
-            if backend == "_default" and is_holder:
-                continue
-
-            impls.append((backend, fun))
-
-        if not impls:
-            return func
-
-        if len(impls) > 1:
-            warnings.warn(
-                f"Multiple implementations found for `{wrapper.__name__}` "
-                f"by backends: [{', '.join(impl[0] for impl in impls)}], "
-                "pass `__backend=<backend>` to specify the backend.",
-                MultiImplementationsWarning,
-            )
-
-        return impls[0][1]
-
-    def wrapper(*args, **kwargs):
-        backend = kwargs.pop("__backend", None)
-        return dispatch(backend)(*args, **kwargs)
-
-    wrapper._pipda_functype = "plain_func"
-    wrapper.registry = MappingProxyType(registry)
-    wrapper.dispatch = dispatch
-    wrapper.register = register
-    update_wrapper(wrapper, func)
     return wrapper
