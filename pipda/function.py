@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from collections import OrderedDict
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Type
 from types import MappingProxyType
 from functools import singledispatch, update_wrapper
@@ -191,13 +192,15 @@ def register_func(
         raise NotImplementedError("Not implemented by the given backend.")
 
     if dispatchable:
-        registry: Dict[str, Callable] = {
-            DEFAULT_BACKEND: singledispatch(
-                func if cls is TypeHolder else _backend_generic
-            )
-        }
+        registry = OrderedDict(
+            {
+                DEFAULT_BACKEND: singledispatch(
+                    func if cls is TypeHolder else _backend_generic
+                )
+            }
+        )
     else:
-        registry: Dict[str, Callable] = {DEFAULT_BACKEND: func}
+        registry = OrderedDict({DEFAULT_BACKEND: func})  # type: ignore
     # backend => implementation
     favorables: Dict[str, Callable] = {}
 

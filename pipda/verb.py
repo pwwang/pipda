@@ -1,5 +1,6 @@
 import warnings
 from enum import Enum
+from collections import OrderedDict
 from types import MappingProxyType
 from typing import Any, Callable, Dict, List, Type
 from functools import singledispatch, update_wrapper
@@ -143,11 +144,13 @@ def register_verb(
     def _backend_generic(*args, **kwargs):
         raise NotImplementedError("Not implemented by the given backend.")
 
-    registry = {
-        DEFAULT_BACKEND: singledispatch(
-            func if cls is TypeHolder else _backend_generic
-        )
-    }
+    registry = OrderedDict(
+        {
+            DEFAULT_BACKEND: singledispatch(
+                func if cls is TypeHolder else _backend_generic
+            )
+        }
+    )
     # backend => implementation
     favorables: Dict[str, Callable] = {}
     # # cannot create weak reference to 'numpy.ufunc' object
@@ -264,6 +267,7 @@ def register_verb(
     wrapper.dispatch = dispatch
     wrapper.register = register
     wrapper.favorables = MappingProxyType(favorables)
+    wrapper.dependent = dependent
     wrapper._pipda_functype = "verb"
     update_wrapper(wrapper, func)
     update_user_wrapper(
