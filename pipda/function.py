@@ -290,3 +290,70 @@ def register_func(
         module=module,
     )
     return wrapper
+
+
+def register_plain(
+    func: Callable = None,
+    *,
+    is_holder: bool = True,
+) -> Callable:
+    """Register a plain function, but support multiple backends
+
+    Args:
+        func: The function to register
+        is_holder: Whether this function is a holder, if so, it will be
+            registered as a generic function, and not counted as a real
+            implementation.
+
+    Returns:
+        The registered function or a decorator to register a function
+    """
+    if func is None:
+        return lambda fun: register_plain(fun, is_holder=is_holder)
+
+    registry = {"_default": func}
+
+    def register(backend, fun=None):
+        if fun is None:
+            return lambda fn: register(backend, fun=fn)
+
+        registry[backend] = fun
+        return fun
+
+    def dispatch(backend=None):
+        if backend is not None:
+            try:
+                return registry[backend]
+            except KeyError:
+                raise NotImplementedError(f"No such backend `{backend}`.")
+
+        impls = []
+        for backend, fun in reversed(registry.items()):
+            if backend == "_default" and is_holder:
+                continue
+
+            impls.append((backend, fun))
+
+        if not impls:
+            return func
+
+        if len(impls) > 1:
+            warnings.warn(
+                f"Multiple implementations found for `{wrapper.__name__}` "
+                f"by backends: [{', '.join(impl[0] for impl in impls)}], "
+                "pass `__backend=<backend>` to specify the backend.",
+                MultiImplementationsWarning,
+            )
+
+        return impls[0][1]
+
+    def wrapper(*args, **kwargs):
+        backend = kwargs.pop("__backend", None)
+        return dispatch(backend)(*args, **kwargs)
+
+    wrapper._pipda_functype = "plain_func"
+    wrapper.registry = MappingProxyType(registry)
+    wrapper.dispatch = dispatch
+    wrapper.register = register
+    update_wrapper(wrapper, func)
+    return wrapper

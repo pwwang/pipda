@@ -3,6 +3,7 @@ import warnings
 
 from pipda.function import (
     register_func,
+    register_plain,
     FunctionCall,
     PipeableFunctionCall,
 )
@@ -224,3 +225,27 @@ def test_backends():
 
     with pytest.raises(NotImplementedError):
         add(1.0, 2.0, __backend="back")
+
+
+def test_plain():
+    @register_plain
+    def add0(x, y):
+        return x + y
+
+    out = add0(1, 2)
+    assert out == 3
+
+    @register_plain(is_holder=False)
+    def add(x, y):
+        return x + y
+
+    @add.register("back")
+    def _(x, y):
+        return x * y
+
+    with pytest.warns(MultiImplementationsWarning):
+        out = add(1, 2)
+        assert out == 2
+
+    with pytest.raises(NotImplementedError):
+        add(1, 2, __backend="back2")
