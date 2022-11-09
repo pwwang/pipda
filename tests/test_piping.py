@@ -1,6 +1,6 @@
 import pytest
 from pipda.operator import OperatorCall
-from pipda.verb import register_verb, Verb
+from pipda.verb import register_verb
 from pipda.piping import (
     register_piping,
     patch_classes,
@@ -11,10 +11,7 @@ from pipda.piping import (
 
 def test_register_piping():
 
-    class MyVerb(Verb):
-        ...
-
-    @register_verb(int, verbclass=MyVerb)
+    @register_verb(int)
     def incre(x):
         return x + 1
 

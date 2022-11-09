@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 from pipda.context import Context
 from pipda.expression import Expression, register_expr_array_func
-from pipda.function import FunctionCall, Function
+from pipda.function import FunctionCall
 from pipda.reference import ReferenceAttr, ReferenceItem
 from pipda.symbolic import Symbolic
 from pipda.verb import register_verb
@@ -154,8 +154,7 @@ def test_register_ufunc():
         if method != "__call__":
             ufunc = getattr(ufunc, method)
 
-        fun = Function(lambda x: ufunc(x) * 2)
-        return FunctionCall(fun, *inputs, **kwargs)
+        return FunctionCall(lambda x: ufunc(x) * 2, *inputs, **kwargs)
 
     f = Symbolic()
     x = np.sqrt(f)

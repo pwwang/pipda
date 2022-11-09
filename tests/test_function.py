@@ -1,15 +1,15 @@
 import pytest  # noqa
-import inspect
+import warnings
 
 from pipda.function import (
     register_func,
     FunctionCall,
-    PipeableFunction,
     PipeableFunctionCall,
 )
 from pipda.context import Context
 from pipda.symbolic import Symbolic
-from pipda.piping import register_piping
+from pipda.utils import MultiImplementationsWarning
+# from pipda.piping import register_piping
 
 
 def test_function():
@@ -21,7 +21,7 @@ def test_function():
     def arithm(op, x, y):
         return op(x, y)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AttributeError):
         arithm.register(int)
 
     call = arithm(f["add"], 4, 1)
@@ -87,7 +87,7 @@ def test_meta():
     qualname = "mypackage.myfun"
     doc = "my doc"
     module = "mypackage"
-    signature = inspect.signature(lambda x: None)
+    # signature = inspect.signature(lambda x: None)
 
     fun = register_func(
         lambda a: None,
@@ -95,44 +95,69 @@ def test_meta():
         qualname=qualname,
         doc=doc,
         module=module,
-        signature=signature,
+        # signature=signature,
     )
 
     assert fun.__name__ == name
     assert fun.__qualname__ == qualname
     assert fun.__doc__ == doc
     assert fun.__module__ == module
-    assert fun.signature == signature
+    # assert fun.signature == signature
 
 
 def test_dispatchable():
     f = Symbolic()
 
-    @register_func(dispatchable=True)
-    def add(x, y):
-        return x + y
-
-    @add.register(int)
-    def _(x, y):
+    @register_func(cls=float, dispatchable=True)
+    def mul(x, y):
         return x * y
 
-    out = add(1, 2)
-    assert out == 2 and isinstance(out, int)
+    @mul.register(str)
+    @mul.register(int)
+    def _(x, y):
+        return f"{x} * {y}"
 
-    out = add(1.0, 2.0)
-    assert out == 3.0 and isinstance(out, float)
+    out = mul(1, 2)
+    assert out == "1 * 2" and isinstance(out, str)
 
-    out = add("a", 3)
-    assert out == "aaa" and isinstance(out, str)
+    out = mul(1.0, 2.0)
+    assert out == 2.0 and isinstance(out, float)
 
-    out = add("a", f[0])._pipda_eval([4, "b"], Context.EVAL)
-    assert out == "aaaa" and isinstance(out, str)
+    out = mul("a", 3)
+    assert out == "a * 3" and isinstance(out, str)
 
-    out = add("a", f[1])._pipda_eval([4, "b"], Context.EVAL)
-    assert out == "ab" and isinstance(out, str)
+    out = mul("a", f[0])._pipda_eval([4, "b"], Context.EVAL)
+    assert out == "a * 4" and isinstance(out, str)
+
+    out = mul("a", f[1])._pipda_eval([4, "b"], Context.EVAL)
+    assert out == "a * b" and isinstance(out, str)
+
+    with pytest.raises(NotImplementedError):
+        mul([], [])
+
+
+def test_dispatchable_noargs():
+    @register_func(dispatchable=True)
+    def sum_(*args):
+        return sum(args)
+
+    @sum_.register(str)
+    def _(*args):
+        return "".join((str(arg) for arg in args))
+
+    out = sum_(1, 2, 3)
+    assert out == 6 and isinstance(out, int)
+
+    out = sum_("1", 2, 3)
+    assert out == "123" and isinstance(out, str)
+
+    out = sum_()
+    assert out == 0 and isinstance(out, int)
 
 
 def test_pipeable():
+    f = Symbolic()
+
     @register_func(pipeable=True)
     def add(x, y):
         return x + y
@@ -143,8 +168,12 @@ def test_pipeable():
     out = add(1, 2)
     assert out == 3 and isinstance(out, int)
 
-    out = PipeableFunctionCall(add.func, 2)._pipda_eval(1, Context.EVAL)
+    out = PipeableFunctionCall(add, 2)._pipda_eval(1, Context.EVAL)
     assert out == 3 and isinstance(out, int)
+
+    out = 1 >> add(f[0])
+    assert isinstance(out, FunctionCall)
+    assert out._pipda_eval([2], Context.EVAL) == 3
 
 
 def test_dispatchable_and_pipeable():
@@ -169,24 +198,29 @@ def test_dispatchable_and_pipeable():
     assert out == 3.0 and isinstance(out, float)
 
 
-def test_register_func_funclass():
-    class MyFunction(PipeableFunction):
-        ...
+def test_backends():
 
-    @register_func(pipeable={"x", "y"}, funclass=MyFunction)
+    @register_func(cls=int, dispatchable=True)
     def add(x, y):
         return x + y
 
-    out = 1 >> add(2)
-    assert out == 3 and isinstance(out, int)
-    out = add(1, 2)
-    assert out == 3 and isinstance(out, int)
+    @add.register(int, backend="back")
+    def _(x, y):
+        return x * y
 
-    register_piping("|")
+    with pytest.warns(MultiImplementationsWarning):
+        out = add(1, 2)
+        assert out == 2 and isinstance(out, int)
 
-    out = 1 | add(2)
-    assert out == 3 and isinstance(out, int)
-    out = add(1, 2)
-    assert out == 3 and isinstance(out, int)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        out = add(1, 2, __backend="back")
+        assert out == 2 and isinstance(out, int)
+        out = add(1, 2, __backend="_default")
+        assert out == 3 and isinstance(out, int)
 
-    register_piping(">>")
+    with pytest.raises(NotImplementedError):
+        add(1, 2, __backend="not_exist")
+
+    with pytest.raises(NotImplementedError):
+        add(1.0, 2.0, __backend="back")

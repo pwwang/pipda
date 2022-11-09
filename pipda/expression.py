@@ -65,13 +65,12 @@ class Expression(ABC):
         **kwargs: Any,
     ) -> FunctionCall:
         """Allow numpy array function to work on Expression objects"""
-        from .function import Function, FunctionCall
+        from .function import FunctionCall
 
         if method != "__call__":
             ufunc = getattr(ufunc, method)
 
-        fun = Function(ufunc)
-        return FunctionCall(fun, *inputs, **kwargs)
+        return FunctionCall(ufunc, *inputs, **kwargs)
 
     def __array_ufunc__(
         self,
@@ -82,12 +81,11 @@ class Expression(ABC):
     ) -> FunctionCall:
         """Allow numpy ufunc to work on Expression objects"""
 
-        from .piping import PIPING_OPS
-        from .verb import VerbCall
+        from .piping import PIPING_OPS, PipeableCall
 
         if (
-            ufunc.__name__ == PIPING_OPS[VerbCall.PIPING][2]
-            and isinstance(inputs[1], VerbCall)
+            ufunc.__name__ == PIPING_OPS[PipeableCall.PIPING][2]
+            and isinstance(inputs[1], PipeableCall)
             and len(inputs) == 2
             and method == "__call__"
         ):
@@ -122,15 +120,15 @@ class Expression(ABC):
     def _op_method(self, op: str, *operands: Any) -> OperatorCall:
         """Handle the operators"""
         from .operator import Operator, OperatorCall
-        from .verb import VerbCall
+        from .piping import PipeableCall
         if Expression._pipda_operator is None:
             Expression._pipda_operator = Operator()
 
-        # Let the verb handle it
+        # Let the verb/pipeable func handle it
         if (
             not OPERATORS[op][1]
-            and OPERATORS.get(f"r{op}", [None])[0] == VerbCall.PIPING
-            and isinstance(operands[0], VerbCall)
+            and OPERATORS.get(f"r{op}", [None])[0] == PipeableCall.PIPING
+            and isinstance(operands[0], PipeableCall)
         ):
             return NotImplemented
 

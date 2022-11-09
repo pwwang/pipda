@@ -1,7 +1,7 @@
 import pytest
 
 from pipda import register_verb, VerbCall, Symbolic, evaluate_expr, Context
-from pipda.utils import VerbCallingCheckWarning, VerbCallingCheckError, has_expr
+from pipda.utils import PipeableCallCheckWarning, PipeableCallCheckError, has_expr
 
 
 def test_is_piping_verbcall_normal():
@@ -11,11 +11,11 @@ def test_is_piping_verbcall_normal():
 
     # AST node in pytest's asserts can't be detected
     # fallbacks to normal call
-    with pytest.warns(VerbCallingCheckWarning):
+    with pytest.warns(PipeableCallCheckWarning):
         assert (1 >> iden()) == 1 and isinstance(1 >> iden(), int)
 
     # So it doesn't work with piping call
-    with pytest.warns(VerbCallingCheckWarning):
+    with pytest.warns(PipeableCallCheckWarning):
         assert isinstance(iden(1), VerbCall)
 
     # AST node can be detected here
@@ -50,11 +50,11 @@ def test_is_piping_verbcall_normal_warning():
 
     # AST node in pytest's asserts can't be detected
     # fallbacks to normal call
-    with pytest.warns(VerbCallingCheckWarning):
+    with pytest.warns(PipeableCallCheckWarning):
         assert iden(1) == 1 and isinstance(iden(1), int)
 
     # So it doesn't work with piping call
-    with pytest.warns(VerbCallingCheckWarning), pytest.raises(TypeError):
+    with pytest.warns(PipeableCallCheckWarning), pytest.raises(TypeError):
         assert (1 >> iden()) == 1
 
     # AST node can be detected here
@@ -68,10 +68,10 @@ def test_is_piping_verbcall_piping_warning():
     def iden(x):
         return x
 
-    with pytest.warns(VerbCallingCheckWarning):
+    with pytest.warns(PipeableCallCheckWarning):
         assert isinstance(iden(1), VerbCall)
 
-    with pytest.warns(VerbCallingCheckWarning):
+    with pytest.warns(PipeableCallCheckWarning):
         assert (1 >> iden()) == 1 and isinstance(1 >> iden(), int)
 
     a = iden(1)
@@ -83,10 +83,10 @@ def test_is_piping_verbcall_raise():
     def iden(x):
         return x
 
-    with pytest.raises(VerbCallingCheckError):
+    with pytest.raises(PipeableCallCheckError):
         assert iden(1)
 
-    with pytest.raises(VerbCallingCheckError):
+    with pytest.raises(PipeableCallCheckError):
         assert 1 >> iden()
 
     a = iden(1)
