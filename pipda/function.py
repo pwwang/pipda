@@ -126,7 +126,6 @@ def register_func(
     dispatchable: bool = False,
     pipeable: bool = False,
     ast_fallback: str = "normal_warning",
-    ast_depth: int = 0,
 ) -> Callable:
     """Register a function
 
@@ -163,8 +162,6 @@ def register_func(
             piping_warning - Suppose piping call, but show a warning
             normal_warning - Suppose normal call, but show a warning
             raise - Raise an error
-        ast_depth: Whether this func is wrapped by other wrappers, if so,
-            the depth should be provided to make the AST node detection
 
     Returns:
         The registered func or a decorator to register a func
@@ -181,7 +178,6 @@ def register_func(
             dispatchable=dispatchable,
             pipeable=pipeable,
             ast_fallback=ast_fallback,
-            ast_depth=ast_depth,
         )
 
     if plain:
@@ -336,7 +332,7 @@ def register_func(
         if pipeable:
             ast_fb = kwargs.pop("__ast_fallback", ast_fallback)
 
-            if is_piping(wrapper.__name__, ast_fb, ast_depth):
+            if is_piping(wrapper.__name__, ast_fb):
                 return PipeableFunctionCall(wrapper, *args, **kwargs)
 
         # Not pipeable

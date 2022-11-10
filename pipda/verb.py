@@ -83,7 +83,6 @@ def register_verb(
     module: str = None,
     dependent: bool = False,
     ast_fallback: str = "piping_warning",
-    ast_depth: int = 0,
 ) -> Callable:
     """Register a verb
 
@@ -121,8 +120,6 @@ def register_verb(
             piping_warning - Suppose piping call, but show a warning
             normal_warning - Suppose normal call, but show a warning
             raise - Raise an error
-        ast_depth: Whether this verb is wrapped by other wrappers, if so,
-            the depth should be provided to make the AST node detection
 
     Returns:
         The registered verb or a decorator to register a verb
@@ -138,7 +135,6 @@ def register_verb(
             module=module,
             dependent=dependent,
             ast_fallback=ast_fallback,
-            ast_depth=ast_depth,
         )
 
     def _backend_generic(*args, **kwargs):
@@ -244,7 +240,7 @@ def register_verb(
             return VerbCall(wrapper, *args, **kwargs)
 
         ast_fb = kwargs.pop("__ast_fallback", ast_fallback)
-        if is_piping(wrapper.__name__, ast_fb, ast_depth):
+        if is_piping(wrapper.__name__, ast_fb):
             return VerbCall(wrapper, *args, **kwargs)
 
         if not args:

@@ -46,11 +46,7 @@ def update_user_wrapper(
         x.__module__ = module
 
 
-def is_piping(
-    pipeable: str,
-    fallback: str,
-    depth: int,
-) -> bool:
+def is_piping(pipeable: str, fallback: str) -> bool:
     """Check if the pipeable is called with piping.
 
     Example:
@@ -72,7 +68,8 @@ def is_piping(
     from executing import Source
     from .piping import PIPING_OPS, PipeableCall
 
-    frame = sys._getframe(depth + 2)
+    # Caching?
+    frame = sys._getframe(2)
     node = Source.executing(frame).node
 
     if not node:
@@ -107,12 +104,9 @@ def is_piping(
         return False
 
     return (
-        (
-            (isinstance(parent, ast.BinOp) and parent.right is node)
-            or (isinstance(parent, ast.AugAssign) and parent.value is node)
-        )
-        and isinstance(parent.op, PIPING_OPS[PipeableCall.PIPING][1])
-    )
+        (isinstance(parent, ast.BinOp) and parent.right is node)
+        or (isinstance(parent, ast.AugAssign) and parent.value is node)
+    ) and isinstance(parent.op, PIPING_OPS[PipeableCall.PIPING][1])
 
 
 def evaluate_expr(expr: Any, data: Any, context: ContextType) -> Any:
