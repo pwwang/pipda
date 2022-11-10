@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import warnings
 from enum import Enum
 from collections import OrderedDict
 from types import MappingProxyType
-from typing import Any, Callable, Dict, List, Type
+from typing import Any, Callable, Dict, List, Type, Sequence
 from functools import singledispatch, update_wrapper
 
 from .utils import (
@@ -73,7 +75,7 @@ class VerbCall(PipeableCall):
 
 
 def register_verb(
-    cls: Type = TypeHolder,
+    cls: Type | Sequence[Type] = TypeHolder,
     *,
     func: Callable = None,
     context: ContextType = None,
@@ -139,6 +141,9 @@ def register_verb(
 
     def _backend_generic(*args, **kwargs):
         raise NotImplementedError("Not implemented by the given backend.")
+
+    if not isinstance(cls, (list, tuple, set)) and cls is not TypeHolder:
+        cls = (cls, )  # type: ignore
 
     registry = OrderedDict(
         {
@@ -261,7 +266,7 @@ def register_verb(
 
         return VerbCall(wrapper, *args, **kwargs)._pipda_eval(data)
 
-    if cls:
+    if cls is not TypeHolder:
         register(cls, context=context, fun=func)
 
     wrapper.registry = MappingProxyType(registry)

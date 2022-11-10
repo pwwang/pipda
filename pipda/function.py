@@ -187,6 +187,9 @@ def register_func(
     def _backend_generic(*args, **kwargs):  # pyright: ignore
         raise NotImplementedError("Not implemented by the given backend.")
 
+    if not isinstance(cls, (list, tuple, set)) and cls is not TypeHolder:
+        cls = (cls, )  # type: ignore
+
     if dispatchable:
         registry = OrderedDict(
             {
