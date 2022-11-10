@@ -294,7 +294,14 @@ def register_func(
 
         return impls[0][1]
 
-    def register(cl=None, *, backend=DEFAULT_BACKEND, favored=False, fun=None):
+    def register(
+        cl=None,
+        *,
+        backend=DEFAULT_BACKEND,
+        favored=False,
+        overwrite_doc=False,
+        fun=None,
+    ):
         """generic_func.register(cl, backend, fun, favored) -> fun
 
         Args:
@@ -312,6 +319,7 @@ def register_func(
                 cl,
                 backend=backend,
                 favored=favored,
+                overwrite_doc=overwrite_doc,
                 fun=fn,
             )
 
@@ -329,6 +337,8 @@ def register_func(
 
         if favored:
             favorables[backend] = fun
+        if overwrite_doc:
+            wrapper.__doc__ = fun.__doc__
         return fun
 
     def wrapper(*args, **kwargs):

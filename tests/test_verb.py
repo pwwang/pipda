@@ -285,3 +285,18 @@ def test_favored():
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         assert add(2, 1, __ast_fallback="normal") == 1
+
+
+def test_overwrite_doc():
+
+    @register_verb(int)
+    def func(data):
+        """doc1"""
+        return 1
+
+    @func.register(int, backend="back", overwrite_doc=True)
+    def _func(data):
+        """doc2"""
+        return 2
+
+    assert func.__doc__ == "doc2"

@@ -219,6 +219,7 @@ def register_verb(
         backend=DEFAULT_BACKEND,
         context=None,
         favored=False,
+        overwrite_doc=False,
         fun=None,
     ):
         if fun is None:
@@ -227,6 +228,7 @@ def register_verb(
                 backend=backend,
                 context=context,
                 favored=favored,
+                overwrite_doc=overwrite_doc,
                 fun=fn,
             )
 
@@ -243,6 +245,8 @@ def register_verb(
             contexts[fun] = context
         if favored:
             favorables[backend] = fun
+        if overwrite_doc:
+            wrapper.__doc__ = fun.__doc__
         return fun
 
     def wrapper(*args, **kwargs):

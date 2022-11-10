@@ -268,3 +268,18 @@ def test_plain():
         warnings.simplefilter("error")
         out = add2(1, 2)
         assert out == 2
+
+
+def test_overwrite_doc():
+
+    @register_func(plain=True)
+    def func():
+        """doc1"""
+        return 1
+
+    @func.register(overwrite_doc=True)
+    def _func():
+        """doc2"""
+        return 2
+
+    assert func.__doc__ == "doc2"
