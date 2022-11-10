@@ -109,8 +109,7 @@ def test_dispatchable():
     def mul(x, y):
         return x * y
 
-    @mul.register(str, backend="back")
-    @mul.register(int, backend="back")
+    @mul.register((str, int), backend="back")
     def _(x, y):
         return f"{x} * {y}"
 

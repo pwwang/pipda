@@ -228,7 +228,12 @@ def register_verb(
         if backend not in registry:
             registry[backend] = singledispatch(_backend_generic)
 
-        registry[backend].register(cl, fun)
+        if isinstance(cl, (tuple, list, set)):
+            for c in cl:
+                registry[backend].register(c, fun)
+        else:
+            registry[backend].register(cl, fun)
+
         if context is not None:
             contexts[fun] = context
         if favored:

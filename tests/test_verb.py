@@ -255,7 +255,7 @@ def test_multiple_backends():
     def add(x, y):
         return x + y
 
-    @add.register(int, backend="back")
+    @add.register((int, set), backend="back")
     def _(x, y):
         return x - y
 
@@ -266,6 +266,7 @@ def test_multiple_backends():
         warnings.simplefilter("error")
         assert add(2, 1, __ast_fallback="normal", __backend="back") == 1
         assert add(2, 1, __ast_fallback="normal", __backend="_default") == 3
+        assert add({1, 2}, {1}, __ast_fallback="normal") == {2}
 
     with pytest.raises(NotImplementedError):
         add(2, 1, __ast_fallback="normal", __backend="not_back")
