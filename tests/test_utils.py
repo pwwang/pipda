@@ -1,7 +1,11 @@
 import pytest
 
 from pipda import register_verb, VerbCall, Symbolic, evaluate_expr, Context
-from pipda.utils import PipeableCallCheckWarning, PipeableCallCheckError, has_expr
+from pipda.utils import (
+    PipeableCallCheckWarning,
+    PipeableCallCheckError,
+    has_expr,
+)
 
 
 def test_is_piping_verbcall_normal():
