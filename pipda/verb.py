@@ -172,7 +172,9 @@ def register_verb(
             try:
                 reg = registry[backend]
             except KeyError:
-                raise NotImplementedError(f"No such backend `{backend}`.")
+                raise NotImplementedError(
+                    f"No implementations found for backend `{backend}`."
+                )
             dispatched = reg.dispatch(cl)
             return dispatched, contexts.get(dispatched, context)
 

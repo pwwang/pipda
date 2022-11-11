@@ -28,10 +28,16 @@ def test_user_context():
         def getitem(self, parent, ref, level):
             return parent[ref] * 2
 
+        def getattr(self, parent, ref, level):
+            return level
+
     ce = MyContext()
     f = Symbolic()
     out = evaluate_expr(f[1], [1, 2], ce)
     assert out == 4 and isinstance(out, int)
+
+    out = evaluate_expr(f.a.b.c, 1, ce)
+    assert out == 3 and isinstance(out, int)
 
 
 def test_context_pending():

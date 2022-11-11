@@ -222,13 +222,15 @@ def register_func(
             The implementation function
         """
         if not clses:
-            clses = (object,)
+            clses = (type(None),)
 
         if backend is not None:
             try:
                 reg = registry[backend]
             except KeyError:
-                raise NotImplementedError(f"No such backend `{backend}`.")
+                raise NotImplementedError(
+                    f"No implementations found for backend `{backend}`."
+                )
 
             if not dispatchable:
                 return reg
