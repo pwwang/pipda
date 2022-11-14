@@ -81,9 +81,9 @@ class FunctionCall(Expression):
                 for key, val in kwargs.items()
             }
         else:
-            args = [  # type: ignore
+            args = tuple(
                 evaluate_expr(arg, data, context) for arg in args
-            ]
+            )
             kwargs = {
                 key: evaluate_expr(val, data, context)
                 for key, val in kwargs.items()
