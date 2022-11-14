@@ -63,24 +63,38 @@ class FunctionCall(Expression):
     def _pipda_eval(self, data: Any, context: ContextType = None) -> Any:
         """Evaluate the function call"""
         func = self._pipda_func
-        args = [evaluate_expr(arg, data, context) for arg in self._pipda_args]
-        kwargs = {
-            key: evaluate_expr(val, data, context)
-            for key, val in self._pipda_kwargs.items()
-        }
-
         if isinstance(func, Expression):
             # f.a(1)
             func = evaluate_expr(func, data, context)
 
+        args = self._pipda_args
+        kwargs = self._pipda_kwargs
+
         functype = getattr(func, "_pipda_functype", None)
-        if functype == "func":
-            func = func.dispatch(backend=self._pipda_backend)
-        elif functype == "dispatchable":
-            func.dispatch(
-                *(arg.__class__ for arg in args),
-                backend=self._pipda_backend,
-            )
+        if functype == "verb":
+            dt = evaluate_expr(args[0], data, context)
+            func, ctx = func.dispatch(dt.__class__, backend=self._pipda_backend)
+            ctx = ctx or context
+            args = (dt, *(evaluate_expr(arg, dt, ctx) for arg in args[1:]))
+            kwargs = {
+                key: evaluate_expr(val, dt, ctx)
+                for key, val in kwargs.items()
+            }
+        else:
+            args = [  # type: ignore
+                evaluate_expr(arg, data, context) for arg in args
+            ]
+            kwargs = {
+                key: evaluate_expr(val, data, context)
+                for key, val in kwargs.items()
+            }
+            if functype == "func":
+                func = func.dispatch(backend=self._pipda_backend)
+            elif functype == "dispatchable":
+                func = func.dispatch(
+                    *(arg.__class__ for arg in args),
+                    backend=self._pipda_backend,
+                )
 
         return func(*args, **kwargs)
 
@@ -106,7 +120,7 @@ class PipeableFunctionCall(FunctionCall, PipeableCall):
         if functype == "func":
             func = func.dispatch(backend=self._pipda_backend)  # type: ignore
         elif functype == "dispatchable":
-            func.dispatch(  # type: ignore
+            func = func.dispatch(  # type: ignore
                 *(arg.__class__ for arg in args),
                 backend=self._pipda_backend,
             )
@@ -188,7 +202,7 @@ def register_func(
         raise NotImplementedError("Not implemented by the given backend.")
 
     if not isinstance(cls, (list, tuple, set)) and cls is not TypeHolder:
-        cls = (cls, )  # type: ignore
+        cls = (cls,)  # type: ignore
 
     if dispatchable:
         registry = OrderedDict(
@@ -270,6 +284,15 @@ def register_func(
                             favored_found
                             and favorables.get(backend) is not fun
                         )
+                        or (
+                            # Previously found impl is better
+                            # (not dispatched by object), but this one is
+                            # dispatched by object, skip
+                            impls
+                            and impls[-1][1]
+                            is not registry[impls[-1][0]].dispatch(object)
+                            and fun is registry[backend].dispatch(object)
+                        )
                     ):  # pragma: no cover
                         continue
 
@@ -283,7 +306,8 @@ def register_func(
                 impls.append((backend, impl))
 
         if not impls:
-            return func if cls is TypeHolder else _backend_generic
+            fn = func if cls is TypeHolder else _backend_generic
+            return fn
 
         if len(impls) > 1:
             warnings.warn(
@@ -297,51 +321,58 @@ def register_func(
         return impls[0][1]
 
     def register(
-        cl=None,
+        cls=None,
         *,
         backend=DEFAULT_BACKEND,
         favored=False,
         overwrite_doc=False,
-        fun=None,
+        func=None,
     ):
-        """generic_func.register(cl, backend, fun, favored) -> fun
+        """generic_func.register(
+            cls,
+            backend,
+            favored,
+            overwrite_doc,
+            func
+        ) -> func
 
         Args:
-            cl: The type to register for the given backend
+            cls: The type to register for the given backend
             backend: The backend to register for
-            fun: The implementation function
             favored: Whether this implementation is favored. If so, non-favored
                 implementations will be ignored if this implementation is found.
+            overwrite_doc: Whether to overwrite the docstring of the function
+            func: The implementation function
 
         Returns:
             The implementation function
         """
-        if fun is None:
+        if func is None:
             return lambda fn: register(
-                cl,
+                cls,
                 backend=backend,
                 favored=favored,
                 overwrite_doc=overwrite_doc,
-                fun=fn,
+                func=fn,
             )
 
         if not dispatchable:
-            registry[backend] = fun
+            registry[backend] = func
         else:
             if backend not in registry:
                 registry[backend] = singledispatch(_backend_generic)
 
-            if isinstance(cl, (tuple, list, set)):
-                for c in cl:
-                    registry[backend].register(c, fun)
+            if isinstance(cls, (tuple, list, set)):
+                for c in cls:
+                    registry[backend].register(c, func)
             else:
-                registry[backend].register(cl, fun)
+                registry[backend].register(cls, func)
 
         if favored:
-            favorables[backend] = fun
+            favorables[backend] = func
         if overwrite_doc:
-            wrapper.__doc__ = fun.__doc__
-        return fun
+            wrapper.__doc__ = func.__doc__
+        return func
 
     def wrapper(*args, **kwargs):
         if plain:
@@ -372,7 +403,7 @@ def register_func(
         wrapper._pipda_functype = "plain"
     elif dispatchable:
         if cls is not TypeHolder:
-            register(cls, fun=func)
+            register(cls, func=func)
         wrapper._pipda_functype = "dispatchable"
     else:
         wrapper._pipda_functype = "func"

@@ -156,8 +156,7 @@ def register_verb(
     favorables: Dict[str, Callable] = {}
     # # cannot create weak reference to 'numpy.ufunc' object
     # contexts = weakref.WeakKeyDictionary()
-    contexts = {}
-    contexts[_backend_generic] = context
+    contexts = {_backend_generic: context}
 
     def dispatch(cl, backend=None):
         """generic_func.dispatch(cls, backend) -> <function impl>, <context>
@@ -216,40 +215,40 @@ def register_verb(
         return impls[0][1:]
 
     def register(
-        cl,
+        cls,
         *,
         backend=DEFAULT_BACKEND,
         context=None,
         favored=False,
         overwrite_doc=False,
-        fun=None,
+        func=None,
     ):
-        if fun is None:
+        if func is None:
             return lambda fn: register(
-                cl,
+                cls,
                 backend=backend,
                 context=context,
                 favored=favored,
                 overwrite_doc=overwrite_doc,
-                fun=fn,
+                func=fn,
             )
 
         if backend not in registry:
             registry[backend] = singledispatch(_backend_generic)
 
-        if isinstance(cl, (tuple, list, set)):
-            for c in cl:
-                registry[backend].register(c, fun)
+        if isinstance(cls, (tuple, list, set)):
+            for c in cls:
+                registry[backend].register(c, func)
         else:
-            registry[backend].register(cl, fun)
+            registry[backend].register(cls, func)
 
         if context is not None:
-            contexts[fun] = context
+            contexts[func] = context
         if favored:
-            favorables[backend] = fun
+            favorables[backend] = func
         if overwrite_doc:
-            wrapper.__doc__ = fun.__doc__
-        return fun
+            wrapper.__doc__ = func.__doc__
+        return func
 
     def wrapper(*args, **kwargs):
         if dependent:
@@ -273,7 +272,7 @@ def register_verb(
         return VerbCall(wrapper, *args, **kwargs)._pipda_eval(data)
 
     if cls is not TypeHolder:
-        register(cls, context=context, fun=func)
+        register(cls, context=context, func=func)
 
     wrapper.registry = MappingProxyType(registry)
     wrapper.dispatch = dispatch

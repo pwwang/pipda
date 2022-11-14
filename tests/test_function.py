@@ -1,6 +1,7 @@
 import pytest  # noqa
 import warnings
 
+# from pipda.verb import register_verb
 from pipda.function import (
     register_func,
     FunctionCall,

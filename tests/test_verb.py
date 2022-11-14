@@ -152,10 +152,10 @@ def test_as_func():
     out = {"a": 1, "b": 2, "c": 3} >> update(
         plus(
             {"a": 2, "b": f["c"]},
-            f["a"],  # 1 instead 2
+            f["a"],  # 2, instead 1
         )
     )
-    assert out == {"a": 3, "b": 4, "c": 3}
+    assert out == {"a": 4, "b": 5, "c": 3}
 
     out = {"a": 1, "b": 2, "c": 3} >> update(
         plus(
