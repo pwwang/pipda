@@ -199,7 +199,9 @@ def register_func(
         dispatchable = pipeable = False
 
     def _backend_generic(*args, **kwargs):  # pyright: ignore
-        raise NotImplementedError("Not implemented by the given backend.")
+        raise NotImplementedError(
+            f"`{wrapper.__name__}` is not implemented by the given backend."
+        )
 
     if not isinstance(cls, (list, tuple, set)) and cls is not TypeHolder:
         cls = (cls,)  # type: ignore
