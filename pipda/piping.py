@@ -171,27 +171,15 @@ def register_piping(op: str) -> None:
         raise ValueError(f"Unsupported piping operator: {op}")
 
     from .verb import VerbCall
-    from .function import PipeableFunctionCall
 
     if PipeableCall.PIPING:
         curr_method = PIPING_OPS[PipeableCall.PIPING][0]
         verb_orig_method = VerbCall.__orig_opmethod__
         setattr(VerbCall, curr_method, verb_orig_method)
-        func_orig_method = PipeableFunctionCall.__orig_opmethod__
-        setattr(PipeableFunctionCall, curr_method, func_orig_method)
         _unpatch_all(PipeableCall.PIPING)
 
     PipeableCall.PIPING = op
     VerbCall.__orig_opmethod__ = getattr(VerbCall, PIPING_OPS[op][0])
     setattr(VerbCall, PIPING_OPS[op][0], VerbCall._pipda_eval)
-    PipeableFunctionCall.__orig_opmethod__ = getattr(
-        PipeableFunctionCall,
-        PIPING_OPS[op][0],
-    )
-    setattr(
-        PipeableFunctionCall,
-        PIPING_OPS[op][0],
-        PipeableFunctionCall._pipda_eval,
-    )
 
     _patch_all(op)

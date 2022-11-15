@@ -5,8 +5,8 @@ import warnings
 from pipda.function import (
     register_func,
     FunctionCall,
-    PipeableFunctionCall,
 )
+from pipda.verb import VerbCall
 from pipda.context import Context
 from pipda.symbolic import Symbolic
 from pipda.utils import MultiImplementationsWarning
@@ -155,7 +155,7 @@ def test_dispatchable_noargs():
 def test_pipeable():
     f = Symbolic()
 
-    @register_func(pipeable=True)
+    @register_func(pipeable=True, context=Context.EVAL)
     def add(x, y):
         return x + y
 
@@ -165,12 +165,11 @@ def test_pipeable():
     out = add(1, 2)
     assert out == 3 and isinstance(out, int)
 
-    out = PipeableFunctionCall(add, 2)._pipda_eval(1, Context.EVAL)
+    out = VerbCall(add, 2)._pipda_eval(1, Context.EVAL)
     assert out == 3 and isinstance(out, int)
 
-    out = 1 >> add(f[0])
-    assert isinstance(out, FunctionCall)
-    assert out._pipda_eval([2], Context.EVAL) == 3
+    out = [1, 2] >> add([f[0]])
+    assert out == [1, 2, 1] and isinstance(out, list)
 
 
 def test_dispatchable_and_pipeable():
@@ -284,3 +283,25 @@ def test_overwrite_doc():
         return 2
 
     assert func.__doc__ == "doc2"
+
+
+def test_pipeable_context():
+    f = Symbolic()
+
+    @register_func(pipeable=True, dispatchable=True)
+    def func(x):
+        ...
+
+    @func.register(list, context=Context.EVAL)
+    def _func(x, y):
+        return x[y]
+
+    @func.register(str, context=Context.SELECT)
+    def _func_str(x, y):
+        return x + y
+
+    out = [1, 2, 3] >> func(f[1])
+    assert out == 3 and isinstance(out, int)
+
+    out = "abc" >> func(f.x)
+    assert out == "abcx" and isinstance(out, str)

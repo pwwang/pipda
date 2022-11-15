@@ -300,3 +300,38 @@ def test_overwrite_doc():
         return 2
 
     assert func.__doc__ == "doc2"
+
+
+def test_expr_as_data():
+
+    f = Symbolic()
+
+    @register_verb(int)
+    def identity(data):
+        return data
+
+    @register_verb(int)
+    def add(x, y):
+        return x + y
+
+    out = 1 >> identity() >> add(f)
+    assert out == 2 and isinstance(out, int)
+
+
+def test_kw_context():
+
+    f = Symbolic()
+
+    @register_verb(
+        dict,
+        context=Context.EVAL,
+        kw_context={'rm': Context.SELECT},
+    )
+    def update(data, subdata, rm):
+        data = data.copy()
+        data.update(subdata)
+        del data[rm]
+        return data
+
+    out = {"a": 1, "b": 2, "c": 3} >> update({"b": f["a"]}, rm=f.a)
+    assert out == {"b": 1, "c": 3} and isinstance(out, dict)

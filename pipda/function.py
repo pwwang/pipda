@@ -16,7 +16,6 @@ from .utils import (
     is_piping,
 )
 from .expression import Expression
-from .piping import PipeableCall
 
 if TYPE_CHECKING:
     from .context import ContextType
@@ -62,10 +61,10 @@ class FunctionCall(Expression):
 
     def _pipda_eval(self, data: Any, context: ContextType = None) -> Any:
         """Evaluate the function call"""
-        func = self._pipda_func
+        func = impl = self._pipda_func
         if isinstance(func, Expression):
             # f.a(1)
-            func = evaluate_expr(func, data, context)
+            impl = evaluate_expr(func, data, context)
 
         args = self._pipda_args
         kwargs = self._pipda_kwargs
@@ -73,11 +72,13 @@ class FunctionCall(Expression):
         functype = getattr(func, "_pipda_functype", None)
         if functype == "verb":
             dt = evaluate_expr(args[0], data, context)
-            func, ctx = func.dispatch(dt.__class__, backend=self._pipda_backend)
+            impl = func.dispatch(dt.__class__, backend=self._pipda_backend)
+            ctx, kw_ctx = func.get_context(impl, context)
             ctx = ctx or context
+            kw_ctx = kw_ctx or {}
             args = (dt, *(evaluate_expr(arg, dt, ctx) for arg in args[1:]))
             kwargs = {
-                key: evaluate_expr(val, dt, ctx)
+                key: evaluate_expr(val, dt, kw_ctx.get(key, ctx))
                 for key, val in kwargs.items()
             }
         else:
@@ -89,43 +90,14 @@ class FunctionCall(Expression):
                 for key, val in kwargs.items()
             }
             if functype == "func":
-                func = func.dispatch(backend=self._pipda_backend)
+                impl = func.dispatch(backend=self._pipda_backend)
             elif functype == "dispatchable":
-                func = func.dispatch(
+                impl = func.dispatch(
                     *(arg.__class__ for arg in args),
                     backend=self._pipda_backend,
                 )
 
-        return func(*args, **kwargs)
-
-
-class PipeableFunctionCall(FunctionCall, PipeableCall):
-    def _pipda_eval(self, data: Any, context: ContextType = None) -> Any:
-        """Evaluate the function call with the piped data
-
-        Note that the piped data is the first argument, not the data from
-        a verb that used to evaluate other expression arguments.
-        """
-        func = self._pipda_func
-        args = (data, *self._pipda_args)
-        if has_expr(args) or has_expr(self._pipda_kwargs):
-            return FunctionCall(
-                func,
-                *args,
-                **self._pipda_kwargs,
-                __backend=self._pipda_backend,
-            )
-
-        functype = getattr(func, "_pipda_functype", None)
-        if functype == "func":
-            func = func.dispatch(backend=self._pipda_backend)  # type: ignore
-        elif functype == "dispatchable":
-            func = func.dispatch(  # type: ignore
-                *(arg.__class__ for arg in args),
-                backend=self._pipda_backend,
-            )
-
-        return func(*args, **self._pipda_kwargs)
+        return impl(*args, **kwargs)
 
 
 def register_func(
@@ -139,6 +111,8 @@ def register_func(
     module: str = None,
     dispatchable: bool = False,
     pipeable: bool = False,
+    context: ContextType = None,
+    kw_context: Dict[str, ContextType] = None,
     ast_fallback: str = "normal_warning",
 ) -> Callable:
     """Register a function
@@ -176,6 +150,18 @@ def register_func(
             piping_warning - Suppose piping call, but show a warning
             normal_warning - Suppose normal call, but show a warning
             raise - Raise an error
+        dispatchable: If True, the function will be registered as a dispatchable
+            function, which means it will be dispatched using the types of
+            positional arguments.
+        pipeable: If True, the function will work like a verb when a data is
+            piping in. If dispatchable, the first argument will be used to
+            dispatch the implementation.
+            The rest of the arguments will be evaluated using the data from
+            the first argument.
+        context: The context used to evaluate the rest arguments using the
+            first argument only when the function is pipeable and the data
+            is piping in.
+        kw_context: The context used to evaluate the keyword arguments
 
     Returns:
         The registered func or a decorator to register a func
@@ -191,6 +177,8 @@ def register_func(
             module=module,
             dispatchable=dispatchable,
             pipeable=pipeable,
+            context=context,
+            kw_context=kw_context,
             ast_fallback=ast_fallback,
         )
 
@@ -218,6 +206,10 @@ def register_func(
         registry = OrderedDict({DEFAULT_BACKEND: func})  # type: ignore
     # backend => implementation
     favorables: Dict[str, Callable] = {}
+    contexts = {
+        (func if cls is TypeHolder else _backend_generic)
+        : (context, kw_context)
+    }
 
     def dispatch(*clses, backend=None):
         """generic_func.dispatch(*clses, backend) -> <function impl>
@@ -322,12 +314,23 @@ def register_func(
 
         return impls[0][1]
 
+    def get_context(impl, default=None):
+        """Get the context of the implementation
+
+        numpy ufuncs may not be able to set an attribute, so we need to
+        use a dict to store the context.
+        """
+        out = contexts.get(impl, (context, kw_context))
+        return (default, out[1]) if out[0] is None else out
+
     def register(
         cls=None,
         *,
         backend=DEFAULT_BACKEND,
         favored=False,
         overwrite_doc=False,
+        context=None,
+        kw_context=None,
         func=None,
     ):
         """generic_func.register(
@@ -344,6 +347,10 @@ def register_func(
             favored: Whether this implementation is favored. If so, non-favored
                 implementations will be ignored if this implementation is found.
             overwrite_doc: Whether to overwrite the docstring of the function
+            context: The context used to evaluate the rest arguments using the
+                first argument only when the function is pipeable and the data
+                is piping in.
+            kw_context: The context used to evaluate the keyword arguments
             func: The implementation function
 
         Returns:
@@ -355,6 +362,8 @@ def register_func(
                 backend=backend,
                 favored=favored,
                 overwrite_doc=overwrite_doc,
+                context=context,
+                kw_context=kw_context,
                 func=fn,
             )
 
@@ -372,6 +381,8 @@ def register_func(
 
         if favored:
             favorables[backend] = func
+        if context is not None or kw_context is not None:
+            contexts[func] = context, kw_context
         if overwrite_doc:
             wrapper.__doc__ = func.__doc__
         return func
@@ -385,7 +396,9 @@ def register_func(
             ast_fb = kwargs.pop("__ast_fallback", ast_fallback)
 
             if is_piping(wrapper.__name__, ast_fb):
-                return PipeableFunctionCall(wrapper, *args, **kwargs)
+                from .verb import VerbCall
+
+                return VerbCall(wrapper, *args, **kwargs)
 
         # Not pipeable
         if has_expr(args) or has_expr(kwargs):
@@ -405,7 +418,7 @@ def register_func(
         wrapper._pipda_functype = "plain"
     elif dispatchable:
         if cls is not TypeHolder:
-            register(cls, func=func)
+            register(cls, context=context, kw_context=kw_context, func=func)
         wrapper._pipda_functype = "dispatchable"
     else:
         wrapper._pipda_functype = "func"
@@ -413,6 +426,7 @@ def register_func(
     wrapper.registry = MappingProxyType(registry)
     wrapper.dispatch = dispatch
     wrapper.register = register
+    wrapper.get_context = get_context
     wrapper.favorables = MappingProxyType(favorables)
 
     update_wrapper(wrapper, func)
