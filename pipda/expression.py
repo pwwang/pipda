@@ -190,7 +190,7 @@ class Expression(ABC):
         """
         raise TypeError(
             "An Expression object is possible to be iterable only after "
-            "it's evaluate. Do you forget to evalute it or you call it in an "
+            "it's evaluated. Do you forget to evalute it or you call it in an "
             "unregistered function?"
         )
 

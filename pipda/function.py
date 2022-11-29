@@ -110,6 +110,7 @@ def register_func(
     doc: str = None,
     module: str = None,
     dispatchable: bool = False,
+    dispatch_args: str = "args",
     pipeable: bool = False,
     context: ContextType = None,
     kw_context: Dict[str, ContextType] = None,
@@ -153,6 +154,11 @@ def register_func(
         dispatchable: If True, the function will be registered as a dispatchable
             function, which means it will be dispatched using the types of
             positional arguments.
+        dispatch_args: Which arguments to use for dispatching.
+            "first" - Use the first argument
+            "args" - Use all positional arguments
+            "kwargs" - Use all keyword arguments
+            "all" - Use all arguments
         pipeable: If True, the function will work like a verb when a data is
             piping in. If dispatchable, the first argument will be used to
             dispatch the implementation.
@@ -176,6 +182,7 @@ def register_func(
             doc=doc,
             module=module,
             dispatchable=dispatchable,
+            dispatch_args=dispatch_args,
             pipeable=pipeable,
             context=context,
             kw_context=kw_context,
@@ -237,6 +244,7 @@ def register_func(
                 reg = registry[backend]
             except KeyError:
                 raise NotImplementedError(
+                    f"[{wrapper.__name__}] "
                     f"No implementations found for backend `{backend}`."
                 )
 
@@ -408,7 +416,27 @@ def register_func(
         backend = kwargs.pop("__backend", None)
 
         if dispatchable:
-            func = dispatch(*(arg.__class__ for arg in args), backend=backend)
+            if dispatch_args == "first":
+                func = dispatch(
+                    args[0].__class__,
+                    backend=backend,
+                )
+            elif dispatch_args == "args":
+                func = dispatch(
+                    *(arg.__class__ for arg in args),
+                    backend=backend,
+                )
+            elif dispatch_args == "kwargs":
+                func = dispatch(
+                    *(arg.__class__ for arg in kwargs.values()),
+                    backend=backend,
+                )
+            else:  # all
+                func = dispatch(
+                    *(arg.__class__ for arg in args),
+                    *(arg.__class__ for arg in kwargs.values()),
+                    backend=backend,
+                )
         else:
             func = dispatch(backend=backend)
 
