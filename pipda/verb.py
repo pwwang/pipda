@@ -54,11 +54,17 @@ class VerbCall(PipeableCall):
             )
         return f"{funname}({', '.join(strargs)})"
 
-    def _pipda_eval(self, data: Any, context: ContextType = None) -> Any:
-        func = self._pipda_func.dispatch(
-            data.__class__,
-            backend=self._pipda_backend,
-        )
+    def _pipda_eval(
+        self,
+        data: Any,
+        context: ContextType = None,
+        backend: str = None,
+    ) -> Any:
+        backend = self._pipda_backend or backend
+        func = self._pipda_func.dispatch(data.__class__, backend=backend)
+        if not backend and hasattr(self._pipda_func, "get_backend"):
+            backend = self._pipda_func.get_backend(func)
+
         context, kw_context = self._pipda_func.get_context(func, context)
         kw_context = kw_context or {}
 
@@ -67,9 +73,12 @@ class VerbCall(PipeableCall):
         if isinstance(context, ContextPending):
             return func(data, *self._pipda_args, **self._pipda_kwargs)
 
-        args = (evaluate_expr(arg, data, context) for arg in self._pipda_args)
+        args = (
+            evaluate_expr(arg, data, context, backend)
+            for arg in self._pipda_args
+        )
         kwargs = {
-            key: evaluate_expr(val, data, kw_context.get(key, context))
+            key: evaluate_expr(val, data, kw_context.get(key, context), backend)
             for key, val in self._pipda_kwargs.items()
         }
         return func(data, *args, **kwargs)
@@ -149,7 +158,7 @@ def register_verb(
         )
 
     if not isinstance(cls, (list, tuple, set)) and cls is not TypeHolder:
-        cls = (cls, )  # type: ignore
+        cls = (cls,)  # type: ignore
 
     registry = OrderedDict(
         {
@@ -158,13 +167,17 @@ def register_verb(
             )
         }
     )
+    # implementation => backend
+    backends: Dict[Callable, str] = {}
     # backend => implementation
     favorables: Dict[str, Callable] = {}
     # # cannot create weak reference to 'numpy.ufunc' object
     # contexts = weakref.WeakKeyDictionary()
     contexts = {
-        (func if cls is TypeHolder else _backend_generic)
-        : (context, kw_context)
+        (func if cls is TypeHolder else _backend_generic): (
+            context,
+            kw_context,
+        )
     }
 
     def dispatch(cl, backend=None):
@@ -207,6 +220,8 @@ def register_verb(
 
             if favorables.get(backend) is fun:
                 favored_found = True
+
+            backends[fun] = backend
             impls.append((backend, fun))
 
         if not impls:
@@ -231,6 +246,10 @@ def register_verb(
         """
         out = contexts.get(impl, (context, kw_context))
         return (default, out[1]) if out[0] is None else out
+
+    def get_backend(impl):
+        """Get the backend of the implementation"""
+        return backends.get(impl, DEFAULT_BACKEND)
 
     def register(
         cls,
@@ -300,6 +319,7 @@ def register_verb(
     wrapper.favorables = MappingProxyType(favorables)
     wrapper.dependent = dependent
     wrapper.get_context = get_context
+    wrapper.get_backend = get_backend
     wrapper._pipda_functype = "verb"
     update_wrapper(wrapper, func)
     update_user_wrapper(

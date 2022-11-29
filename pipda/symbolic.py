@@ -12,6 +12,7 @@ class Symbolic(Expression):
     """The symbolic class, works as a proxy to represent the data
     In most cases it is used to construct the Reference objects.
     """
+
     _pipda_level = 0
     _pipda_instance = None
 
@@ -26,6 +27,11 @@ class Symbolic(Expression):
     def __str__(self) -> str:
         return ""
 
-    def _pipda_eval(self, data: Any, context: ContextType = None) -> Any:
+    def _pipda_eval(
+        self,
+        data: Any,
+        context: ContextType = None,
+        backend: str = None,
+    ) -> Any:
         """When evaluated, this should just return the data directly"""
         return data

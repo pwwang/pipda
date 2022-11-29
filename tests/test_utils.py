@@ -113,7 +113,7 @@ def test_has_expr():
 
 def test_evaluate_expr():
     class FakeExpr:
-        def _pipda_eval(self, data, context):
+        def _pipda_eval(self, data, context, backend):
             return str(data)
 
     assert evaluate_expr(2, 1, Context.EVAL) == 2

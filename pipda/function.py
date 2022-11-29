@@ -59,42 +59,52 @@ class FunctionCall(Expression):
             )
         return f"{funname}({', '.join(strargs)})"
 
-    def _pipda_eval(self, data: Any, context: ContextType = None) -> Any:
+    def _pipda_eval(
+        self,
+        data: Any,
+        context: ContextType = None,
+        backend: str = None,
+    ) -> Any:
         """Evaluate the function call"""
         func = impl = self._pipda_func
+        backend = self._pipda_backend or backend
         if isinstance(func, Expression):
             # f.a(1)
-            impl = evaluate_expr(func, data, context)
+            impl = evaluate_expr(func, data, context, backend)
 
         args = self._pipda_args
         kwargs = self._pipda_kwargs
 
         functype = getattr(func, "_pipda_functype", None)
         if functype == "verb":
-            dt = evaluate_expr(args[0], data, context)
-            impl = func.dispatch(dt.__class__, backend=self._pipda_backend)
+            dt = evaluate_expr(args[0], data, context, backend)
+            impl = func.dispatch(dt.__class__, backend=backend)
             ctx, kw_ctx = func.get_context(impl, context)
             ctx = ctx or context
             kw_ctx = kw_ctx or {}
-            args = (dt, *(evaluate_expr(arg, dt, ctx) for arg in args[1:]))
+            args = (
+                dt,
+                *(evaluate_expr(arg, dt, ctx, backend) for arg in args[1:]),
+            )
             kwargs = {
-                key: evaluate_expr(val, dt, kw_ctx.get(key, ctx))
+                key: evaluate_expr(val, dt, kw_ctx.get(key, ctx), backend)
                 for key, val in kwargs.items()
             }
         else:
             args = tuple(
-                evaluate_expr(arg, data, context) for arg in args
+                evaluate_expr(arg, data, context, backend)
+                for arg in args
             )
             kwargs = {
-                key: evaluate_expr(val, data, context)
+                key: evaluate_expr(val, data, context, backend)
                 for key, val in kwargs.items()
             }
             if functype == "func":
-                impl = func.dispatch(backend=self._pipda_backend)
+                impl = func.dispatch(backend=backend)
             elif functype == "dispatchable":
                 impl = func.dispatch(
                     *(arg.__class__ for arg in args),
-                    backend=self._pipda_backend,
+                    backend=backend,
                 )
 
         return impl(*args, **kwargs)
@@ -214,8 +224,10 @@ def register_func(
     # backend => implementation
     favorables: Dict[str, Callable] = {}
     contexts = {
-        (func if cls is TypeHolder else _backend_generic)
-        : (context, kw_context)
+        (func if cls is TypeHolder else _backend_generic): (
+            context,
+            kw_context,
+        )
     }
 
     def dispatch(*clses, backend=None):
@@ -417,10 +429,7 @@ def register_func(
 
         if dispatchable:
             if dispatch_args == "first":
-                func = dispatch(
-                    args[0].__class__,
-                    backend=backend,
-                )
+                func = dispatch(args[0].__class__, backend=backend)
             elif dispatch_args == "args":
                 func = dispatch(
                     *(arg.__class__ for arg in args),

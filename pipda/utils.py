@@ -109,7 +109,12 @@ def is_piping(pipeable: str, fallback: str) -> bool:
     ) and isinstance(parent.op, PIPING_OPS[PipeableCall.PIPING][1])
 
 
-def evaluate_expr(expr: Any, data: Any, context: ContextType) -> Any:
+def evaluate_expr(
+    expr: Any,
+    data: Any,
+    context: ContextType,
+    backend: str = None,
+) -> Any:
     """Evaluate a mixed expression"""
     if isinstance(context, Enum):
         context = context.value
@@ -117,25 +122,25 @@ def evaluate_expr(expr: Any, data: Any, context: ContextType) -> Any:
     if hasattr(expr.__class__, "_pipda_eval"):
         # Not only for Expression objects, but also
         # allow customized classes
-        return expr._pipda_eval(data, context)
+        return expr._pipda_eval(data, context, backend)
 
     if isinstance(expr, (tuple, list, set)):
         # In case it's subclass
         return expr.__class__(
-            (evaluate_expr(elem, data, context) for elem in expr)
+            (evaluate_expr(elem, data, context, backend) for elem in expr)
         )
 
     if isinstance(expr, slice):
         return slice(
-            evaluate_expr(expr.start, data, context),
-            evaluate_expr(expr.stop, data, context),
-            evaluate_expr(expr.step, data, context),
+            evaluate_expr(expr.start, data, context, backend),
+            evaluate_expr(expr.stop, data, context, backend),
+            evaluate_expr(expr.step, data, context, backend),
         )
 
     if isinstance(expr, dict):
         return expr.__class__(
             {
-                key: evaluate_expr(val, data, context)
+                key: evaluate_expr(val, data, context, backend)
                 for key, val in expr.items()
             }
         )

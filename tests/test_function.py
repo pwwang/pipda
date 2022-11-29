@@ -305,3 +305,80 @@ def test_pipeable_context():
 
     out = "abc" >> func(f.x)
     assert out == "abcx" and isinstance(out, str)
+
+
+def test_dispatch_args_args():
+
+    @register_func(cls=int, dispatchable=True, dispatch_args="args")
+    def func(x, y):
+        return 1
+
+    @func.register(str)
+    def _func(x, y):
+        return 2
+
+    out = func("a", 2)
+    assert out == 2 and isinstance(out, int)
+
+    out = func(2, "a")
+    assert out == 1 and isinstance(out, int)
+
+    with pytest.raises(NotImplementedError):
+        func(x="a", y=2)
+
+
+def test_dispatch_args_kwargs():
+
+    @register_func(cls=int, dispatchable=True, dispatch_args="kwargs")
+    def func(x, y):
+        return 1
+
+    @func.register(str)
+    def _func(x, y):
+        return 2
+
+    out = func("a", y=2)
+    assert out == 1 and isinstance(out, int)
+
+    out = func(2, y="a")
+    assert out == 2 and isinstance(out, int)
+
+    with pytest.raises(NotImplementedError):
+        func("a", 2)
+
+
+def test_dispatch_args_all():
+
+    @register_func(cls=int, dispatchable=True, dispatch_args="all")
+    def func(x, y):
+        return 1
+
+    @func.register(str)
+    def _func(x, y):
+        return 2
+
+    out = func("a", y=2)
+    assert out == 2 and isinstance(out, int)
+
+    out = func(2, y="a")
+    assert out == 1 and isinstance(out, int)
+
+    out = func("a", 2)
+    assert out == 2 and isinstance(out, int)
+
+
+def test_dispatch_args_first():
+
+    @register_func(cls=int, dispatchable=True, dispatch_args="first")
+    def func(x, y):
+        return 1
+
+    @func.register(str)
+    def _func(x, y):
+        return 2
+
+    out = func("a", 1)
+    assert out == 2 and isinstance(out, int)
+
+    out = func(2, "a")
+    assert out == 1 and isinstance(out, int)
