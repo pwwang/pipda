@@ -31,7 +31,6 @@ class Symbolic(Expression):
         self,
         data: Any,
         context: ContextType = None,
-        backend: str = None,
     ) -> Any:
         """When evaluated, this should just return the data directly"""
         return data

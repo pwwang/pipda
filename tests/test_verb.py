@@ -6,7 +6,6 @@ from pipda.piping import register_piping
 from pipda.symbolic import Symbolic
 from pipda.context import Context
 from pipda.expression import Expression
-from pipda.function import register_func
 from pipda.verb import register_verb, VerbCall
 from pipda.utils import MultiImplementationsWarning
 
@@ -336,41 +335,3 @@ def test_kw_context():
 
     out = {"a": 1, "b": 2, "c": 3} >> update({"b": f["a"]}, rm=f.a)
     assert out == {"b": 1, "c": 3} and isinstance(out, dict)
-
-
-def test_passing_backend_down():
-    f = Symbolic()
-
-    @register_verb(context=Context.EVAL)
-    def add(x, y):
-        raise NotImplementedError
-
-    @add.register(str, backend="back")
-    def _(x, y):
-        return str(x) + str(y)
-
-    @add.register(int, backend="back2")
-    def _(x, y):
-        return x * y
-
-    @register_func()
-    def double(x):
-        raise NotImplementedError
-
-    @double.register(backend="back")
-    def _(x):
-        return x * 2
-
-    @double.register(backend="back2")
-    def _(x):
-        return x * 3
-
-    # backend is passed down
-    out = add("ab", double(f[:1]))
-    assert out == "abaa" and isinstance(out, str)
-
-    out = add(2, double(f * 2))
-    assert out == 24 and isinstance(out, int)
-
-    out = add("a", double(f * 2), __backend="back")
-    assert out == "aaaaa" and isinstance(out, str)

@@ -30,7 +30,6 @@ class Reference(Expression, ABC):
         self,
         data: Any,
         context: ContextType = None,
-        backend: str = None,
     ) -> Any:
         """Evaluate the reference according to the context"""
         if context is None:
@@ -53,7 +52,6 @@ class ReferenceAttr(Reference):
         self,
         data: Any,
         context: ContextType = None,
-        backend: str = None,
     ) -> Any:
         """Evaluate the attribute references"""
         if isinstance(context, Enum):
@@ -61,8 +59,8 @@ class ReferenceAttr(Reference):
 
         # if we don't have a context here, assuming that
         # we are calling `f.a.b(1)`, instead of evaluation
-        super()._pipda_eval(data, context, backend)
-        parent = evaluate_expr(self._pipda_parent, data, context, backend)
+        super()._pipda_eval(data, context)
+        parent = evaluate_expr(self._pipda_parent, data, context)
 
         return context.getattr(  # type: ignore
             parent,
@@ -95,19 +93,17 @@ class ReferenceItem(Reference):
         self,
         data: Any,
         context: ContextType = None,
-        backend: str = None,
     ) -> Any:
         """Evaluate the subscript references"""
         if isinstance(context, Enum):
             context = context.value
 
-        super()._pipda_eval(data, context, backend)
-        parent = evaluate_expr(self._pipda_parent, data, context, backend)
+        super()._pipda_eval(data, context)
+        parent = evaluate_expr(self._pipda_parent, data, context)
         ref = evaluate_expr(
             self._pipda_ref,
             data,
             context.ref,  # type: ignore
-            backend,
         )
 
         return context.getitem(parent, ref, self._pipda_level)  # type: ignore

@@ -307,9 +307,9 @@ def test_pipeable_context():
     assert out == "abcx" and isinstance(out, str)
 
 
-def test_dispatch_args_args():
+def test_dispatchable_args():
 
-    @register_func(cls=int, dispatchable=True, dispatch_args="args")
+    @register_func(cls=int, dispatchable="args")
     def func(x, y):
         return 1
 
@@ -327,9 +327,9 @@ def test_dispatch_args_args():
         func(x="a", y=2)
 
 
-def test_dispatch_args_kwargs():
+def test_dispatchable_kwargs():
 
-    @register_func(cls=int, dispatchable=True, dispatch_args="kwargs")
+    @register_func(cls=int, dispatchable="kwargs")
     def func(x, y):
         return 1
 
@@ -347,9 +347,9 @@ def test_dispatch_args_kwargs():
         func("a", 2)
 
 
-def test_dispatch_args_all():
+def test_dispatchable_all():
 
-    @register_func(cls=int, dispatchable=True, dispatch_args="all")
+    @register_func(cls=int, dispatchable="all")
     def func(x, y):
         return 1
 
@@ -367,9 +367,9 @@ def test_dispatch_args_all():
     assert out == 2 and isinstance(out, int)
 
 
-def test_dispatch_args_first():
+def test_dispatchable_first():
 
-    @register_func(cls=int, dispatchable=True, dispatch_args="first")
+    @register_func(cls=int, dispatchable="first")
     def func(x, y):
         return 1
 

@@ -113,7 +113,6 @@ def evaluate_expr(
     expr: Any,
     data: Any,
     context: ContextType,
-    backend: str = None,
 ) -> Any:
     """Evaluate a mixed expression"""
     if isinstance(context, Enum):
@@ -122,25 +121,25 @@ def evaluate_expr(
     if hasattr(expr.__class__, "_pipda_eval"):
         # Not only for Expression objects, but also
         # allow customized classes
-        return expr._pipda_eval(data, context, backend)
+        return expr._pipda_eval(data, context)
 
     if isinstance(expr, (tuple, list, set)):
         # In case it's subclass
         return expr.__class__(
-            (evaluate_expr(elem, data, context, backend) for elem in expr)
+            (evaluate_expr(elem, data, context) for elem in expr)
         )
 
     if isinstance(expr, slice):
         return slice(
-            evaluate_expr(expr.start, data, context, backend),
-            evaluate_expr(expr.stop, data, context, backend),
-            evaluate_expr(expr.step, data, context, backend),
+            evaluate_expr(expr.start, data, context),
+            evaluate_expr(expr.stop, data, context),
+            evaluate_expr(expr.step, data, context),
         )
 
     if isinstance(expr, dict):
         return expr.__class__(
             {
-                key: evaluate_expr(val, data, context, backend)
+                key: evaluate_expr(val, data, context)
                 for key, val in expr.items()
             }
         )

@@ -43,11 +43,10 @@ class OperatorCall(Expression):
         self,
         data: Any,
         context: ContextType = None,
-        backend: str = None,
     ) -> Any:
         """Evaluate the operator call"""
         operands = (
-            evaluate_expr(arg, data, context, backend)
+            evaluate_expr(arg, data, context)
             for arg in self._pipda_operands
         )
         return self._pipda_op_func(*operands)

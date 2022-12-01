@@ -203,7 +203,6 @@ class Expression(ABC):
         self,
         data: Any,
         context: ContextBase = None,
-        backend: str = None,
     ) -> Any:
         """Evaluate the expression using given data"""
 

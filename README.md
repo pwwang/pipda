@@ -21,7 +21,7 @@ pip install -U pipda
 - A verb is pipeable (able to be called like `data >> verb(...)`)
 - A verb is dispatchable by the type of its first argument
 - A verb evaluates other arguments using the first one
-- A verb is passing down the context and backend if not specified in the arguments
+- A verb is passing down the context if not specified in the arguments
 
 ```python
 import pandas as pd

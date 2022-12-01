@@ -63,48 +63,46 @@ class FunctionCall(Expression):
         self,
         data: Any,
         context: ContextType = None,
-        backend: str = None,
     ) -> Any:
         """Evaluate the function call"""
         func = impl = self._pipda_func
-        backend = self._pipda_backend or backend
         if isinstance(func, Expression):
             # f.a(1)
-            impl = evaluate_expr(func, data, context, backend)
+            impl = evaluate_expr(func, data, context)
 
         args = self._pipda_args
         kwargs = self._pipda_kwargs
 
         functype = getattr(func, "_pipda_functype", None)
         if functype == "verb":
-            dt = evaluate_expr(args[0], data, context, backend)
-            impl = func.dispatch(dt.__class__, backend=backend)
+            dt = evaluate_expr(args[0], data, context)
+            impl = func.dispatch(dt.__class__, backend=self._pipda_backend)
             ctx, kw_ctx = func.get_context(impl, context)
             ctx = ctx or context
             kw_ctx = kw_ctx or {}
             args = (
                 dt,
-                *(evaluate_expr(arg, dt, ctx, backend) for arg in args[1:]),
+                *(evaluate_expr(arg, dt, ctx) for arg in args[1:]),
             )
             kwargs = {
-                key: evaluate_expr(val, dt, kw_ctx.get(key, ctx), backend)
+                key: evaluate_expr(val, dt, kw_ctx.get(key, ctx))
                 for key, val in kwargs.items()
             }
         else:
             args = tuple(
-                evaluate_expr(arg, data, context, backend)
+                evaluate_expr(arg, data, context)
                 for arg in args
             )
             kwargs = {
-                key: evaluate_expr(val, data, context, backend)
+                key: evaluate_expr(val, data, context)
                 for key, val in kwargs.items()
             }
             if functype == "func":
-                impl = func.dispatch(backend=backend)
+                impl = func.dispatch(backend=self._pipda_backend)
             elif functype == "dispatchable":
                 impl = func.dispatch(
                     *(arg.__class__ for arg in args),
-                    backend=backend,
+                    backend=self._pipda_backend,
                 )
 
         return impl(*args, **kwargs)
@@ -119,8 +117,7 @@ def register_func(
     qualname: str = None,
     doc: str = None,
     module: str = None,
-    dispatchable: bool = False,
-    dispatch_args: str = "args",
+    dispatchable: str | bool = False,
     pipeable: bool = False,
     context: ContextType = None,
     kw_context: Dict[str, ContextType] = None,
@@ -161,14 +158,14 @@ def register_func(
             piping_warning - Suppose piping call, but show a warning
             normal_warning - Suppose normal call, but show a warning
             raise - Raise an error
-        dispatchable: If True, the function will be registered as a dispatchable
-            function, which means it will be dispatched using the types of
-            positional arguments.
-        dispatch_args: Which arguments to use for dispatching.
+        dispatchable: If not False nor None, the function will be registered as
+            a dispatchable function, which means it will be dispatched using
+            the types of the arguments:
             "first" - Use the first argument
             "args" - Use all positional arguments
             "kwargs" - Use all keyword arguments
             "all" - Use all arguments
+            If False, the function is  not dispatchable.
         pipeable: If True, the function will work like a verb when a data is
             piping in. If dispatchable, the first argument will be used to
             dispatch the implementation.
@@ -192,7 +189,6 @@ def register_func(
             doc=doc,
             module=module,
             dispatchable=dispatchable,
-            dispatch_args=dispatch_args,
             pipeable=pipeable,
             context=context,
             kw_context=kw_context,
@@ -427,27 +423,26 @@ def register_func(
         # No Expression objects, call directly
         backend = kwargs.pop("__backend", None)
 
-        if dispatchable:
-            if dispatch_args == "first":
-                func = dispatch(args[0].__class__, backend=backend)
-            elif dispatch_args == "args":
-                func = dispatch(
-                    *(arg.__class__ for arg in args),
-                    backend=backend,
-                )
-            elif dispatch_args == "kwargs":
-                func = dispatch(
-                    *(arg.__class__ for arg in kwargs.values()),
-                    backend=backend,
-                )
-            else:  # all
-                func = dispatch(
-                    *(arg.__class__ for arg in args),
-                    *(arg.__class__ for arg in kwargs.values()),
-                    backend=backend,
-                )
-        else:
+        if not dispatchable:
             func = dispatch(backend=backend)
+        elif dispatchable == "first":
+            func = dispatch(args[0].__class__, backend=backend)
+        elif dispatchable == "args":
+            func = dispatch(
+                *(arg.__class__ for arg in args),
+                backend=backend,
+            )
+        elif dispatchable == "kwargs":
+            func = dispatch(
+                *(arg.__class__ for arg in kwargs.values()),
+                backend=backend,
+            )
+        else:  # all
+            func = dispatch(
+                *(arg.__class__ for arg in args),
+                *(arg.__class__ for arg in kwargs.values()),
+                backend=backend,
+            )
 
         return func(*args, **kwargs)
 

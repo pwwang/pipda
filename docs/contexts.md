@@ -87,16 +87,16 @@ def subset_and_update(data, *cols, **kwargs):
     Note that for `Context.PENDING`, we need to subclass `context.ContextPending`
     to keep expressions unevaluated.
 
-## Extra contexts
+## Contexts for keyword arguments
 
-We can set extra contexts for keyword-only arguments.
+We can set extra contexts for keyword arguments.
 
 ```python
 
 @register_verb(
     dict,
     context=Context.EVAL,
-    extra_contexts={"cols": Context.SELECT},
+    kw_context={"cols": Context.SELECT},
 )
 def subset_and_update(data, *, cols, **kwargs):
     data = {key: val for key, val in data.items() if key in cols}
@@ -117,3 +117,14 @@ def subset_and_update(data, *, cols, **kwargs):
 
     When registering another type(s) for a verb, contexts and extra contexts
     are inherited for the first ones that registered with `register_verb`
+
+
+!!! Tip
+
+    Each implementation for the registered verbs or functions can have its own
+    contexts. Specify them when registering the implementations.
+
+    ```python
+    <verb>.register(..., context=..., kw_context=...)
+    <func>.register(..., context=..., kw_context=...)
+    ```

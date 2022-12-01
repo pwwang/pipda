@@ -58,12 +58,11 @@ class VerbCall(PipeableCall):
         self,
         data: Any,
         context: ContextType = None,
-        backend: str = None,
     ) -> Any:
-        backend = self._pipda_backend or backend
-        func = self._pipda_func.dispatch(data.__class__, backend=backend)
-        if not backend and hasattr(self._pipda_func, "get_backend"):
-            backend = self._pipda_func.get_backend(func)
+        func = self._pipda_func.dispatch(
+            data.__class__,
+            backend=self._pipda_backend,
+        )
 
         context, kw_context = self._pipda_func.get_context(func, context)
         kw_context = kw_context or {}
@@ -73,12 +72,9 @@ class VerbCall(PipeableCall):
         if isinstance(context, ContextPending):
             return func(data, *self._pipda_args, **self._pipda_kwargs)
 
-        args = (
-            evaluate_expr(arg, data, context, backend)
-            for arg in self._pipda_args
-        )
+        args = (evaluate_expr(arg, data, context) for arg in self._pipda_args)
         kwargs = {
-            key: evaluate_expr(val, data, kw_context.get(key, context), backend)
+            key: evaluate_expr(val, data, kw_context.get(key, context))
             for key, val in self._pipda_kwargs.items()
         }
         return func(data, *args, **kwargs)
@@ -247,10 +243,6 @@ def register_verb(
         out = contexts.get(impl, (context, kw_context))
         return (default, out[1]) if out[0] is None else out
 
-    def get_backend(impl):
-        """Get the backend of the implementation"""
-        return backends.get(impl, DEFAULT_BACKEND)
-
     def register(
         cls,
         *,
@@ -319,7 +311,6 @@ def register_verb(
     wrapper.favorables = MappingProxyType(favorables)
     wrapper.dependent = dependent
     wrapper.get_context = get_context
-    wrapper.get_backend = get_backend
     wrapper._pipda_functype = "verb"
     update_wrapper(wrapper, func)
     update_user_wrapper(
