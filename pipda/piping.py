@@ -1,8 +1,9 @@
 import ast
 import functools
+from abc import ABC
 from typing import Type, Dict, Callable
 
-from .verb import VerbCall
+from .expression import Expression
 
 PIPING_OPS = {
     # op: (method, ast node, numpy ufunc name)
@@ -22,6 +23,14 @@ PATCHED_CLASSES: Dict[Type, Dict[str, Callable]] = {
 }
 
 
+class PipeableCall(Expression, ABC):
+    """A pipeable call that waits for the data to be piped in
+
+    >>> data >> pipeable_call(...)
+    """
+    PIPING: str = None
+
+
 def _patch_cls_method(kls: Type, method: str) -> None:
     """Borrowed from https://github.com/sspipe/sspipe"""
     try:
@@ -33,7 +42,7 @@ def _patch_cls_method(kls: Type, method: str) -> None:
 
     @functools.wraps(original)
     def wrapper(self, x, *args, **kwargs):
-        if isinstance(x, VerbCall):
+        if isinstance(x, PipeableCall):
             return NotImplemented
         return original(self, x, *args, **kwargs)
 
@@ -63,7 +72,7 @@ def patch_classes(*classes: Type) -> None:
     """Patch the classes in case it has piping operator defined
 
     For example, DataFrame.__or__ has already been defined, so we need to
-    patch it to force it to use __ror__ of VerbCall if `|` is registered
+    patch it to force it to use __ror__ of PipeableCall if `|` is registered
     for piping.
 
     Args:
@@ -74,7 +83,7 @@ def patch_classes(*classes: Type) -> None:
             PATCHED_CLASSES[kls] = {}
 
         if not PATCHED_CLASSES[kls]:
-            _patch_cls_operator(kls, VerbCall.PIPING)
+            _patch_cls_operator(kls, PipeableCall.PIPING)
 
 
 def unpatch_classes(*classes: Type) -> None:
@@ -85,7 +94,7 @@ def unpatch_classes(*classes: Type) -> None:
     """
     for kls in classes:
         if PATCHED_CLASSES[kls]:
-            _unpatch_cls_operator(kls, VerbCall.PIPING)
+            _unpatch_cls_operator(kls, PipeableCall.PIPING)
         # Don't patch it in the future
         del PATCHED_CLASSES[kls]
 
@@ -139,13 +148,13 @@ def _patch_default_classes() -> None:
         pass
 
     try:  # pragma: no cover
-        import torch
+        import torch  # pyright: ignore
         patch_classes(torch.Tensor)
     except ImportError:
         pass
 
     try:  # pragma: no cover
-        from django.db.models import query
+        from django.db.models import query  # pyright: ignore
         patch_classes(query.QuerySet)
     except ImportError:
         pass
@@ -161,17 +170,16 @@ def register_piping(op: str) -> None:
     if op not in PIPING_OPS:
         raise ValueError(f"Unsupported piping operator: {op}")
 
-    if VerbCall.PIPING:
-        orig_method = VerbCall.__orig_opmethod__
-        curr_method = PIPING_OPS[VerbCall.PIPING][0]
-        setattr(VerbCall, curr_method, orig_method)
-        _unpatch_all(VerbCall.PIPING)
+    from .verb import VerbCall
 
-    VerbCall.PIPING = op
+    if PipeableCall.PIPING:
+        curr_method = PIPING_OPS[PipeableCall.PIPING][0]
+        verb_orig_method = VerbCall.__orig_opmethod__
+        setattr(VerbCall, curr_method, verb_orig_method)
+        _unpatch_all(PipeableCall.PIPING)
+
+    PipeableCall.PIPING = op
     VerbCall.__orig_opmethod__ = getattr(VerbCall, PIPING_OPS[op][0])
     setattr(VerbCall, PIPING_OPS[op][0], VerbCall._pipda_eval)
+
     _patch_all(op)
-
-
-register_piping(">>")
-_patch_default_classes()

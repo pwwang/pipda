@@ -20,7 +20,9 @@ class OperatorCall(Expression):
         operands: The operands of the operator
     """
 
-    def __init__(self, op_func: Callable, op_name: str, *operands: Any) -> None:
+    def __init__(
+        self, op_func: Callable, op_name: str, *operands: Any
+    ) -> None:
         self._pipda_op_func = op_func
         self._pipda_op_name = op_name
         self._pipda_operands = operands
@@ -37,7 +39,11 @@ class OperatorCall(Expression):
 
         return f" {op} ".join(str(operand) for operand in self._pipda_operands)
 
-    def _pipda_eval(self, data: Any, context: ContextType = None) -> Any:
+    def _pipda_eval(
+        self,
+        data: Any,
+        context: ContextType = None,
+    ) -> Any:
         """Evaluate the operator call"""
         operands = (
             evaluate_expr(arg, data, context)
@@ -60,6 +66,7 @@ class Operator:
         >>>     def add(self, x, y):
         >>>         return x * y
     """
+
     def __getattr__(self, name: str) -> Callable:
         if not OPERATORS[name][1]:
             # not a right operator (e.g. radd)
@@ -84,5 +91,6 @@ def register_operator(opclass: Type) -> Type:
         The opclass
     """
     from .expression import Expression
+
     Expression._pipda_operator = opclass()
     return opclass

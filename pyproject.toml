@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pipda"
-version = "0.9.0"
+version = "0.10.0"
 readme = "README.md"
 description = "A framework for data piping in python"
 authors = ["pwwang <pwwang@pwwang.com>"]
@@ -8,7 +8,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.7.1"
-executing = "^1.1.1"
+executing = "^1.1, !=1.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7"
@@ -32,8 +32,8 @@ addopts = "-vv -W error::UserWarning -p no:asyncio --cov-config=.coveragerc --co
 console_output_style = "progress"
 junit_family = "xunit1"
 filterwarnings = [
-    # "error",
-    "ignore::DeprecationWarning",
+    "error",
+    # "ignore::DeprecationWarning",
 ]
 
 [tool.black]

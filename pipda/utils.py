@@ -10,13 +10,26 @@ import warnings
 
 from .context import ContextType
 
+DEFAULT_BACKEND = "_default"
 
-class VerbCallingCheckWarning(Warning):
+
+class PipeableCallCheckWarning(Warning):
     """Warns when checking verb is called normally or using piping"""
 
 
-class VerbCallingCheckError(Exception):
+class MultiImplementationsWarning(Warning):
+    """Warns when multiple implementations are found"""
+
+
+class PipeableCallCheckError(Exception):
     """Raises when checking verb is called normally or using piping"""
+
+
+class TypeHolder:
+    """A holder for a type that indicates the function passed to
+    register_verb or register_func is a placeholder (typically raising
+    NotImplementedError), not a real implementation.
+    """
 
 
 def update_user_wrapper(
@@ -33,15 +46,15 @@ def update_user_wrapper(
         x.__module__ = module
 
 
-def is_piping_verbcall(verb: str, fallback: str) -> bool:
-    """Check if the verb is called with piping.
+def is_piping(pipeable: str, fallback: str) -> bool:
+    """Check if the pipeable is called with piping.
 
     Example:
         >>> data >> verb(...)
         >>> data >>= verb(...)
 
     Args:
-        verb: The name of the verb, used in warning or exception messaging
+        pipeable: The name of the verb, used in warning or exception messaging
         fallback: What if the AST node fails to retrieve?
             piping - Suppose this verb is called like `data >> verb(...)`
             normal - Suppose this verb is called like `verb(data, ...)`
@@ -53,9 +66,9 @@ def is_piping_verbcall(verb: str, fallback: str) -> bool:
         True if it is a piping verb call, otherwise False
     """
     from executing import Source
-    from .verb import VerbCall
-    from .piping import PIPING_OPS
+    from .piping import PIPING_OPS, PipeableCall
 
+    # Caching?
     frame = sys._getframe(2)
     node = Source.executing(frame).node
 
@@ -67,21 +80,21 @@ def is_piping_verbcall(verb: str, fallback: str) -> bool:
             return True
         if fallback == "normal_warning":
             warnings.warn(
-                f"Failed to detect AST node calling `{verb}`, "
+                f"Failed to detect AST node calling `{pipeable}`, "
                 "assuming a normal call.",
-                VerbCallingCheckWarning,
+                PipeableCallCheckWarning,
             )
             return False
         if fallback == "piping_warning":
             warnings.warn(
-                f"Failed to detect AST node calling `{verb}`, "
+                f"Failed to detect AST node calling `{pipeable}`, "
                 "assuming a piping call.",
-                VerbCallingCheckWarning,
+                PipeableCallCheckWarning,
             )
             return True
 
-        raise VerbCallingCheckError(
-            f"Failed to detect AST node calling `{verb}` "
+        raise PipeableCallCheckError(
+            f"Failed to detect AST node calling `{pipeable}` "
             "without a fallback solution."
         )
 
@@ -93,10 +106,14 @@ def is_piping_verbcall(verb: str, fallback: str) -> bool:
     return (
         (isinstance(parent, ast.BinOp) and parent.right is node)
         or (isinstance(parent, ast.AugAssign) and parent.value is node)
-    ) and isinstance(parent.op, PIPING_OPS[VerbCall.PIPING][1])
+    ) and isinstance(parent.op, PIPING_OPS[PipeableCall.PIPING][1])
 
 
-def evaluate_expr(expr: Any, data: Any, context: ContextType) -> Any:
+def evaluate_expr(
+    expr: Any,
+    data: Any,
+    context: ContextType,
+) -> Any:
     """Evaluate a mixed expression"""
     if isinstance(context, Enum):
         context = context.value

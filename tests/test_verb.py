@@ -1,26 +1,26 @@
-import inspect
+import warnings
 import pytest
 
 import numpy as np
 from pipda.piping import register_piping
 from pipda.symbolic import Symbolic
 from pipda.context import Context
-from pipda.verb import *
+from pipda.expression import Expression
+from pipda.verb import register_verb, VerbCall
+from pipda.utils import MultiImplementationsWarning
 
 
 def test_str():
     f = Symbolic()
-    class F:
-        dep = False
-        def __str__(self) -> str:
-            return "verb"
-    verb = F()
+
+    def verb():
+        ...
 
     call = VerbCall(verb, f.x)
-    assert str(call) == 'verb(., x)'
+    assert str(call) == "verb(., x)"
 
     call = VerbCall(verb, x=f.x)
-    assert str(call) == 'verb(., x=x)'
+    assert str(call) == "verb(., x=x)"
 
 
 def test_pending_context():
@@ -31,24 +31,6 @@ def test_pending_context():
         assert isinstance(x, Expression)
 
     verb(1, f.x)
-
-
-def test_extra_contexts():
-    f = Symbolic()
-
-    @register_verb(
-        dict,
-        context=Context.EVAL,
-        extra_contexts={'col': Context.SELECT},
-    )
-    def subset(data, subdata, col):
-        return subdata[col]
-
-    out = {"x": {"a": 1}} >> subset(f["x"], col=f.a)
-    assert out == 1 and isinstance(out, int)
-
-    out = {"x": {"a": 1}} >> subset(f["x"], f.a)
-    assert out == 1 and isinstance(out, int)
 
 
 def test_unregistered_types():
@@ -82,11 +64,7 @@ def test_register_more_types():
 def test_register_more_types_inherit_context():
     f = Symbolic()
 
-    @register_verb(
-        list,
-        context=Context.SELECT,
-        extra_contexts={'plus': Context.EVAL},
-    )
+    @register_verb(list, context=Context.SELECT)
     def select(data, indices, *, plus):
         return [data[i + plus] for i in indices]
 
@@ -94,32 +72,26 @@ def test_register_more_types_inherit_context():
     def _1(data, indices, *, plus):
         return tuple(data[i + plus] for i in indices)
 
-    class MyList(list): ...
+    class MyList(list):
+        ...
 
-    @select.register(
-        MyList,
-        context=Context.EVAL,
-        extra_contexts={"plus": Context.SELECT},
-    )
+    @select.register(MyList, context=Context.EVAL)
     def _2(data, indices, *, plus):
         return select(list(data), indices, plus=plus)
 
     out = [1, 2, 3, 4] >> select([f[0], f[2]], plus=f[0])
-    assert out == [2, 4] and isinstance(out, list)
+    assert out == [1, 3] and isinstance(out, list)
 
     out = (1, 2, 3, 4) >> select([f[0], f[2]], plus=f[0])
-    assert out == (2, 4) and isinstance(out, tuple)
+    assert out == (1, 3) and isinstance(out, tuple)
 
-    out = MyList([1, 2, 3, 4]) >> select([f[0], f[2]], plus=f[0])
-    assert out == [2, 4] and isinstance(out, list)
+    out = MyList([1, 2, 3, 4]) >> select([f[0], f[2] - 1], plus=f[0])
+    assert out == [3, 4] and isinstance(out, list)
 
 
 def test_numpy_ufunc():
 
-    fun = register_verb(
-        np.ndarray,
-        func=np.sqrt, signature=inspect.signature(lambda x: None)
-    )
+    fun = register_verb(np.ndarray, func=np.sqrt)
     out = fun(np.array([1, 4, 9]))
     assert out == pytest.approx([1, 2, 3])
 
@@ -131,11 +103,11 @@ def test_dependent_verb():
     def times(data, n: int):
         return [x * n for x in data]
 
-    @register_verb(list, context=Context.EVAL, dep=True)
+    @register_verb(list, context=Context.EVAL, dependent=True)
     def length(data):
         return len(data)
 
-    @register_verb(list, context=Context.EVAL, dep=False)
+    @register_verb(list, context=Context.EVAL, dependent=False)
     def length2(data):
         return len(data)
 
@@ -180,10 +152,10 @@ def test_as_func():
     out = {"a": 1, "b": 2, "c": 3} >> update(
         plus(
             {"a": 2, "b": f["c"]},
-            f["a"],  # 1 instead 2
+            f["a"],  # 2, instead 1
         )
     )
-    assert out == {"a": 3, "b": 4, "c": 3}
+    assert out == {"a": 4, "b": 5, "c": 3}
 
     out = {"a": 1, "b": 2, "c": 3} >> update(
         plus(
@@ -203,37 +175,8 @@ def test_error():
         length([1], 2)
 
 
-def test_registered():
-
-    @register_verb(int)
-    def incre(x):
-        return x + 1
-
-    assert incre.registered(int)
-    assert not incre.registered(list)
-
-    @register_verb(None)
-    def sum(x):
-        return 0
-
-    assert not sum.registered(int)
-
-    @register_verb(object)
-    def sum2(x):
-        return 0
-
-    assert sum2.registered(int)
-
-
-def test_register_non_callable():
-
-    fun = register_verb(None, func="none")
-    assert not fun.registered(object)
-
-
 def test_types_none():
-
-    @register_verb(None)
+    @register_verb()
     def sum_(x):
         """Doc for sum"""
         return 0
@@ -244,8 +187,6 @@ def test_types_none():
 
     assert sum_.__doc__ == "Doc for sum"
     assert sum_.__name__ == "sum_"
-    assert sum_.registered(list)
-    assert not sum_.registered(object)
 
     assert sum_("1234", __ast_fallback="normal") == 0
     assert sum_([1, 2, 3], __ast_fallback="normal") == 6
@@ -256,7 +197,6 @@ def test_meta():
     qualname = "mypackage.myfun"
     doc = "my doc"
     module = "mypackage"
-    signature = inspect.signature(lambda x: None)
 
     fun = register_verb(
         object,
@@ -265,18 +205,15 @@ def test_meta():
         qualname=qualname,
         doc=doc,
         module=module,
-        signature=signature,
     )
 
     assert fun.__name__ == name
     assert fun.__qualname__ == qualname
     assert fun.__doc__ == doc
     assert fun.__module__ == module
-    assert fun.signature == signature
 
 
 def test_nparray_as_data():
-
     @register_verb(np.ndarray)
     def sum_(data):
         return data.sum()
@@ -310,3 +247,91 @@ def test_npufunc_as_verb_args():
     out = np.array([1, -2, 3]) >> add(np.abs(f[1]))
     out = list(out)
     assert out == [3, 0, 5] and isinstance(out, list)
+
+
+def test_multiple_backends():
+
+    @register_verb(int)
+    def add(x, y):
+        return x + y
+
+    @add.register((int, set), backend="back")
+    def _(x, y):
+        return x - y
+
+    with pytest.warns(MultiImplementationsWarning):
+        assert add(2, 1, __ast_fallback="normal") == 1
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        assert add(2, 1, __ast_fallback="normal", __backend="back") == 1
+        assert add(2, 1, __ast_fallback="normal", __backend="_default") == 3
+        assert add({1, 2}, {1}, __ast_fallback="normal") == {2}
+
+    with pytest.raises(NotImplementedError):
+        add(2, 1, __ast_fallback="normal", __backend="not_back")
+
+
+def test_favored():
+
+    @register_verb(int)
+    def add(x, y):
+        return x + y
+
+    @add.register(int, backend="back", favored=True)
+    def _(x, y):
+        return x - y
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        assert add(2, 1, __ast_fallback="normal") == 1
+
+
+def test_overwrite_doc():
+
+    @register_verb(int)
+    def func(data):
+        """doc1"""
+        return 1
+
+    @func.register(int, backend="back", overwrite_doc=True)
+    def _func(data):
+        """doc2"""
+        return 2
+
+    assert func.__doc__ == "doc2"
+
+
+def test_expr_as_data():
+
+    f = Symbolic()
+
+    @register_verb(int)
+    def identity(data):
+        return data
+
+    @register_verb(int)
+    def add(x, y):
+        return x + y
+
+    out = 1 >> identity() >> add(f)
+    assert out == 2 and isinstance(out, int)
+
+
+def test_kw_context():
+
+    f = Symbolic()
+
+    @register_verb(
+        dict,
+        context=Context.EVAL,
+        kw_context={'rm': Context.SELECT},
+    )
+    def update(data, subdata, rm):
+        data = data.copy()
+        data.update(subdata)
+        del data[rm]
+        return data
+
+    out = {"a": 1, "b": 2, "c": 3} >> update({"b": f["a"]}, rm=f.a)
+    assert out == {"b": 1, "c": 3} and isinstance(out, dict)

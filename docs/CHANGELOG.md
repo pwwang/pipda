@@ -1,5 +1,16 @@
 # Change Log
 
+## 0.10.0
+
+- 💥 Refactor the registered borrowed from `singledispatch`
+- ✨ Allow pipeable and dispatchable functions (related: pwwang/datar#148)
+- 💥 Change default ast_fallback to "piping_warning" for verbs
+- ✨ Allow to register multi-types at a time for dispatchable functions
+- ✨ Support backends
+- ✨ Allow register plain functions
+- ✅ Add level test for context
+- ✨ Make pipeable function work as a verb
+
 ## 0.9.0
 
 - ✨ Allow `__array_ufunc__` to be registered on Expression by `register_expr_array_func`

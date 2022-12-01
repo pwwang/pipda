@@ -48,4 +48,4 @@ def test_register_operator():
 
     expr = ~f["x"]
     assert str(expr) == "~x"
-    assert expr._pipda_eval({"x": 2}, Context.EVAL) == -3 # ~2
+    assert expr._pipda_eval({"x": 2}, Context.EVAL) == -3  # ~2

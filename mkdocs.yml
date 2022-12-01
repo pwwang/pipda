@@ -18,6 +18,8 @@ nav:
     - 'Home': 'index.md'
     - 'Verbs': 'verbs.md'
     - 'Functions': 'functions.md'
+    - 'Backends': 'backends.md'
+    - 'Piping': 'piping.md'
     - 'Expressions': 'expressions.md'
     - 'Operators': 'operators.md'
     - 'Contexts': 'contexts.md'

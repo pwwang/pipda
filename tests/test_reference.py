@@ -17,12 +17,12 @@ def test_cant_eval_without_context():
 
 def test_str():
     f = Symbolic()
-    assert str(f.a) == 'a'
-    assert str(f.a.b) == 'a.b'
-    assert str(f.a['b']) == "a[b]"
-    assert str(f['a'].b) == "a.b"
+    assert str(f.a) == "a"
+    assert str(f.a.b) == "a.b"
+    assert str(f.a["b"]) == "a[b]"
+    assert str(f["a"].b) == "a.b"
     assert str(f[1:3]) == "[1:3]"
-    assert str(f[1:f.b]) == "[1:b]"
+    assert str(f[1 : f.b]) == "[1:b]"
 
 
 def test_attr_eval():

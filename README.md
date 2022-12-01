@@ -18,7 +18,10 @@ pip install -U pipda
 
 ### Verbs
 
-Verbs are functions next to the piping sign (`>>`) receiving the data directly.
+- A verb is pipeable (able to be called like `data >> verb(...)`)
+- A verb is dispatchable by the type of its first argument
+- A verb evaluates other arguments using the first one
+- A verb is passing down the context if not specified in the arguments
 
 ```python
 import pandas as pd
@@ -169,7 +172,7 @@ Here the trick is `f`. Like other packages, we introduced the `Symbolic` object,
 
 [https://pwwang.github.io/pipda/][19]
 
-See also [datar][6] for realcase usages.
+See also [datar][6] for real-case usages.
 
 [1]: https://github.com/machow/siuba
 [2]: https://github.com/kieferk/dfply

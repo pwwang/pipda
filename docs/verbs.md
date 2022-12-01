@@ -1,8 +1,42 @@
 # Verbs
 
-Verbs are functions next to the piping operator receiving the data directly.
+## Registering a verb
 
-## Basic usage
+You can use `register_verb` to register a verb. Here are the arguments of `register_verb`:
+
+- cls: The default type to register for _default backend
+    if TypeHolder, it is a generic function, and not counted as a
+    real implementation.
+- func: The function works as a verb.
+    If `None` (not provided), this function will return a decorator.
+- context: The context to evaluate the arguments
+- kw_context: The context to evaluate the keyword arguments
+- name: and
+- qualname: and
+- doc: and
+- module: The meta information about the function to overwrite `func`'s
+    or when it's not available from `func`
+- dependent: Whether the verb is dependent.
+
+    ```python
+    >>> @register_verb(context=Context.EVAL, dependent=True)
+    >>> def length(data):
+    >>>     return len(data)
+    >>> # with dependent=True
+    >>> # length()  -> VerbCall, waiting for data to evaluate
+    >>> # with dependent=False
+    >>> # length()  -> TypeError, argument data is missing
+    ```
+
+- ast_fallback: What's the supposed way to call the verb when
+    AST node detection fails.
+    - piping - Suppose this verb is called like `data >> verb(...)`
+    - normal - Suppose this verb is called like `verb(data, ...)`
+    - piping_warning - Suppose piping call, but show a warning
+    - normal_warning - Suppose normal call, but show a warning
+    - raise - Raise an error
+
+## Verbs are pipeable
 
 ```python
 from pipda import register_verb
@@ -12,150 +46,121 @@ def increment(data):
     return data + 1
 
 1 >> increment()  # 2
-```
 
-## Registering generic functions
-
-By default, if a type cannot be dispatched, a default generic function is automatically created, which will raise a `NotImplementedError`. But you can register a generic function to customize this behavior by yourself.
-
-```python
-@register_verb(None)
-def increment(data):
-    raise TypeError(f"Unsupported type: {type(data).__name__}")
-
-@increment.register(int)
-def _(data):
-    return data + 1
-
-increment("abc")  # TypeError: Unsupported type: str (instead of NotImplementedError)
+# You can also call it normally
 increment(1)  # 2
 ```
 
-## Dependent verb
+More about pipeable, see [Piping](./piping).
 
-Dependent verbs are functions can be used in another verb without passing the
-data argument. It can also work as a normal verb.
+## Verbs are dispatchable
+
+Like single-dispatched functions, verbs are dispatchable by the type of its first argument.
 
 ```python
 from pipda import register_verb
 
-@register_verb(int, dep=True)
-def plus(data, n):
-    return data + n
 
-# plus: 1 + 2 -> 3
-# increment: 3 + 1 -> 4
-1 >> increment(plus(n=2))  # 4
+@register_verb(int)
+def increment(data):
+    return data + 1
 
-# also works as a normal verb
-1 >> plus(n=2)  # 3
-plus(n=2)  # a VerbCall object awaiting data for evaluation
+
+@increment.register(str)
+def _increment(data):
+    return data + '1'
+
+
+1 >> increment()  # 2
+'1' >> increment()  # '11'
 ```
 
-## Using as functions
-
-When the first argument is an `Expression` then the verbs work as functions
+What if a verb is not registered for a type? It will be dispatched to default generic function, which raises a `NotImplementedError`.
 
 ```python
+[] >> increment()  # NotImplementedError
+```
+
+If you want change the default behavior, you can register a generic function by yourself, using a type holder.
+
+```python
+from pipda import register_verb
+from pipda.utils import TypeHolder
+
+@register_verb(TypeHolder)
+def increment(data):
+    return data + 1
+
+1.1 >> increment()  # 2.1
+```
+
+## Verbs evaluate other arguments using the first one as data
+
+```python
+from pipda import register_verb, Context, Symbolic
+
 f = Symbolic()
 
-@register_verb(int)
-def sub(data, n):
-    return data -n
+@register_verb(list, context=Context.EVAL)
+def add(data, other):
+    """Add other to each element of data"""
+    return [d + other for d in data]
 
-@register_verb(int)
-def add(data, n):
-    return data + n
 
-# sub: f*2 -> 20, n=f+1=11    -> 9
-# note that second f still refers to the parent data, which is 10
-# add: 10 + 9 = 19
-10 >> add(n=sub(f*2, n=f+1))  # 19
+[1, 2, 3] >> add(1)  # [2, 3, 4]
+# Using the first element of data
+[1, 2, 3] >> add(f[0])  # [2, 3, 4]
 ```
 
-## Dispatching other types
+More about contexts, see [Contexts](./contexts).
+
+## Verbs pass down the context if not specified in the arguments
 
 ```python
-@register_verb(int)
-def mul(x, y):
-    return x * y
+from pipda import register_func, register_verb, Context, Symbolic
 
-@mul.register(str)
-def _(x, y):
-    return x + y
+f = Symbolic()
 
-2 >> mul(3)  # 6
-"abc" >> mul("def")  # abcdef
+@register_func()  # no context specified
+def double(data):
+    return data * 2
+
+
+@register_verb(list, context=Context.EVAL)
+def add(data, other):
+    return [d + other for d in data]
+
+
+[1, 2, 3] >> add(double(f[0]))  # [3, 4, 5]
 ```
 
-## Fallbacks when AST node detection fails
+## Dependent verbs
 
-`pipda` detects the AST node for the verb calling. If it is next to a piping
-operator (defaults to `>>`, could be changed by `register_piping()`), then it
-is compiled into a `VerbCall` object, awaiting data to pipe in to evalute. We
-call this the `piping` mode. Otherwise, it is treated a as normal function
-call, where the data should be passed directly. This is the `normal` mode.
-
-However, the AST node is not always available. `pipda` relies on
-[`executing`][1] to detect the node. There are situations AST nodes can not be
-detected. One of the biggest reasons is that the source code is not
-avaiable/compromised at runtime. For example, `pytest`'s assert statement,
-raw python REPL, etc.
-
-We can set up a fallback mode when we fail to determine the AST node.
-
-- `piping`: fallback to `piping` mode if AST node not avaiable
-- `normal`: fallback to `normal` node if AST node not avaiable
-- `piping_warning`: fallback to `piping` mode if AST node not avaiable and given a warning
-- `normal_warning` (default): fallback to `normal` mode if AST node not avaiable and given a warning
-- `raise`: Raise an error
-
-We can also pass one of the above values to `__ast_fallback` when we call the verb.
+Dependent verbs are functions can be used in another verb without passing the data argument. It can also work as a normal verb.
 
 ```python
-@register_verb(int, ast_fallback="normal")
-def add(x, y):
-    return x + y
+from pipda import register_verb, Context, Symbolic
 
-@register_verb(int, ast_fallback="piping")
-def sub(x, y):
-    return x - y
+f = Symbolic()
 
-@register_verb(int)
-def mul(x, y):
-    return x * y
+@register_verb(list, dependent=True)
+def times(data, n):
+    """Times each element of data with n"""
+    return [d * n for d in data]
 
-# In an environment AST node cannot be detected
-add(1, 2)  # 3, ok
-1 >> add(2)  # TypeError, argument y missing
+@register_verb(list, context=Context.EVAL)
+def add(data, other):
+    """Add other to each element of data"""
+    return [d + other for d in data]
 
-2 >> sub(1)  # 1, ok
-sub(2, 1)  # TypeError, argument y missing
+# times 2 to each element and add the first element to all elementss
+# Note that we don't pass the first argument to times
+[1, 2, 3] >> add(times(2)[0])  # [3, 4, 5]
 
-mul(1, 2, __ast_fallback="normal")  # 3
-1 >> mul(2, __ast_fallback="piping")  # 3
+# When called directly:
+times(2)  # VerbCall object
+times([1, 2, 3], 2)  # VerbCall object
 
-# Change the fallback
-add.ast_fallback = "piping"
-1 >> add(2)  # 3, ok
-add(1, 2)  # VerbCall object
+# But when a data piped in, it is evaluated
+[1, 2, 3] >> times(2)  # [2, 4, 6]
 ```
-
-## Using a different operator for piping
-
-By default, `>>` is used for piping. We can also use other operators, including
-">>", "|", "//", "@", "%", "&" and "^".
-
-```python
-from pipda import register_piping, register_verb
-
-register_piping("|")
-
-@register_verb(int)
-def add(x, y):
-    return x + y
-
-1 | add(2)  # 3
-```
-
-[1]: https://github.com/alexmojaki/executing
