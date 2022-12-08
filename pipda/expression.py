@@ -57,20 +57,14 @@ class Expression(ABC):
 
     _pipda_operator = None
 
-    def _pipda_array_func(
-        self,
+    def _pipda_array_ufunc(
         ufunc: Callable,
-        method: str,
-        *inputs: Any,
+        x: Any,
+        *args: Any,
         **kwargs: Any,
     ) -> FunctionCall:
         """Allow numpy array function to work on Expression objects"""
-        from .function import FunctionCall
-
-        if method != "__call__":
-            ufunc = getattr(ufunc, method)
-
-        return FunctionCall(ufunc, *inputs, **kwargs)
+        return ufunc(x, *args, **kwargs)
 
     def __array_ufunc__(
         self,
@@ -80,7 +74,7 @@ class Expression(ABC):
         **kwargs: Any,
     ) -> FunctionCall:
         """Allow numpy ufunc to work on Expression objects"""
-
+        from .function import FunctionCall
         from .piping import PIPING_OPS, PipeableCall
 
         if (
@@ -95,7 +89,15 @@ class Expression(ABC):
             # work
             return inputs[1]._pipda_eval(inputs[0])
 
-        return self._pipda_array_func(ufunc, method, *inputs, **kwargs)
+        if method != "__call__":
+            ufunc = getattr(ufunc, method)
+
+        return FunctionCall(
+            self.__class__._pipda_array_ufunc,
+            ufunc,
+            *inputs,
+            **kwargs,
+        )
 
     def __hash__(self) -> int:
         """Make it hashable"""
@@ -207,7 +209,7 @@ class Expression(ABC):
         """Evaluate the expression using given data"""
 
 
-def register_expr_array_func(func: Callable) -> Callable:
+def register_array_ufunc(func: Callable) -> Callable:
     """Register a function to be used as __array_ufunc__ on Expression"""
-    Expression._pipda_array_func = func  # type: ignore
+    Expression._pipda_array_ufunc = func  # type: ignore
     return func

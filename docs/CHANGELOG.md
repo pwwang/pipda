@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.11.0
+
+- 💥 Simplify `register_expr_array_func` and rename it to `register_array_ufunc`
+
 ## 0.10.0
 
 - 💥 Refactor the registered borrowed from `singledispatch`

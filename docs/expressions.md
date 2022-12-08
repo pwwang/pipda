@@ -39,15 +39,12 @@ x._pipda_eval(4)  # 2.0
 
 ```python
 import numpy as np
-from pipda import Symbolic, register_expr_array_ufunc
+from pipda import Symbolic, register_array_ufunc
 
 
- @register_expr_array_func
- def my_ufunc(expr, ufunc, method, *inputs, **kwargs):
-     if method != "__call__":
-         ufunc = getattr(ufunc, method)
-     fun = Function(lambda x: ufunc(x) * 2, None, {})
-     return FunctionCall(fun, *inputs, **kwargs)
+ @register_array_ufunc
+ def my_ufunc(ufunc, x, *args, **kwargs):
+    return ufunc(x, *args, **kwargs) * 2
 
 f = Symbolic()
 x = np.sqrt(f)
