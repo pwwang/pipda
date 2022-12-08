@@ -1,5 +1,5 @@
 from .context import Context, ContextBase
-from .expression import Expression, register_expr_array_func
+from .expression import Expression, register_array_ufunc
 from .function import FunctionCall, register_func
 from .operator import Operator, OperatorCall, register_operator
 from .reference import ReferenceAttr, ReferenceItem
