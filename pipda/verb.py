@@ -285,7 +285,7 @@ def register_verb(
         if dependent:
             return VerbCall(wrapper, *args, **kwargs)
 
-        ast_fb = kwargs.pop("__ast_fallback", ast_fallback)
+        ast_fb = kwargs.pop("__ast_fallback", wrapper.ast_fallback)
         if is_piping(wrapper.__name__, ast_fb):
             return VerbCall(wrapper, *args, **kwargs)
 
@@ -310,6 +310,7 @@ def register_verb(
     wrapper.register = register
     wrapper.favorables = MappingProxyType(favorables)
     wrapper.dependent = dependent
+    wrapper.ast_fallback = ast_fallback
     wrapper.get_context = get_context
     wrapper._pipda_functype = "verb"
     update_wrapper(wrapper, func)

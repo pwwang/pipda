@@ -409,7 +409,7 @@ def register_func(
             return dispatch(backend=backend)(*args, **kwargs)
 
         if pipeable:
-            ast_fb = kwargs.pop("__ast_fallback", ast_fallback)
+            ast_fb = kwargs.pop("__ast_fallback", wrapper.ast_fallback)
 
             if is_piping(wrapper.__name__, ast_fb):
                 from .verb import VerbCall
@@ -459,6 +459,7 @@ def register_func(
     wrapper.dispatch = dispatch
     wrapper.register = register
     wrapper.get_context = get_context
+    wrapper.ast_fallback = ast_fallback
     wrapper.favorables = MappingProxyType(favorables)
 
     update_wrapper(wrapper, func)
