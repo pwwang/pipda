@@ -185,8 +185,8 @@ See also [datar][6] for real-case usages.
 [9]: https://img.shields.io/github/v/tag/pwwang/pipda?style=flat-square
 [10]: https://github.com/pwwang/pipda
 [11]: https://img.shields.io/pypi/pyversions/pipda?style=flat-square
-[12]: https://img.shields.io/github/workflow/status/pwwang/pipda/Build%20and%20Deploy?style=flat-square
-[13]: https://img.shields.io/github/workflow/status/pwwang/pipda/Build%20Docs?style=flat-square
+[12]: https://img.shields.io/github/actions/workflow/status/pwwang/pipda/build.yml?label=CI&style=flat-square
+[13]: https://img.shields.io/github/actions/workflow/status/pwwang/pipda/docs.yml?label=docs&style=flat-square
 [14]: https://app.codacy.com/gh/pwwang/pipda/dashboard
 [15]: https://img.shields.io/codacy/coverage/75d312da24c94bdda5923627fc311a99?style=flat-square
 [16]: https://img.shields.io/codacy/grade/75d312da24c94bdda5923627fc311a99?style=flat-square

@@ -8,7 +8,7 @@ from .utils import evaluate_expr
 from .verb import VerbCall, register_verb
 from .piping import register_piping, _patch_default_classes
 
-__version__ = "0.11.0"
+__version__ = "0.11.1"
 
 register_piping(">>")
 _patch_default_classes()
