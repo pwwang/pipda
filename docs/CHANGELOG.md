@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.11.1
+
+- 👷 Use newer actions
+- 📝 Fix github action badegs
+- 🩹 Allow ast_fallback to be changed for verbs and functions
+
 ## 0.11.0
 
 - 💥 Simplify `register_expr_array_func` and rename it to `register_array_ufunc`
