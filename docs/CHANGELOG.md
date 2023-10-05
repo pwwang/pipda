@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.13.0
+
+- ✨ Add Dockerfile for codesandbox
+- ⬆️ Bump executing to `^2.0`
+- ✨ Support python 3.12
+
+## 0.12.0
+
+- ⬆️ Drop support for python3.7
+
 ## 0.11.1
 
 - 👷 Use newer actions
