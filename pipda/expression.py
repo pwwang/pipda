@@ -61,10 +61,21 @@ class Expression(ABC):
         ufunc: Callable,
         x: Any,
         *args: Any,
+        kind: str,
         **kwargs: Any,
     ) -> FunctionCall:
         """Allow numpy array function to work on Expression objects"""
         return ufunc(x, *args, **kwargs)
+
+    def __array_function__(self, func, types, args, kwargs):
+        from .function import FunctionCall
+        return FunctionCall(
+            self.__class__._pipda_array_ufunc,
+            func,
+            *args,
+            kind="function",
+            **kwargs,
+        )
 
     def __array_ufunc__(
         self,
@@ -96,6 +107,7 @@ class Expression(ABC):
             self.__class__._pipda_array_ufunc,
             ufunc,
             *inputs,
+            kind="ufunc",
             **kwargs,
         )
 

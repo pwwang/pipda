@@ -248,6 +248,10 @@ def test_npufunc_as_verb_args():
     out = list(out)
     assert out == [3, 0, 5] and isinstance(out, list)
 
+    out = np.array([2, -2, 3]) >> add(np.mean(f))
+    out = list(out)
+    assert out == [3, -1, 4] and isinstance(out, list)
+
 
 def test_multiple_backends():
 

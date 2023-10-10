@@ -150,7 +150,7 @@ def test_register_ufunc():
     old_ufunc = Expression._pipda_array_ufunc
 
     @register_array_ufunc
-    def my_ufunc(ufunc, x, *args, **kwargs):
+    def my_ufunc(ufunc, x, *args, kind, **kwargs):
         return ufunc(x, *args, **kwargs) * 2
 
     f = Symbolic()
