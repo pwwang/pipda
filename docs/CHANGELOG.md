@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.13.1
+
+- ✨ Add `__array_function__` to `Expression` objects
+
 ## 0.13.0
 
 - ✨ Add Dockerfile for codesandbox
