@@ -1,0 +1,1683 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.2.3">
+    
+    
+      
+        <title>pipda.context - pipda</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.f7f47774.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f5d1f46.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/all.css">
+    
+      <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.8.1/css/v4-shims.css">
+    
+      <link rel="stylesheet" href="../../css/mkapi-common.css">
+    
+      <link rel="stylesheet" href="../../style.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pipdacontext" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="pipda" class="md-header__button md-logo" aria-label="pipda" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pipda
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              pipda.context
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/pwwang/pipda/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pwwang/pipda
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="pipda" class="md-nav__button md-logo" aria-label="pipda" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    pipda
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/pwwang/pipda/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pwwang/pipda
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../verbs/" class="md-nav__link">
+        Verbs
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../functions/" class="md-nav__link">
+        Functions
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backends/" class="md-nav__link">
+        Backends
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../piping/" class="md-nav__link">
+        Piping
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../expressions/" class="md-nav__link">
+        Expressions
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operators/" class="md-nav__link">
+        Operators
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contexts/" class="md-nav__link">
+        Contexts
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_9" type="checkbox" id="__nav_9" checked>
+      
+      <label class="md-nav__link" for="__nav_9">
+        API
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="API" data-md-level="1">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_9_1" type="checkbox" id="__nav_9_1" checked>
+      
+      <label class="md-nav__link" for="__nav_9_1">
+        pipda
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="pipda" data-md-level="2">
+        <label class="md-nav__title" for="__nav_9_1">
+          <span class="md-nav__icon md-icon"></span>
+          pipda
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda/" class="md-nav__link">
+        pipda
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.reference/" class="md-nav__link">
+        pipda.reference
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.utils/" class="md-nav__link">
+        pipda.utils
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          pipda.context
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        pipda.context
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipdacontext" class="md-nav__link">
+    context
+  </a>
+  
+    <nav class="md-nav" aria-label="context">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontexterror" class="md-nav__link">
+    ContextError
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextbase" class="md-nav__link">
+    ContextBase
+  </a>
+  
+    <nav class="md-nav" aria-label="ContextBase">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextbasegetattr" class="md-nav__link">
+    getattr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextbasegetitem" class="md-nav__link">
+    getitem
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextselect" class="md-nav__link">
+    ContextSelect
+  </a>
+  
+    <nav class="md-nav" aria-label="ContextSelect">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextselectgetattr" class="md-nav__link">
+    getattr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextselectgetitem" class="md-nav__link">
+    getitem
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontexteval" class="md-nav__link">
+    ContextEval
+  </a>
+  
+    <nav class="md-nav" aria-label="ContextEval">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextevalgetattr" class="md-nav__link">
+    getattr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextevalgetitem" class="md-nav__link">
+    getitem
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextpending" class="md-nav__link">
+    ContextPending
+  </a>
+  
+    <nav class="md-nav" aria-label="ContextPending">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextpendinggetattr" class="md-nav__link">
+    getattr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextpendinggetitem" class="md-nav__link">
+    getitem
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontext" class="md-nav__link">
+    Context
+  </a>
+  
+    <nav class="md-nav" aria-label="Context">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enumenummeta" class="md-nav__link">
+    EnumMeta
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.operator/" class="md-nav__link">
+        pipda.operator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipda.expression/" class="md-nav__link">
+        pipda.expression
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CHANGELOG/" class="md-nav__link">
+        Change log
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipdacontext" class="md-nav__link">
+    context
+  </a>
+  
+    <nav class="md-nav" aria-label="context">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontexterror" class="md-nav__link">
+    ContextError
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextbase" class="md-nav__link">
+    ContextBase
+  </a>
+  
+    <nav class="md-nav" aria-label="ContextBase">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextbasegetattr" class="md-nav__link">
+    getattr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextbasegetitem" class="md-nav__link">
+    getitem
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextselect" class="md-nav__link">
+    ContextSelect
+  </a>
+  
+    <nav class="md-nav" aria-label="ContextSelect">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextselectgetattr" class="md-nav__link">
+    getattr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextselectgetitem" class="md-nav__link">
+    getitem
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontexteval" class="md-nav__link">
+    ContextEval
+  </a>
+  
+    <nav class="md-nav" aria-label="ContextEval">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextevalgetattr" class="md-nav__link">
+    getattr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextevalgetitem" class="md-nav__link">
+    getitem
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextpending" class="md-nav__link">
+    ContextPending
+  </a>
+  
+    <nav class="md-nav" aria-label="ContextPending">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextpendinggetattr" class="md-nav__link">
+    getattr
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontextpendinggetitem" class="md-nav__link">
+    getitem
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipdacontextcontext" class="md-nav__link">
+    Context
+  </a>
+  
+    <nav class="md-nav" aria-label="Context">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enumenummeta" class="md-nav__link">
+    EnumMeta
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/pwwang/pipda/edit/master/docs/api/pipda.context.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                  <h1>pipda.context</h1>
+                
+                <div class="mkapi-node" id="pipda.context">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object module plain top">
+    <div class="mkapi-object-kind module top">module</div>
+    <h2 id="pipdacontext" class="mkapi-object-body module top"><span class="mkapi-object-prefix"><a href="../pipda/#pipda">pipda</a>.</span><span class="mkapi-object-name">context</span></h2>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context" title="Source for pipda.context">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Provides the context to evaluate f.A and f['A']</p><p>By default,
+1. in the context of select, both f.A and f['A'] return 'A'
+2. in the context of evaluation, f.A returns data.A and f['A'] returns data['A']
+3. when it is pending, you will need to evaluate args and kwargs yourself.</p>
+</div>
+    </div>
+  <div class="mkapi-section classes">
+      <div class="mkapi-section-name classes">
+          <span class="mkapi-section-name-body classes">Classes</span> 
+        </div>
+      <div class="mkapi-section-body classes"><ul class="mkapi-items">
+<li class="class"><code class="mkapi-item-name"><a href="#pipda.context.ContextError">ContextError</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Any errors related to contexts<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextError" title="Source for pipda.context.ContextError">&lt;/&gt;</a></span></li>
+
+<li class="abstract-class"><code class="mkapi-item-name"><a href="#pipda.context.ContextBase">ContextBase</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">The context abstract class, defining howthe Reference objects are evaluated
+<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextBase" title="Source for pipda.context.ContextBase">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="#pipda.context.ContextSelect">ContextSelect</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Context used in a select context<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextSelect" title="Source for pipda.context.ContextSelect">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="#pipda.context.ContextEval">ContextEval</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Context used in a data-evaluation context<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextEval" title="Source for pipda.context.ContextEval">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="#pipda.context.ContextPending">ContextPending</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Pending context, don't evaluate the expression,awaiting next avaiable context
+<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextPending" title="Source for pipda.context.ContextPending">&lt;/&gt;</a></span></li>
+
+<li class="class"><code class="mkapi-item-name"><a href="#pipda.context.Context">Context</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Context to solve f.A and f['A']<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.Context" title="Source for pipda.context.Context">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.context.ContextError">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object class code top">
+    <div class="mkapi-object-kind class top">class</div>
+    <h3 id="pipdacontextcontexterror" class="mkapi-object-body class top"><code class="mkapi-object-prefix"><a href="#pipda.context">pipda.context</a>.</code><code class="mkapi-object-name">ContextError</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextError" title="Source for pipda.context.ContextError">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section bases">
+      <div class="mkapi-section-name bases">
+          <span class="mkapi-section-name-body bases">Bases</span> 
+        </div>
+      <div class="mkapi-section-body bases">
+<span class="mkapi-base">Exception</span>
+
+<span class="mkapi-base">BaseException</span>
+</div>
+    </div>
+  <div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Any errors related to contexts</p></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.context.ContextBase">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object abstract-class code top">
+    <div class="mkapi-object-kind abstract-class top">abstract class</div>
+    <h3 id="pipdacontextcontextbase" class="mkapi-object-body abstract-class top"><code class="mkapi-object-prefix"><a href="#pipda.context">pipda.context</a>.</code><code class="mkapi-object-name">ContextBase</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextBase" title="Source for pipda.context.ContextBase">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>The context abstract class, defining howthe Reference objects are evaluated</p>
+<ul>
+<li><code>getattr</code> defines how <code>f.A</code> is evaluated. Note that <code>f.A.B</code> will always
+    be evaluated as <code>getattr(f.A, 'B')</code></li>
+<li><code>getitem</code> defines how <code>f[item]</code> is evaluated. Note that the <code>item</code> here
+    is an evaluated value defined by <code>getref</code>.</li>
+<li><code>ref</code> here defines how the reference/item in <code>f.item</code> is evaluated.
+    Since we could do <code>f[f.A]</code>.</li>
+</ul>
+</div>
+    </div>
+  <div class="mkapi-section attributes">
+      <div class="mkapi-section-name attributes">
+          <span class="mkapi-section-name-body attributes">Attributes</span> 
+        </div>
+      <div class="mkapi-section-body attributes"><ul class="mkapi-items">
+<li class="readonly-property"><code class="mkapi-item-name">ref</code>
+<span class="mkapi-item-type">(<a href="./#pipda.context.ContextBase">ContextBase</a>)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Defines how <code>item</code> in <code>f[item]</code> is evaluated.<br>This function should return a <code>ContextBase</code> object.
+<span id="pipda.context.ContextBase.ref"></span><a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextBase.ref" title="Source for pipda.context.ContextBase.ref">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  <div class="mkapi-section methods">
+      <div class="mkapi-section-name methods">
+          <span class="mkapi-section-name-body methods">Methods</span> 
+        </div>
+      <div class="mkapi-section-body methods"><ul class="mkapi-items">
+<li class="abstract-method"><code class="mkapi-item-name"><a href="#pipda.context.ContextBase.getattr">getattr</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(any)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Defines how <code>f.A</code> is evaluated<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextBase.getattr" title="Source for pipda.context.ContextBase.getattr">&lt;/&gt;</a></span></li>
+
+<li class="abstract-method"><code class="mkapi-item-name"><a href="#pipda.context.ContextBase.getitem">getitem</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(any)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Defines how <code>f[item]</code> is evaluated<a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextBase.getitem" title="Source for pipda.context.ContextBase.getitem">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+  <div class="mkapi-members">
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.context.ContextBase.getattr">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object abstract-method code">
+    <div class="mkapi-object-kind abstract-method">abstract method</div>
+    <h4 id="pipdacontextcontextbasegetattr" class="mkapi-object-body abstract-method"><code class="mkapi-object-name">getattr</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; any</span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextBase.getattr" title="Source for pipda.context.ContextBase.getattr">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Defines how <code>f.A</code> is evaluated</p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.context.ContextBase.getitem">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object abstract-method code">
+    <div class="mkapi-object-kind abstract-method">abstract method</div>
+    <h4 id="pipdacontextcontextbasegetitem" class="mkapi-object-body abstract-method"><code class="mkapi-object-name">getitem</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; any</span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextBase.getitem" title="Source for pipda.context.ContextBase.getitem">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Defines how <code>f[item]</code> is evaluated</p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.context.ContextSelect">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object class code top">
+    <div class="mkapi-object-kind class top">class</div>
+    <h3 id="pipdacontextcontextselect" class="mkapi-object-body class top"><code class="mkapi-object-prefix"><a href="#pipda.context">pipda.context</a>.</code><code class="mkapi-object-name">ContextSelect</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextSelect" title="Source for pipda.context.ContextSelect">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section bases">
+      <div class="mkapi-section-name bases">
+          <span class="mkapi-section-name-body bases">Bases</span> 
+        </div>
+      <div class="mkapi-section-body bases">
+<span class="mkapi-base"><a href="./#pipda.context.ContextBase">pipda.context.ContextBase</a></span>
+</div>
+    </div>
+  <div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Context used in a select context</p><p>In this kind of context,
+<ul><li>- <code>f.A</code> works as a shortcut of <code>'A'</code>;</li><li>- <code>f[ref]</code> works as a shortcut of <code>ref</code>. However, <code>ref</code> is needed to be<br />&nbsp;    evaluated by a context returned by <code>getref</code></p></li></ul></div>
+    </div>
+  <div class="mkapi-section attributes">
+      <div class="mkapi-section-name attributes">
+          <span class="mkapi-section-name-body attributes">Attributes</span> 
+        </div>
+      <div class="mkapi-section-body attributes"><ul class="mkapi-items">
+<li class="readonly-property"><code class="mkapi-item-name">ref</code>
+<span class="mkapi-item-type">(<a href="./#pipda.context.ContextBase">ContextBase</a>)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Defines how <code>item</code> in <code>f[item]</code> is evaluated.<br>This function should return a <code>ContextBase</code> object.
+<span id="pipda.context.ContextBase.ref"></span><a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextBase.ref" title="Source for pipda.context.ContextBase.ref">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  <div class="mkapi-section methods">
+      <div class="mkapi-section-name methods">
+          <span class="mkapi-section-name-body methods">Methods</span> 
+        </div>
+      <div class="mkapi-section-body methods"><ul class="mkapi-items">
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.context.ContextSelect.getattr">getattr</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(str)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Get the <code>ref</code> directly, regardless of <code>data</code><a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextSelect.getattr" title="Source for pipda.context.ContextSelect.getattr">&lt;/&gt;</a></span></li>
+
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.context.ContextSelect.getitem">getitem</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(any)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Get the <code>ref</code> directly, which is already evaluated by <code>f[ref]</code><a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextSelect.getitem" title="Source for pipda.context.ContextSelect.getitem">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+  <div class="mkapi-members">
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.context.ContextSelect.getattr">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdacontextcontextselectgetattr" class="mkapi-object-body method"><code class="mkapi-object-name">getattr</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; str</span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextSelect.getattr" title="Source for pipda.context.ContextSelect.getattr">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Get the <code>ref</code> directly, regardless of <code>data</code></p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.context.ContextSelect.getitem">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdacontextcontextselectgetitem" class="mkapi-object-body method"><code class="mkapi-object-name">getitem</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; any</span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextSelect.getitem" title="Source for pipda.context.ContextSelect.getitem">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Get the <code>ref</code> directly, which is already evaluated by <code>f[ref]</code></p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.context.ContextEval">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object class code top">
+    <div class="mkapi-object-kind class top">class</div>
+    <h3 id="pipdacontextcontexteval" class="mkapi-object-body class top"><code class="mkapi-object-prefix"><a href="#pipda.context">pipda.context</a>.</code><code class="mkapi-object-name">ContextEval</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextEval" title="Source for pipda.context.ContextEval">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section bases">
+      <div class="mkapi-section-name bases">
+          <span class="mkapi-section-name-body bases">Bases</span> 
+        </div>
+      <div class="mkapi-section-body bases">
+<span class="mkapi-base"><a href="./#pipda.context.ContextBase">pipda.context.ContextBase</a></span>
+</div>
+    </div>
+  <div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Context used in a data-evaluation context</p><p>In this kind of context, the expression is evaluated as-is. That is,
+<code>f.A</code> is evaluated as <code>f.A</code> and <code>f[item]</code> is evaluated as <code>f[item]</code></p>
+</div>
+    </div>
+  <div class="mkapi-section attributes">
+      <div class="mkapi-section-name attributes">
+          <span class="mkapi-section-name-body attributes">Attributes</span> 
+        </div>
+      <div class="mkapi-section-body attributes"><ul class="mkapi-items">
+<li class="readonly-property"><code class="mkapi-item-name">ref</code>
+<span class="mkapi-item-type">(<a href="./#pipda.context.ContextBase">ContextBase</a>)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Defines how <code>item</code> in <code>f[item]</code> is evaluated.<br>This function should return a <code>ContextBase</code> object.
+<span id="pipda.context.ContextBase.ref"></span><a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextBase.ref" title="Source for pipda.context.ContextBase.ref">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  <div class="mkapi-section methods">
+      <div class="mkapi-section-name methods">
+          <span class="mkapi-section-name-body methods">Methods</span> 
+        </div>
+      <div class="mkapi-section-body methods"><ul class="mkapi-items">
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.context.ContextEval.getattr">getattr</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(any)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">How to evaluate <code>f.A</code><a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextEval.getattr" title="Source for pipda.context.ContextEval.getattr">&lt;/&gt;</a></span></li>
+
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.context.ContextEval.getitem">getitem</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(any)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">How to evaluate <code>f[item]</code><a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextEval.getitem" title="Source for pipda.context.ContextEval.getitem">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+  <div class="mkapi-members">
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.context.ContextEval.getattr">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdacontextcontextevalgetattr" class="mkapi-object-body method"><code class="mkapi-object-name">getattr</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; any</span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextEval.getattr" title="Source for pipda.context.ContextEval.getattr">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>How to evaluate <code>f.A</code></p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.context.ContextEval.getitem">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdacontextcontextevalgetitem" class="mkapi-object-body method"><code class="mkapi-object-name">getitem</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; any</span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextEval.getitem" title="Source for pipda.context.ContextEval.getitem">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>How to evaluate <code>f[item]</code></p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.context.ContextPending">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object class code top">
+    <div class="mkapi-object-kind class top">class</div>
+    <h3 id="pipdacontextcontextpending" class="mkapi-object-body class top"><code class="mkapi-object-prefix"><a href="#pipda.context">pipda.context</a>.</code><code class="mkapi-object-name">ContextPending</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextPending" title="Source for pipda.context.ContextPending">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section bases">
+      <div class="mkapi-section-name bases">
+          <span class="mkapi-section-name-body bases">Bases</span> 
+        </div>
+      <div class="mkapi-section-body bases">
+<span class="mkapi-base"><a href="./#pipda.context.ContextBase">pipda.context.ContextBase</a></span>
+</div>
+    </div>
+  <div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Pending context, don't evaluate the expression,awaiting next avaiable context</p>
+</div>
+    </div>
+  <div class="mkapi-section attributes">
+      <div class="mkapi-section-name attributes">
+          <span class="mkapi-section-name-body attributes">Attributes</span> 
+        </div>
+      <div class="mkapi-section-body attributes"><ul class="mkapi-items">
+<li class="readonly-property"><code class="mkapi-item-name">ref</code>
+<span class="mkapi-item-type">(<a href="./#pipda.context.ContextBase">ContextBase</a>)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Defines how <code>item</code> in <code>f[item]</code> is evaluated.<br>This function should return a <code>ContextBase</code> object.
+<span id="pipda.context.ContextBase.ref"></span><a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextBase.ref" title="Source for pipda.context.ContextBase.ref">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  <div class="mkapi-section methods">
+      <div class="mkapi-section-name methods">
+          <span class="mkapi-section-name-body methods">Methods</span> 
+        </div>
+      <div class="mkapi-section-body methods"><ul class="mkapi-items">
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.context.ContextPending.getattr">getattr</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(str)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Get the <code>ref</code> directly, regardless of <code>data</code><a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextPending.getattr" title="Source for pipda.context.ContextPending.getattr">&lt;/&gt;</a></span></li>
+
+<li class="method"><code class="mkapi-item-name"><a href="#pipda.context.ContextPending.getitem">getitem</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code>
+<span class="mkapi-item-type">(any)</span>
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Get the <code>ref</code> directly, which is already evaluated by <code>f[ref]</code><a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextPending.getitem" title="Source for pipda.context.ContextPending.getitem">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+  <div class="mkapi-members">
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.context.ContextPending.getattr">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdacontextcontextpendinggetattr" class="mkapi-object-body method"><code class="mkapi-object-name">getattr</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; str</span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextPending.getattr" title="Source for pipda.context.ContextPending.getattr">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Get the <code>ref</code> directly, regardless of <code>data</code></p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="pipda.context.ContextPending.getitem">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <h4 id="pipdacontextcontextpendinggetitem" class="mkapi-object-body method"><code class="mkapi-object-name">getitem</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">parent</code>, <code class="mkapi-object-signature">ref</code>, <code class="mkapi-object-signature">level</code><code class="mkapi-object-parenthesis">)</code><span class="mkapi-item-type"> &#x2192; any</span></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.ContextPending.getitem" title="Source for pipda.context.ContextPending.getitem">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Get the <code>ref</code> directly, which is already evaluated by <code>f[ref]</code></p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+  </div>
+
+</div>
+
+<div class="mkapi-node" id="pipda.context.Context">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object class code top">
+    <div class="mkapi-object-kind class top">class</div>
+    <h3 id="pipdacontextcontext" class="mkapi-object-body class top"><code class="mkapi-object-prefix"><a href="#pipda.context">pipda.context</a>.</code><code class="mkapi-object-name">Context</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">value</code>, <code class="mkapi-object-signature">names=None</code>, <code class="mkapi-object-signature">module=None</code>, <code class="mkapi-object-signature">qualname=None</code>, <code class="mkapi-object-signature">type=None</code>, <code class="mkapi-object-signature">start=1</code><code class="mkapi-object-parenthesis">)</code></h3>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/pipda.context/#pipda.context.Context" title="Source for pipda.context.Context">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section bases">
+      <div class="mkapi-section-name bases">
+          <span class="mkapi-section-name-body bases">Bases</span> 
+        </div>
+      <div class="mkapi-section-body bases">
+<span class="mkapi-base">enum.Enum</span>
+</div>
+    </div>
+  <div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Context to solve f.A and f['A']</p><p>PENDING: Context to leave the arguments to be evaluated inside
+    the function
+SELECT: It select-based context
+EVAL: It evaluation-based context</p>
+</div>
+    </div>
+  <div class="mkapi-section classes">
+      <div class="mkapi-section-name classes">
+          <span class="mkapi-section-name-body classes">Classes</span> 
+        </div>
+      <div class="mkapi-section-body classes"><ul class="mkapi-items">
+<li class="class"><code class="mkapi-item-name"><a href="#enum.EnumMeta">EnumMeta</a></code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Metaclass for Enum<a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta" title="Source for enum.EnumMeta">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+  <div class="mkapi-members">
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="enum.EnumMeta">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object class code top">
+    <div class="mkapi-object-kind class top">class</div>
+    <h4 id="enumenummeta" class="mkapi-object-body class top"><code class="mkapi-object-prefix">enum.</code><code class="mkapi-object-name">EnumMeta</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">cls</code>, <code class="mkapi-object-signature">bases</code>, <code class="mkapi-object-signature">classdict</code>, <code class="mkapi-object-signature">**kwds</code><code class="mkapi-object-parenthesis">)</code></h4>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta" title="Source for enum.EnumMeta">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Metaclass for Enum</p></div>
+    </div>
+  <div class="mkapi-section attributes">
+      <div class="mkapi-section-name attributes">
+          <span class="mkapi-section-name-body attributes">Attributes</span> 
+        </div>
+      <div class="mkapi-section-body attributes"><ul class="mkapi-items">
+<li class="readonly-property"><code class="mkapi-item-name">__members__</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Returns a mapping of member name-&gt;value.<br>This mapping lists all enum members, including aliases. Note that this
+is a read-only view of the internal mapping.
+<span id="enum.EnumMeta.__members__"></span><a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__members__" title="Source for enum.EnumMeta.__members__">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  <div class="mkapi-section methods">
+      <div class="mkapi-section-name methods">
+          <span class="mkapi-section-name-body methods">Methods</span> 
+        </div>
+      <div class="mkapi-section-body methods"><ul class="mkapi-items">
+<li class="method"><code class="mkapi-item-name"><a href="#enum.EnumMeta.__bool__">__bool__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">classes/types should always be True.<a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__bool__" title="Source for enum.EnumMeta.__bool__">&lt;/&gt;</a></span></li>
+
+<li class="staticmethod"><code class="mkapi-item-name"><a href="#enum.EnumMeta.__call__">__call__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">cls</code>, <code class="mkapi-object-signature">value</code>, <code class="mkapi-object-signature">names</code>, <code class="mkapi-object-signature">module</code>, <code class="mkapi-object-signature">qualname</code>, <code class="mkapi-object-signature">type</code>, <code class="mkapi-object-signature">start</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Either returns an existing member, or creates a new enum class.<a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__call__" title="Source for enum.EnumMeta.__call__">&lt;/&gt;</a></span></li>
+
+<li class="method"><code class="mkapi-item-name"><a href="#enum.EnumMeta.__dir__">__dir__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Specialized <strong>dir</strong> implementation for types.<a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__dir__" title="Source for enum.EnumMeta.__dir__">&lt;/&gt;</a></span></li>
+
+<li class="staticmethod"><code class="mkapi-item-name"><a href="#enum.EnumMeta.__getattr__">__getattr__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">cls</code>, <code class="mkapi-object-signature">name</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Return the enum member matching <code>name</code><a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__getattr__" title="Source for enum.EnumMeta.__getattr__">&lt;/&gt;</a></span></li>
+
+<li class="staticmethod"><code class="mkapi-item-name"><a href="#enum.EnumMeta.__iter__">__iter__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">cls</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Returns members in definition order.<a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__iter__" title="Source for enum.EnumMeta.__iter__">&lt;/&gt;</a></span></li>
+
+<li class="staticmethod"><code class="mkapi-item-name"><a href="#enum.EnumMeta.__reversed__">__reversed__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">cls</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Returns members in reverse definition order.<a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__reversed__" title="Source for enum.EnumMeta.__reversed__">&lt;/&gt;</a></span></li>
+
+<li class="staticmethod"><code class="mkapi-item-name"><a href="#enum.EnumMeta.__setattr__">__setattr__</a></code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">cls</code>, <code class="mkapi-object-signature">name</code>, <code class="mkapi-object-signature">value</code><code class="mkapi-object-parenthesis">)</code>
+
+<span class="mkapi-item-dash">&mdash;</span> <span class="mkapi-item-description">Block attempts to reassign Enum members.<a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__setattr__" title="Source for enum.EnumMeta.__setattr__">&lt;/&gt;</a></span></li>
+
+
+</ul></div>
+    </div>
+  </div>
+
+  <div class="mkapi-members">
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="enum.EnumMeta.__bool__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <div class="mkapi-object-body method"><code class="mkapi-object-name">__bool__</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code></div>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__bool__" title="Source for enum.EnumMeta.__bool__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>classes/types should always be True.</p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="enum.EnumMeta.__call__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object staticmethod code">
+    <div class="mkapi-object-kind staticmethod">staticmethod</div>
+    <div class="mkapi-object-body staticmethod"><code class="mkapi-object-name">__call__</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">cls</code>, <code class="mkapi-object-signature">value</code>, <code class="mkapi-object-signature">names=None</code>, <code class="mkapi-object-signature">module=None</code>, <code class="mkapi-object-signature">qualname=None</code>, <code class="mkapi-object-signature">type=None</code>, <code class="mkapi-object-signature">start=1</code><code class="mkapi-object-parenthesis">)</code></div>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__call__" title="Source for enum.EnumMeta.__call__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Either returns an existing member, or creates a new enum class.</p><p>This method is used both when an enum class is given a value to match
+to an enumeration member (i.e. Color(3)) and for the functional API
+(i.e. Color = Enum('Color', names='RED GREEN BLUE')).</p>
+<p>When used for the functional API:</p>
+<p><code>value</code> will be the name of the new class.</p>
+<p><code>names</code> should be either a string of white-space/comma delimited names
+(values will start at <code>start</code>), or an iterator/mapping of name, value pairs.</p>
+<p><code>module</code> should be set to the module this class is being created in;
+if it is not set, an attempt to find that module will be made, but if
+it fails the class will not be picklable.</p>
+<p><code>qualname</code> should be set to the actual location this class can be found
+at in its module; by default it is set to the global scope.  If this is
+not correct, unpickling will fail in some circumstances.</p>
+<p><code>type</code>, if set, will be mixed in as the first base class.</p>
+</div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="enum.EnumMeta.__dir__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object method code">
+    <div class="mkapi-object-kind method">method</div>
+    <div class="mkapi-object-body method"><code class="mkapi-object-name">__dir__</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-parenthesis">)</code></div>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__dir__" title="Source for enum.EnumMeta.__dir__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Specialized <strong>dir</strong> implementation for types.</p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="enum.EnumMeta.__getattr__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object staticmethod code">
+    <div class="mkapi-object-kind staticmethod">staticmethod</div>
+    <div class="mkapi-object-body staticmethod"><code class="mkapi-object-name">__getattr__</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">cls</code>, <code class="mkapi-object-signature">name</code><code class="mkapi-object-parenthesis">)</code></div>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__getattr__" title="Source for enum.EnumMeta.__getattr__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Return the enum member matching <code>name</code></p><p>We use <strong>getattr</strong> instead of descriptors or inserting into the enum
+class' <strong>dict</strong> in order to support <code>name</code> and <code>value</code> being both
+properties for enum members (which live in the class' <strong>dict</strong>) and
+enum members themselves.</p>
+</div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="enum.EnumMeta.__iter__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object staticmethod code">
+    <div class="mkapi-object-kind staticmethod">staticmethod</div>
+    <div class="mkapi-object-body staticmethod"><code class="mkapi-object-name">__iter__</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">cls</code><code class="mkapi-object-parenthesis">)</code></div>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__iter__" title="Source for enum.EnumMeta.__iter__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Returns members in definition order.</p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="enum.EnumMeta.__reversed__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object staticmethod code">
+    <div class="mkapi-object-kind staticmethod">staticmethod</div>
+    <div class="mkapi-object-body staticmethod"><code class="mkapi-object-name">__reversed__</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">cls</code><code class="mkapi-object-parenthesis">)</code></div>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__reversed__" title="Source for enum.EnumMeta.__reversed__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Returns members in reverse definition order.</p></div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+    <div class="mkapi-member">
+      <div class="mkapi-node" id="enum.EnumMeta.__setattr__">
+<div class='mkapi-object-container'>
+  <div class="mkapi-object staticmethod code">
+    <div class="mkapi-object-kind staticmethod">staticmethod</div>
+    <div class="mkapi-object-body staticmethod"><code class="mkapi-object-name">__setattr__</code><code class="mkapi-object-parenthesis">(</code><code class="mkapi-object-signature">cls</code>, <code class="mkapi-object-signature">name</code>, <code class="mkapi-object-signature">value</code><code class="mkapi-object-parenthesis">)</code></div>
+  </div>
+  <div class="mkapi-src-link">
+    <a class="mkapi-src-link" href="../source/enum/#enum.EnumMeta.__setattr__" title="Source for enum.EnumMeta.__setattr__">&lt;/&gt;</a>
+  </div>
+</div>
+<div class="mkapi-docstring">
+<div class="mkapi-section">
+      <div class="mkapi-section-body"><p>Block attempts to reassign Enum members.</p><p>A simple assignment to the class namespace only changes one of the
+several possible ways to get an Enum member from the Enum class,
+resulting in an inconsistent Enumeration.</p>
+</div>
+    </div>
+  </div>
+
+</div>
+    </div>
+  
+  </div>
+
+</div>
+    </div>
+  
+  </div>
+
+</div>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../pipda.utils/" class="md-footer__link md-footer__link--prev" aria-label="Previous: pipda.utils" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              pipda.utils
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../pipda.operator/" class="md-footer__link md-footer__link--next" aria-label="Next: pipda.operator" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              pipda.operator
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.709b4209.min.js", "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.29db7785.min.js"></script>
+      
+        <script src="../../js/mkapi.js"></script>
+      
+    
+  </body>
+</html>
