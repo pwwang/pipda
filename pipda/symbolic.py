@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Type, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from .expression import Expression
 
@@ -16,7 +16,7 @@ class Symbolic(Expression):
     _pipda_level = 0
     _pipda_instance = None
 
-    def __new__(cls: Type[Symbolic]) -> Symbolic:
+    def __new__(cls) -> Symbolic:
         if cls._pipda_instance is not None:
             return cls._pipda_instance
 
@@ -30,7 +30,7 @@ class Symbolic(Expression):
     def _pipda_eval(
         self,
         data: Any,
-        context: ContextType = None,
+        context: ContextType | None = None,
     ) -> Any:
         """When evaluated, this should just return the data directly"""
         return data

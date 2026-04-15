@@ -42,7 +42,7 @@ class OperatorCall(Expression):
     def _pipda_eval(
         self,
         data: Any,
-        context: ContextType = None,
+        context: ContextType | None = None,
     ) -> Any:
         """Evaluate the operator call"""
         operands = (

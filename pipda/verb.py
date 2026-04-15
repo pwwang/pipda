@@ -57,7 +57,7 @@ class VerbCall(PipeableCall):
     def _pipda_eval(
         self,
         data: Any,
-        context: ContextType = None,
+        context: ContextType | None = None,
     ) -> Any:
         func = self._pipda_func.dispatch(
             data.__class__,
@@ -83,13 +83,13 @@ class VerbCall(PipeableCall):
 def register_verb(
     cls: Type | Sequence[Type] = TypeHolder,
     *,
-    func: Callable = None,
-    context: ContextType = None,
-    kw_context: Dict[str, ContextType] = None,
-    name: str = None,
-    qualname: str = None,
-    doc: str = None,
-    module: str = None,
+    func: Callable | None = None,
+    context: ContextType | None = None,
+    kw_context: Dict[str, ContextType] | None = None,
+    name: str | None = None,
+    qualname: str | None = None,
+    doc: str | None = None,
+    module: str | None = None,
     dependent: bool = False,
     ast_fallback: str = "piping_warning",
 ) -> Callable:

@@ -56,3 +56,5 @@ include = '\.pyi?$'
 reportCallIssue = false
 # 1 >> verb()  # not assigned to anything
 reportUnusedExpression = false
+# func.attr
+reportFunctionMemberAccess = false

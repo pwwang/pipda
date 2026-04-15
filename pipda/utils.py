@@ -33,7 +33,11 @@ class TypeHolder:
 
 
 def update_user_wrapper(
-    x: Callable, name: str, qualname: str, doc: str, module: str
+    x: Callable,
+    name: str | None,
+    qualname: str | None,
+    doc: str | None,
+    module: str | None,
 ) -> None:
     """Update the wrapper with user specified values"""
     if name:
@@ -104,15 +108,20 @@ def is_piping(pipeable: str, fallback: str) -> bool:
         return False
 
     return (
-        (isinstance(parent, ast.BinOp) and parent.right is node)
-        or (isinstance(parent, ast.AugAssign) and parent.value is node)
-    ) and isinstance(parent.op, PIPING_OPS[PipeableCall.PIPING][1])
+        (
+            (isinstance(parent, ast.BinOp) and parent.right is node)
+            or (isinstance(parent, ast.AugAssign) and parent.value is node)
+        )
+        and isinstance(
+            parent.op, PIPING_OPS[PipeableCall.PIPING][1]  # type: ignore
+        )
+    )
 
 
 def evaluate_expr(
     expr: Any,
     data: Any,
-    context: ContextType,
+    context: ContextType | None,
 ) -> Any:
     """Evaluate a mixed expression"""
     if isinstance(context, Enum):

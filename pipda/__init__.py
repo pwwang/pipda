@@ -12,3 +12,22 @@ __version__ = "0.13.1"
 
 register_piping(">>")
 _patch_default_classes()
+
+__all__ = [
+    "Context",
+    "ContextBase",
+    "Expression",
+    "register_array_ufunc",
+    "FunctionCall",
+    "register_func",
+    "Operator",
+    "OperatorCall",
+    "register_operator",
+    "ReferenceAttr",
+    "ReferenceItem",
+    "Symbolic",
+    "evaluate_expr",
+    "VerbCall",
+    "register_verb",
+    "register_piping",
+]

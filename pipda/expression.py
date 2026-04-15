@@ -57,6 +57,7 @@ class Expression(ABC):
 
     _pipda_operator = None
 
+    @staticmethod
     def _pipda_array_ufunc(
         ufunc: Callable,
         x: Any,
@@ -89,7 +90,7 @@ class Expression(ABC):
         from .piping import PIPING_OPS, PipeableCall
 
         if (
-            ufunc.__name__ == PIPING_OPS[PipeableCall.PIPING][2]
+            ufunc.__name__ == PIPING_OPS[PipeableCall.PIPING][2]  # type: ignore
             and isinstance(inputs[1], PipeableCall)
             and len(inputs) == 2
             and method == "__call__"
@@ -216,7 +217,7 @@ class Expression(ABC):
     def _pipda_eval(
         self,
         data: Any,
-        context: ContextBase = None,
+        context: ContextBase | None = None,
     ) -> Any:
         """Evaluate the expression using given data"""
 

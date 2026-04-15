@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import ast
 import functools
 from abc import ABC
@@ -28,7 +30,7 @@ class PipeableCall(Expression, ABC):
 
     >>> data >> pipeable_call(...)
     """
-    PIPING: str = None
+    PIPING: str | None = None
 
 
 def _patch_cls_method(kls: Type, method: str) -> None:
@@ -54,14 +56,18 @@ def _unpatch_cls_method(kls: Type, method: str) -> None:
         setattr(kls, method, PATCHED_CLASSES[kls].pop(method))
 
 
-def _patch_cls_operator(kls: Type, op: str) -> None:
+def _patch_cls_operator(kls: Type, op: str | None) -> None:
+    if op is None:  # pragma: no cover
+        return
     method = PIPING_OPS[op][0].replace("__r", "__")
     imethod = PIPING_OPS[op][0].replace("__r", "__i")
     _patch_cls_method(kls, method)
     _patch_cls_method(kls, imethod)
 
 
-def _unpatch_cls_operator(kls: Type, op: str) -> None:
+def _unpatch_cls_operator(kls: Type, op: str | None) -> None:
+    if op is None:  # pragma: no cover
+        return
     method = PIPING_OPS[op][0].replace("__r", "__")
     imethod = PIPING_OPS[op][0].replace("__r", "__i")
     _unpatch_cls_method(kls, method)
@@ -137,7 +143,7 @@ def _patch_default_classes() -> None:
         pass
 
     try:  # pragma: no cover
-        from modin import pandas
+        from modin import pandas  # pyright: ignore
         patch_classes(
             pandas.DataFrame,
             pandas.Series,
@@ -174,12 +180,15 @@ def register_piping(op: str) -> None:
 
     if PipeableCall.PIPING:
         curr_method = PIPING_OPS[PipeableCall.PIPING][0]
-        verb_orig_method = VerbCall.__orig_opmethod__
+        verb_orig_method = VerbCall.__orig_opmethod__  # type: ignore
         setattr(VerbCall, curr_method, verb_orig_method)
         _unpatch_all(PipeableCall.PIPING)
 
     PipeableCall.PIPING = op
-    VerbCall.__orig_opmethod__ = getattr(VerbCall, PIPING_OPS[op][0])
+    VerbCall.__orig_opmethod__ = getattr(  # type: ignore
+        VerbCall,
+        PIPING_OPS[op][0],
+    )
     setattr(VerbCall, PIPING_OPS[op][0], VerbCall._pipda_eval)
 
     _patch_all(op)

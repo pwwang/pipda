@@ -62,7 +62,7 @@ class FunctionCall(Expression):
     def _pipda_eval(
         self,
         data: Any,
-        context: ContextType = None,
+        context: ContextType | None = None,
     ) -> Any:
         """Evaluate the function call"""
         func = impl = self._pipda_func
@@ -109,18 +109,18 @@ class FunctionCall(Expression):
 
 
 def register_func(
-    func: Callable = None,
+    func: Callable | None = None,
     cls: Type = TypeHolder,
     *,
     plain: bool = False,
-    name: str = None,
-    qualname: str = None,
-    doc: str = None,
-    module: str = None,
+    name: str | None = None,
+    qualname: str | None = None,
+    doc: str | None = None,
+    module: str | None = None,
     dispatchable: str | bool = False,
     pipeable: bool = False,
-    context: ContextType = None,
-    kw_context: Dict[str, ContextType] = None,
+    context: ContextType | None = None,
+    kw_context: Dict[str, ContextType] | None = None,
     ast_fallback: str = "normal_warning",
 ) -> Callable:
     """Register a function
@@ -393,7 +393,7 @@ def register_func(
                 for c in cls:
                     registry[backend].register(c, func)
             else:
-                registry[backend].register(cls, func)
+                registry[backend].register(cls, func)  # type: ignore
 
         if favored:
             favorables[backend] = func

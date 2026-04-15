@@ -29,7 +29,7 @@ class Reference(Expression, ABC):
     def _pipda_eval(
         self,
         data: Any,
-        context: ContextType = None,
+        context: ContextType | None = None,
     ) -> Any:
         """Evaluate the reference according to the context"""
         if context is None:
@@ -51,7 +51,7 @@ class ReferenceAttr(Reference):
     def _pipda_eval(
         self,
         data: Any,
-        context: ContextType = None,
+        context: ContextType | None = None,
     ) -> Any:
         """Evaluate the attribute references"""
         if isinstance(context, Enum):
@@ -92,7 +92,7 @@ class ReferenceItem(Reference):
     def _pipda_eval(
         self,
         data: Any,
-        context: ContextType = None,
+        context: ContextType | None = None,
     ) -> Any:
         """Evaluate the subscript references"""
         if isinstance(context, Enum):
