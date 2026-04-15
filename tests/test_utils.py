@@ -15,12 +15,15 @@ def test_is_piping_verbcall_normal():
 
     # AST node in pytest's asserts can't be detected
     # fallbacks to normal call
+    # 04-15-2026: not anymore, it can be detected now
+    # use exec instead to test the fallback
     with pytest.warns(PipeableCallCheckWarning):
-        assert (1 >> iden()) == 1 and isinstance(1 >> iden(), int)
+        # assert (1 >> iden()) == 1 and isinstance(1 >> iden(), int)
+        exec("assert (1 >> iden()) == 1 and isinstance(1 >> iden(), int)")
 
     # So it doesn't work with piping call
     with pytest.warns(PipeableCallCheckWarning):
-        assert isinstance(iden(1), VerbCall)
+        exec("assert isinstance(iden(1), VerbCall)")
 
     # AST node can be detected here
     a = 1 >> iden()
@@ -39,7 +42,7 @@ def test_is_piping_verbcall_piping():
     def iden(x):
         return x
 
-    assert isinstance(iden(1), VerbCall)
+    exec("assert isinstance(iden(1), VerbCall)")
 
     assert (1 >> iden()) == 1 and isinstance(1 >> iden(), int)
 
@@ -55,11 +58,11 @@ def test_is_piping_verbcall_normal_warning():
     # AST node in pytest's asserts can't be detected
     # fallbacks to normal call
     with pytest.warns(PipeableCallCheckWarning):
-        assert iden(1) == 1 and isinstance(iden(1), int)
+        exec("assert iden(1) == 1 and isinstance(iden(1), int)")
 
     # So it doesn't work with piping call
     with pytest.warns(PipeableCallCheckWarning), pytest.raises(TypeError):
-        assert (1 >> iden()) == 1
+        exec("assert (1 >> iden()) == 1")
 
     # AST node can be detected here
     # No warnings
@@ -73,10 +76,10 @@ def test_is_piping_verbcall_piping_warning():
         return x
 
     with pytest.warns(PipeableCallCheckWarning):
-        assert isinstance(iden(1), VerbCall)
+        exec("assert isinstance(iden(1), VerbCall)")
 
     with pytest.warns(PipeableCallCheckWarning):
-        assert (1 >> iden()) == 1 and isinstance(1 >> iden(), int)
+        exec("assert (1 >> iden()) == 1 and isinstance(1 >> iden(), int)")
 
     a = iden(1)
     assert a == 1 and isinstance(a, int)
@@ -88,10 +91,10 @@ def test_is_piping_verbcall_raise():
         return x
 
     with pytest.raises(PipeableCallCheckError):
-        assert iden(1)
+        exec("assert iden(1)")
 
     with pytest.raises(PipeableCallCheckError):
-        assert 1 >> iden()
+        exec("assert 1 >> iden()")
 
     a = iden(1)
     assert a == 1 and isinstance(a, int)
