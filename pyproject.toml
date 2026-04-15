@@ -1,6 +1,6 @@
 [project]
 name = "pipda"
-version = "0.13.1"
+version = "0.13.2"
 readme = "README.md"
 description = "A framework for data piping in python"
 authors = [{name = "pwwang", email = "pwwang@pwwang.com"}]

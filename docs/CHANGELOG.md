@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.13.2
+
+- chore: migrate poetry to uv for dep management
+- test: add fallback_normal test with ast_fallback for register_verb
+- test: update assertions in piping verbcall tests to use exec for compatibility
+- style: fix type annotation issues
+
 ## 0.13.1
 
 - ✨ Add `__array_function__` to `Expression` objects

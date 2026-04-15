@@ -1408,7 +1408,7 @@ wheels = [
 
 [[package]]
 name = "pipda"
-version = "0.13.1"
+version = "0.13.2"
 source = { editable = "." }
 dependencies = [
     { name = "executing" },
