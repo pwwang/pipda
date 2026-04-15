@@ -148,3 +148,11 @@ def test_patch_imethod():
     assert a == 2
 
     register_piping(">>")
+
+
+def test_fallback_normal():
+    @register_verb(int, ast_fallback="normal")
+    def iden(x):
+        return x
+
+    exec("assert iden(1) == 1")
