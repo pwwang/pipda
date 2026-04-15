@@ -35,9 +35,8 @@ dev = [
 [tool.mypy]
 ignore_missing_imports = true
 allow_redefinition = true
-disable_error_code = ["attr-defined", "no-redef"]
+disable_error_code = ["attr-defined", "no-redef", "union-attr"]
 show_error_codes = true
-strict_optional = false
 
 [tool.pytest.ini_options]
 addopts = "-vv -W error::UserWarning -p no:asyncio --cov-config=.coveragerc --cov=pipda --cov-report xml:.coverage.xml --cov-report term-missing"
