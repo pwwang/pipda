@@ -16,10 +16,9 @@ jobs:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --group docs
       - name: Update docs
         run: |
-          uv pip install -r docs/requirements.txt
           cd docs
           cp ../README.md index.md
           cd ..

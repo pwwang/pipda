@@ -31,6 +31,13 @@ dev = [
     "flake8>=7.3.0",
     "mypy>=1.19.1",
 ]
+docs = [
+    "jinja2>=3.1.6",
+    "mkapi-fix>=0.1.1",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.6",
+    "pymdown-extensions>=10.21.2",
+]
 
 [tool.mypy]
 ignore_missing_imports = true
