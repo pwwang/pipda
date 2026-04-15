@@ -28,6 +28,8 @@ dev = [
     "pytest-cov>=4",
     "numpy>=1.20",
     "pandas>=1.4",
+    "flake8>=7.3.0",
+    "mypy>=1.19.1",
 ]
 
 [tool.mypy]
