@@ -132,7 +132,7 @@ def _patch_default_classes() -> None:
     """Patch the default/commonly used classes"""
 
     try:
-        import pandas
+        import pandas  # type: ignore
         patch_classes(
             pandas.DataFrame,
             pandas.Series,

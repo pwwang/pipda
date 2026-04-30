@@ -69,7 +69,7 @@ def is_piping(pipeable: str, fallback: str) -> bool:
     Returns:
         True if it is a piping verb call, otherwise False
     """
-    from executing import Source
+    from executing import Source  # type: ignore
     from .piping import PIPING_OPS, PipeableCall
 
     # Caching?
