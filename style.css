@@ -1,0 +1,152 @@
+/* Base typography */
+.md-typeset {
+    font-size: 0.8rem !important;
+    line-height: 1.6 !important;
+}
+
+/* Admonitions (notes, warnings, tips) */
+.md-typeset .admonition,
+.md-typeset details {
+    font-size: 0.75rem !important;
+}
+
+/* Tables */
+.md-typeset table:not([class]) td {
+    padding: 0.6em 1.25em !important;
+}
+
+.md-typeset table:not([class]) th {
+    padding: 0.75em 1.25em !important;
+}
+
+/* Inline code and code blocks */
+.md-typeset pre > code {
+    overflow: visible;
+    line-height: 1.3;
+}
+
+/* ---- mkapi plugin: API documentation nodes ---- */
+
+.mkapi-node {
+    background-color: #f0f6fa;
+    border-top: 3px solid #559bc9;
+}
+
+.mkapi-node * {
+    font-size: 0.72rem;
+}
+
+.mkapi-node pre {
+    line-height: 1.5;
+}
+
+/* Object headers */
+.mkapi-node .mkapi-object-container {
+    background-color: #b4d4e9;
+    padding: 0.15em 0.4em;
+}
+
+.mkapi-node .mkapi-object-container .mkapi-object.code {
+    background: none;
+    border: none;
+}
+
+.mkapi-node .mkapi-object-container .mkapi-object.code * {
+    font-size: 0.68rem !important;
+}
+
+.mkapi-node h1.mkapi-object.mkapi-object-code {
+    margin: 0.2em 0.3em;
+}
+
+.mkapi-node h1.mkapi-object.mkapi-object-code .mkapi-object-kind.mkapi-object-kind-code {
+    font-style: normal;
+    margin-right: 16px;
+}
+
+/* Object signatures */
+.mkapi-node code.mkapi-object-signature {
+    padding-right: 2px;
+}
+
+.mkapi-node .mkapi-item-name {
+    font-size: 0.72rem !important;
+    color: #555;
+    padding-right: 4px;
+}
+
+/* Docstrings */
+.mkapi-docstring {
+    line-height: 1.4;
+    padding: 0.4em 0.15em !important;
+}
+
+.mkapi-docstring .md-typeset pre > code {
+    font-size: 0.7rem !important;
+}
+
+/* Section: bases */
+.mkapi-section.bases {
+    margin-bottom: 0.8em;
+}
+
+.mkapi-section-name.bases {
+    margin-top: 0.2em;
+}
+
+.mkapi-section-body.bases {
+    padding-bottom: 0.7em;
+    line-height: 1.3;
+}
+
+.mkapi-section-name-body {
+    font-size: 0.74rem !important;
+}
+
+/* Item lists */
+.mkapi-node ul.mkapi-items li {
+    line-height: 1.4 !important;
+}
+
+.mkapi-node ul.mkapi-items li * {
+    font-size: 0.68rem !important;
+}
+
+/* Code blocks within nodes */
+.mkapi-node .mkapi-code * {
+    font-size: 0.68rem;
+}
+
+/* Source links */
+.mkapi-node a.mkapi-src-link {
+    word-break: keep-all;
+}
+
+/* Docs links */
+.mkapi-node a.mkapi-docs-link {
+    font-size: 0.65rem;
+}
+
+/* Top-level package */
+.mkapi-object-kind.package.top {
+    font-size: 0.82rem !important;
+    color: #111;
+}
+
+.mkapi-object.package.top > h2 {
+    font-size: 0.82rem !important;
+}
+
+.mkapi-object-body.package.top * {
+    font-size: 0.78rem !important;
+}
+
+/* Top-level module */
+.mkapi-object-kind.module.top {
+    font-size: 0.78rem !important;
+    color: #222;
+}
+
+.mkapi-object-body.module.top * {
+    font-size: 0.78rem !important;
+}
