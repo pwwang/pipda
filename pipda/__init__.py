@@ -15,7 +15,7 @@ from .piping import (
     patch_torch,
 )
 
-__version__ = "0.13.2"
+__version__ = "0.14.0"
 
 register_piping(">>")
 patch_pandas()
