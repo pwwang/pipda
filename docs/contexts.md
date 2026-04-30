@@ -1,11 +1,11 @@
 # Context
 
-The context defines how a reference (`f.A`, `f['A']`, `f.A.B` is evaluated)
+The context defines how a reference (`f.A`, `f['A']`, `f.A.B`) is evaluated
 
 ## `Context.EVAL`
 
-This context evaluates the references directly. For example, if data is
-`{"a": 1}`, `f["a"]` will be evaluted into `1`.
+This context evaluates references directly. For example, if data is
+`{"a": 1}`, `f["a"]` evaluates to `1`.
 
 ```python
 from pipda import register_verb, Context
@@ -21,8 +21,8 @@ def mutate(data, **kwargs):
 
 ## `Context.SELECT`
 
-This context evaluates the references into the attribute names or subscripts
-themselves. This, for `f.key` works sometimes as a shortcut for `"key"`.
+This context evaluates references into the attribute names or subscripts
+themselves. For example, `f.key` works as a shortcut for `"key"`.
 
 ```python
 @register_verb(dict, context=Context.SELECT)
@@ -34,8 +34,8 @@ def select(data, *keys):
 
 ## `Context.PENDING`
 
-This remains expressions un-evaluated so that they get passed into the function
-and evaluted later inside the function.
+This keeps expressions unevaluated so they are passed into the function
+and can be evaluated later inside the function.
 
 ```python
 from pipda import Context, register_verb, evaluate_expr
@@ -84,7 +84,7 @@ def subset_and_update(data, *cols, **kwargs):
 
 !!! note
 
-    Note that for `Context.PENDING`, we need to subclass `context.ContextPending`
+    For `Context.PENDING`, subclass `context.ContextPending`
     to keep expressions unevaluated.
 
 ## Contexts for keyword arguments
@@ -109,14 +109,14 @@ def subset_and_update(data, *, cols, **kwargs):
 
 !!! note
 
-    By default, the context is `None`, the expressions, including `FunctionCall`
-    and `VerbCall` objects, will be awaiting next coming avaiable context to
-    evaluate
+    By default, the context is `None`. Expressions — including `FunctionCall`
+    and `VerbCall` objects — will await the next available context for
+    evaluation.
 
 !!! note
 
-    When registering another type(s) for a verb, contexts and extra contexts
-    are inherited for the first ones that registered with `register_verb`
+    When registering additional types for a verb, contexts and extra contexts
+    are inherited from the first type registered with `register_verb`.
 
 
 !!! Tip

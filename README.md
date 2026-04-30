@@ -1,12 +1,12 @@
 # pipda
 
-[![Pypi][7]][8] [![Github][9]][10] [![PythonVers][11]][8] [![Codacy][16]][14] [![Codacy coverage][15]][14] ![Docs building][13] ![Building][12]
+[![PyPI][pypi-badge]][pypi] [![GitHub][github-badge]][github] [![Codacy grade][codacy-grade-badge]][codacy] [![Codacy coverage][codacy-coverage-badge]][codacy] ![Docs][docs-badge] ![CI][ci-badge]
 
-A framework for data piping in python
+A framework for data piping in Python.
 
-Inspired by [siuba][1], [dfply][2], [plydata][3] and [dplython][4], but with simple yet powerful APIs to mimic the `dplyr` and `tidyr` packages in python
+Inspired by [siuba][1], [dfply][2], [plydata][3], and [dplython][4]. Provides simple yet powerful APIs to mimic `dplyr` and `tidyr` in Python.
 
-[API][17] | [Change Log][18] | [Documentation][19]
+[API][api] | [Changelog][changelog] | [Documentation][docs]
 
 ## Installation
 
@@ -85,8 +85,8 @@ df >> mutate(z=f.x)
 
 ```python
 # verb can be used as an argument passed to another verb
-# dep=True make `data` argument invisible while calling
-@register_verb(pd.DataFrame, context=Context.EVAL, dep=True)
+# dependent=True makes the `data` argument invisible while calling
+@register_verb(pd.DataFrame, context=Context.EVAL, dependent=True)
 def if_else(data, cond, true, false):
     cond.loc[cond.isin([True]), ] = true
     cond.loc[cond.isin([False]), ] = false
@@ -119,7 +119,7 @@ df >> mutate(z=length(f.y))
 
 ### Context
 
-The context defines how a reference (`f.A`, `f['A']`, `f.A.B` is evaluated)
+The context defines how a reference (`f.A`, `f['A']`, `f.A.B`) is evaluated
 
 ```python
 @register_verb(pd.DataFrame, context=Context.SELECT)
@@ -142,37 +142,35 @@ data %>% verb(arg1, ..., key1=kwarg1, ...)
 
 The above is a typical `dplyr`/`tidyr` data piping syntax.
 
-The counterpart python syntax we expect is:
+The Python counterpart is:
 
 ```python
 data >> verb(arg1, ..., key1=kwarg1, ...)
 ```
 
-To implement that, we need to defer the execution of the `verb` by turning it into a `Verb` object, which holds all information of the function to be executed later. The `Verb` object won't be executed until the `data` is piped in. It all thanks to the [`executing`][5] package to let us determine the ast nodes where the function is called. So that we are able to determine whether the function is called in a piping mode.
+To implement this, execution of the `verb` must be deferred by turning it into a `VerbCall` object that holds the function and its arguments. The `VerbCall` is not evaluated until data is piped in via `>>`. This detection is made possible by the [`executing`][5] package, which inspects the AST to determine whether a function call appears on the right-hand side of a pipe operator.
 
-If an argument is referring to a column of the data and the column will be involved in the later computation, the it also needs to be deferred. For example, with `dplyr` in `R`:
+Arguments that reference columns of the data must also be deferred. For example, in `dplyr` (R):
 
 ```R
-data %>% mutate(z=a)
+data %>% mutate(z = a)
 ```
 
-is trying add a column named `z` with the data from column `a`.
-
-In python, we want to do the same with:
+This adds a column `z` with values from column `a`. In Python, the equivalent is:
 
 ```python
 data >> mutate(z=f.a)
 ```
 
-where `f.a` is a `Reference` object that carries the column information without fetching the data while python sees it immmediately.
+Here `f.a` is a `Reference` object that captures the column name without immediately fetching the data.
 
-Here the trick is `f`. Like other packages, we introduced the `Symbolic` object, which will connect the parts in the argument and make the whole argument an `Expression` object. This object is holding the execution information, which we could use later when the piping is detected.
+The `Symbolic` object `f` acts as a proxy, chaining attribute/item accesses and operator expressions into a single `Expression` tree. That tree is later evaluated when data and context become available.
 
 ## Documentation
 
-[https://pwwang.github.io/pipda/][19]
+[https://pwwang.github.io/pipda/][docs]
 
-See also [datar][6] for real-case usages.
+See [datar][6] for real-world usage.
 
 [1]: https://github.com/machow/siuba
 [2]: https://github.com/kieferk/dfply
@@ -180,16 +178,16 @@ See also [datar][6] for real-case usages.
 [4]: https://github.com/dodger487/dplython
 [5]: https://github.com/alexmojaki/executing
 [6]: https://github.com/pwwang/datar
-[7]: https://img.shields.io/pypi/v/pipda?style=flat-square
-[8]: https://pypi.org/project/pipda/
-[9]: https://img.shields.io/github/v/tag/pwwang/pipda?style=flat-square
-[10]: https://github.com/pwwang/pipda
-[11]: https://img.shields.io/pypi/pyversions/pipda?style=flat-square
-[12]: https://img.shields.io/github/actions/workflow/status/pwwang/pipda/build.yml?label=CI&style=flat-square
-[13]: https://img.shields.io/github/actions/workflow/status/pwwang/pipda/docs.yml?label=docs&style=flat-square
-[14]: https://app.codacy.com/gh/pwwang/pipda/dashboard
-[15]: https://img.shields.io/codacy/coverage/75d312da24c94bdda5923627fc311a99?style=flat-square
-[16]: https://img.shields.io/codacy/grade/75d312da24c94bdda5923627fc311a99?style=flat-square
-[17]: https://pwwang.github.io/pipda/api/pipda/
-[18]: https://pwwang.github.io/pipda/CHANGELOG/
-[19]: https://pwwang.github.io/pipda/
+[pypi-badge]: https://img.shields.io/pypi/v/pipda?style=flat-square
+[pypi]: https://pypi.org/project/pipda/
+[github-badge]: https://img.shields.io/github/v/tag/pwwang/pipda?style=flat-square
+[github]: https://github.com/pwwang/pipda
+[ci-badge]: https://img.shields.io/github/actions/workflow/status/pwwang/pipda/build.yml?label=CI&style=flat-square
+[pyver-badge]: https://img.shields.io/pypi/pyversions/pipda?style=flat-square
+[docs-badge]: https://img.shields.io/github/actions/workflow/status/pwwang/pipda/docs.yml?label=docs&style=flat-square
+[codacy]: https://app.codacy.com/gh/pwwang/pipda/dashboard
+[codacy-coverage-badge]: https://img.shields.io/codacy/coverage/75d312da24c94bdda5923627fc311a99?style=flat-square
+[codacy-grade-badge]: https://img.shields.io/codacy/grade/75d312da24c94bdda5923627fc311a99?style=flat-square
+[api]: https://pwwang.github.io/pipda/api/pipda/
+[changelog]: https://pwwang.github.io/pipda/CHANGELOG/
+[docs]: https://pwwang.github.io/pipda/

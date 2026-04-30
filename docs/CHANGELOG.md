@@ -23,8 +23,8 @@
 
 ## 0.11.1
 
-- 👷 Use newer actions
-- 📝 Fix github action badegs
+- 👷 Use newer CI actions
+- 📝 Fix GitHub Action badges
 - 🩹 Allow ast_fallback to be changed for verbs and functions
 
 ## 0.11.0
@@ -53,13 +53,13 @@
 ## 0.8.1
 
 - ✨ Allow verb to be a placeholder (without any types registered)
-- ✅ Add test for npufuncs to be used in verbs
+- ✅ Add test for numpy ufuncs to be used in verbs
 
 ## 0.8.0
 
-- patch classes if they have piping operator method
-- auto register numpy ufuncs
-- pump executing to 1.1.1 to fix pwwang/datar#149
+- Patch classes if they have piping operator method
+- Auto-register numpy ufuncs
+- Bump executing to 1.1.1 to fix pwwang/datar#149
 
 ## 0.7.6
 
@@ -194,8 +194,7 @@
   f.a.b -> f._pipda_level == 2
   ```
 
-- Household
-  Use `flake8` instead of `pylint` for linting.
+- Housekeeping: Use `flake8` instead of `pylint` for linting.
 
 ## 0.4.5
 

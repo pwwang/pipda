@@ -1,7 +1,7 @@
 # Expressions
 
-In order to achieve the piping, we need to delay the execution of python expressions.
-`pipda` turns python expressions, including operators, function calls, getattr, getitem, etc into `Expression` objects. So they can await the data to be piped in and get evaluated.
+To achieve piping, execution of Python expressions must be delayed.
+`pipda` wraps Python expressions — operators, function calls, attribute access, item access, etc. — into `Expression` objects that await data to be piped in before evaluating.
 
 A `Symbolic` object is a root expression that is supposed to be evaluated as the data itself.
 

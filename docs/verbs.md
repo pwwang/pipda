@@ -55,7 +55,7 @@ More about pipeable, see [Piping](./piping).
 
 ## Verbs are dispatchable
 
-Like single-dispatched functions, verbs are dispatchable by the type of its first argument.
+Like `singledispatch` functions, verbs are dispatched by the type of their first argument.
 
 ```python
 from pipda import register_verb
@@ -81,7 +81,7 @@ What if a verb is not registered for a type? It will be dispatched to default ge
 [] >> increment()  # NotImplementedError
 ```
 
-If you want change the default behavior, you can register a generic function by yourself, using a type holder.
+If you want to change the default behavior, you can register a generic function yourself using a type holder.
 
 ```python
 from pipda import register_verb
@@ -136,7 +136,7 @@ def add(data, other):
 
 ## Dependent verbs
 
-Dependent verbs are functions can be used in another verb without passing the data argument. It can also work as a normal verb.
+Dependent verbs are functions that can be used as arguments to another verb without passing the data argument. They can also work as normal verbs.
 
 ```python
 from pipda import register_verb, Context, Symbolic
@@ -153,7 +153,7 @@ def add(data, other):
     """Add other to each element of data"""
     return [d + other for d in data]
 
-# times 2 to each element and add the first element to all elementss
+# times 2 to each element and add the first element to all elements
 # Note that we don't pass the first argument to times
 [1, 2, 3] >> add(times(2)[0])  # [3, 4, 5]
 
@@ -161,6 +161,6 @@ def add(data, other):
 times(2)  # VerbCall object
 times([1, 2, 3], 2)  # VerbCall object
 
-# But when a data piped in, it is evaluated
+# But when data is piped in, it is evaluated
 [1, 2, 3] >> times(2)  # [2, 4, 6]
 ```

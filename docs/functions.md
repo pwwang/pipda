@@ -1,12 +1,12 @@
 # Functions
 
-For functions, we mean that the registered functions, rather than the python plain functions. Function calls are used as verb arguments, but they can be used independently as well, if no expressions is passed to the function.
+"Functions" here refers to functions registered via `register_func`, not plain Python functions. Like verbs, function calls can be used as verb arguments, but they can also be called independently when no `Expression` objects are passed.
 
-Functions share some features with verbs, such as that they could be pipeable and dispatchable as well. But they have a lot of differences as well. The biggest ones are that a function:
+Functions share some features with verbs — they can be pipeable and dispatchable — but differ in key ways:
 
-- doesn't use the type of the first argument only to dispatch
-- doesn't pass the context down
-- doesn't evaluate other arguments using the first one (unless specified) but the data passed to the call from a verb, unless a data is piped in.
+- They dispatch on argument types other than just the first argument.
+- They do not pass context down to nested calls.
+- They do not evaluate arguments against the first argument (unless `pipeable=True` and data is piped in).
 
 ## Register a function
 

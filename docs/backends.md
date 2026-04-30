@@ -1,6 +1,6 @@
 # Backends
 
-Verbs and registered functions can be implemented for different backends. The dispatching is generally distinguishing different implementations. However, sometimes we want to use different implementations for the same type. In this case, we can use the `backend` argument to register the function for a specific backend.
+Verbs and registered functions can have different implementations for different backends. Normally, dispatching distinguishes implementations by type. However, when multiple implementations are needed for the same type, you can use the `backend` argument to register a function for a specific backend.
 
 For example, we want to implement a function `rep` for different backends.
 
@@ -20,14 +20,14 @@ def _(x, y):
     import numpy as np
     return np.repeat(x, y)
 
-# Later registered backend has higher priority
-# But a warning will be shown since we have two implementations for int
+# Later-registered backend has higher priority.
+# A warning is shown since two implementations exist for int.
 rep(1, 3)  # np.array([1, 1, 1])
 # Use __backend argument to specify the backend
 rep(1, 3, __backend="python")  # [1, 1, 1]
 ```
 
-To eliminate the warning, we can also use the favored implementation for a backend:
+To suppress the warning, mark one implementation as favored:
 
 ```python
 from pipda import register_func
