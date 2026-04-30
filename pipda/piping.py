@@ -128,44 +128,6 @@ def _unpatch_all(op: str) -> None:
         _unpatch_cls_operator(kls, op)
 
 
-def _patch_default_classes() -> None:
-    """Patch the default/commonly used classes"""
-
-    try:
-        import pandas  # type: ignore
-        patch_classes(
-            pandas.DataFrame,
-            pandas.Series,
-            pandas.Index,
-            pandas.Categorical,
-        )
-    except ImportError:
-        pass
-
-    try:  # pragma: no cover
-        from modin import pandas  # pyright: ignore
-        patch_classes(
-            pandas.DataFrame,
-            pandas.Series,
-            pandas.Index,
-            pandas.Categorical,
-        )
-    except ImportError:
-        pass
-
-    try:  # pragma: no cover
-        import torch  # pyright: ignore
-        patch_classes(torch.Tensor)
-    except ImportError:
-        pass
-
-    try:  # pragma: no cover
-        from django.db.models import query  # pyright: ignore
-        patch_classes(query.QuerySet)
-    except ImportError:
-        pass
-
-
 def register_piping(op: str) -> None:
     """Register the piping operator for verbs
 
@@ -192,3 +154,55 @@ def register_piping(op: str) -> None:
     setattr(VerbCall, PIPING_OPS[op][0], VerbCall._pipda_eval)
 
     _patch_all(op)
+
+
+def patch_pandas() -> None:
+    """Patch pandas to work with pipda piping"""
+    try:
+        import pandas  # type: ignore
+        patch_classes(
+            pandas.DataFrame,
+            pandas.Series,
+            pandas.Index,
+            pandas.Categorical,
+        )
+    except ImportError:
+        pass
+
+    try:  # pragma: no cover
+        from modin import pandas  # pyright: ignore
+        patch_classes(
+            pandas.DataFrame,
+            pandas.Series,
+            pandas.Index,
+            pandas.Categorical,
+        )
+    except ImportError:
+        pass
+
+
+def patch_torch() -> None:
+    """Patch torch to work with pipda piping"""
+    try:  # pragma: no cover
+        import torch  # pyright: ignore
+        patch_classes(torch.Tensor)
+    except ImportError:
+        pass
+
+
+def patch_django() -> None:
+    """Patch django to work with pipda piping"""
+    try:  # pragma: no cover
+        from django.db.models import query  # pyright: ignore
+        patch_classes(query.QuerySet)
+    except ImportError:
+        pass
+
+
+def patch_polars() -> None:
+    """Patch polars to work with pipda piping"""
+    try:  # pragma: no cover
+        import polars  # pyright: ignore
+        patch_classes(polars.DataFrame, polars.Series)
+    except ImportError:
+        pass
